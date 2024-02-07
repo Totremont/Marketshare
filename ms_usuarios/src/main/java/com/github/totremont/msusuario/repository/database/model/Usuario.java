@@ -4,42 +4,66 @@
  */
 package com.github.totremont.msusuario.repository.database.model;
 
+import com.github.totremont.msusuario.repository.database.enums.UsuarioType;
+import com.github.totremont.msusuario.repository.database.utils.UsuarioUtils;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import java.io.Serializable;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  *
  * @author ezequ
  */
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames={"user_name", "password"})})
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames={"name", "password"})})
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn (name="user_type", discriminatorType = DiscriminatorType.STRING)
 @DiscriminatorValue("abstract")
+@Getter @Setter
 public abstract class Usuario implements Serializable {
     
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
     
-    @Column(nullable = false, name ="user_name")
-    protected String userName;
+    @Column(nullable = false)
+    protected String name;
     
     @Column(nullable = false)
     protected String password;
     
     @Column(nullable = false)
     protected String email;
+    
+    @Transient
+    public UsuarioType getType() 
+    {
+        String rawType = this.getClass().getAnnotation(DiscriminatorValue.class).value();
+        return UsuarioUtils.getTypeName(rawType);
+    }
+
+    protected Usuario(String name, String password, String email) {
+        this.name = name;
+        this.password = password;
+        this.email = email;
+    }
+    
+    protected Usuario(){};
+    
+    
     
     
 }

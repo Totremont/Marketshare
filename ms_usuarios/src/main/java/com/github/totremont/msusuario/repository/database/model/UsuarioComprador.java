@@ -4,10 +4,13 @@
  */
 package com.github.totremont.msusuario.repository.database.model;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  *
@@ -16,14 +19,22 @@ import jakarta.persistence.ManyToOne;
 
 //Un usuario que representa una empresa compradora
 @Entity
-@DiscriminatorValue("buyer")
+@DiscriminatorValue("COMPRADOR")
+@Getter @Setter @NoArgsConstructor
 public class UsuarioComprador extends Usuario 
 {
-    @Column(nullable = false)
-    @ManyToOne
-    private Empresa organization;
     
-    private UsuarioComprador(){}
+    @ManyToOne
+    @JoinColumn(name = "org_id")
+    private Empresa organization;   
+
+    public UsuarioComprador(Empresa organization, String userName, String password, String email) {
+        super(userName, password, email);
+        this.organization = organization;
+    }
+
+    
+    
     
     
 }

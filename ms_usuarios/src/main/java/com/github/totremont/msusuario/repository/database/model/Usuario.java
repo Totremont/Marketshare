@@ -16,6 +16,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
@@ -48,6 +50,10 @@ public abstract class Usuario implements Serializable {
     @Column(nullable = false)
     protected String email;
     
+    @ManyToOne
+    @JoinColumn(name = "country_id",nullable = false)
+    protected Pais country;
+    
     @Transient
     public UsuarioType getType() 
     {
@@ -55,10 +61,11 @@ public abstract class Usuario implements Serializable {
         return UsuarioUtils.getTypeName(rawType);
     }
 
-    protected Usuario(String name, String password, String email) {
+    protected Usuario(String name, String password, String email, Pais country) {
         this.name = name;
         this.password = password;
         this.email = email;
+        this.country = country;
     }
     
     protected Usuario(){};

@@ -5,7 +5,9 @@
 package com.github.totremont.msusuario.service;
 
 import com.github.totremont.msusuario.repository.UsuarioRepository;
+import com.github.totremont.msusuario.repository.database.model.Banco;
 import com.github.totremont.msusuario.repository.database.model.Empresa;
+import com.github.totremont.msusuario.repository.database.model.Pais;
 import com.github.totremont.msusuario.repository.database.model.Usuario;
 import com.github.totremont.msusuario.repository.database.model.UsuarioComprador;
 import com.github.totremont.msusuario.repository.database.model.UsuarioVendedor;
@@ -21,11 +23,16 @@ public class UsuarioService {
     
     private final UsuarioRepository repo;
     private final EmpresaService empresaService;
+    private final BancoService bancoService;
+    private final PaisService paisService;
 
-    public UsuarioService(UsuarioRepository userRepo, EmpresaService empresaService) {
+    public UsuarioService(UsuarioRepository repo, EmpresaService empresaService, BancoService bancoService, PaisService paisService) {
+        this.repo = repo;
         this.empresaService = empresaService;
-        this.repo = userRepo;
+        this.bancoService = bancoService;
+        this.paisService = paisService;
     }
+
     
     public Optional<Usuario> findByNameAndPassword(String name, String password)
     {
@@ -35,17 +42,26 @@ public class UsuarioService {
     
     
     //Save para comprador
-    public Optional<UsuarioComprador> save(String name, String password, String email, String organization)
+    public Optional<UsuarioComprador> save(String name, String password, String email, String country, String organization, String bank, Float money)
     {
         Empresa empresa;
+        Banco banco;
+        Pais pais;
         UsuarioComprador user;
         
-        Optional<Empresa> query = empresaService.findByName(organization);
+        Optional<Empresa> empresaQuery = empresaService.findByName(organization);
+        Optional<Banco> bancoQuery = bancoService.findByName(bank);
+        Optional<Pais> paisQuery = paisService.findByName(country); //DEBE ESTAR CARGADO
         
-        if(query.isEmpty()) empresa = empresaService.save(organization);
-        else empresa = query.get();
+        if(empresaQuery.isEmpty()) empresa = empresaService.save(organization);
+        else empresa = empresaQuery.get();
         
-        user = new UsuarioComprador(empresa, name,password,email);
+        if(bancoQuery.isEmpty()) banco = bancoService.save(bank);
+        else banco = bancoQuery.get();
+        
+        pais = paisQuery.get();
+
+        user = new UsuarioComprador(empresa, banco, money, name, password, email, pais);
         
         user = repo.save(user);
         
@@ -55,9 +71,19 @@ public class UsuarioService {
     }
     
     //Save para vendedor
-    public Optional<UsuarioVendedor> save(String name, String password, String email)
+    public Optional<UsuarioVendedor> save(String name, String password, String email, String country, String organization)
     {      
-        UsuarioVendedor user = new UsuarioVendedor(name,password,email);      
+        Pais pais;
+        Empresa empresa;
+        
+        Optional<Pais> paisQuery = paisService.findByName(country);
+        Optional<Empresa> empresaQuery = empresaService.findByName(organization);
+        if(empresaQuery.isEmpty()) empresa = empresaService.save(organization);
+        else empresa = empresaQuery.get();
+        
+        pais = paisQuery.get();
+        
+        UsuarioVendedor user = new UsuarioVendedor(name,password,email,pais,empresa);      
         user = repo.save(user);
         
         return Optional.ofNullable(user);

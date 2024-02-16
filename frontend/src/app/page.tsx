@@ -1,14 +1,17 @@
 'use client'
-import Image from "next/image";
-import {FormEvent, useState} from "react"
+import {useState, useRef} from "react"
 import {redirect} from 'next/navigation'
+import { NotificationType,NotificationComponent, NotificationProps } from "./private/components/notification";
+import Logo from "./private/components/logo";
 
 //Pestaña principal de inicio de sesión
 
 export default function Login() 
 {
-  let [user, setUser] = useState("")
-  let [pass, setPass] = useState("")
+  let [user, setUser] = useState("");
+  let [pass, setPass] = useState("");
+  let [show,setShow] = useState(false);
+  let props = useRef(setIncompleteFieldsProps());
 
   let onChange = function(event : React.SyntheticEvent)
   {
@@ -28,23 +31,48 @@ export default function Login()
   {
     event.preventDefault()  //Necesario en formularios que usan un input type="submit"
 
-    alert(`Has iniciado sesión con usuario: ${user} y contraseña: ${pass}`)
-
     if(user && pass)  //Si no son null, undefined, empty string, false, etc | [Falsy]
     {
-      //validateLogin(user,pass).then()
-      redirect("/home")
+      let req_promise = request(user,pass);
+      req_promise.then(response => 
+      {
+        switch(response.status)
+        {
+          case 200:
+            alert("Todo salió OK");
+            break;
+          case 404:
+            setNotFoundProps();
+            showNotification;
+            break;
+          default:
+            setDisconnectedProps();
+            showNotification;
+            break;
+        }
+      })
+      req_promise.catch(e =>
+      {
+        setDisconnectedProps();
+          showNotification;
+      } )
+  
+    }
+    else  //Completar campos
+    {
+      props.current = setIncompleteFieldsProps();
+      showNotification();
     }
 
   }
 
   return (
-  <main className="bg-gray-900 h-screen w-screen flex items-center">
+  <main className="bg-gray-900 h-full w-full flex items-center">
   <div className="w-fit h-fit text-slate-200 my-6 mx-auto min-w-[300px]">
     <header className="mx-auto text-center py-4">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Tailwind_CSS_Logo.svg/512px-Tailwind_CSS_Logo.svg.png?20230715030042" className="w-10 mx-auto" />
-      <h1 className="font-bold mt-2">Bienvenido a Marketshared</h1>
-      <h2 className="text-slate-400">Ingresa con tu cuenta</h2>
+      <Logo/>
+      <h1 className="font-semibold text-lg mt-2">Bienvenido</h1>
+      <h2 className="text-slate-400">Ingresá con tu cuenta</h2>
     </header>
 
     <form onSubmit={onSubmit} className="bg-gray-900 w-fit mx-auto rounded-lg p-3">
@@ -68,21 +96,52 @@ export default function Login()
 
     <section className="text-sm text-center mt-4">
       <h1 className="text-slate-400">¿No sos miembro?<a className="font-semibold 
-          text-teal-400 hover:text-teal-300 my-1 block" href="#">Crea una nueva cuenta</a>¡Es gratis!</h1>
+          text-teal-400 hover:text-teal-300 my-1 block" href="/register">Crea una nueva cuenta</a>¡Es gratis!</h1>
       <div className="m-4 border-t border-slate-600 p-2">
-        <h1 className="font-semibold">Marketshared es la red de ventas B2B más usada del mundo</h1>
+        <h1 className="font-semibold">Marketshare es la red de ventas B2B más usada del mundo</h1>
         <p className="text-slate-400">Descubre miles de productos y negocia con las empresas más importantes del mundo</p>
       </div>
     </section>
   </div>
+    {show ? <NotificationComponent title={props.current.title} 
+    body={props.current.body} type={props.current.type} options={props.current.options}/> : null}
   </main>
 
   );
 
-  async function validateLogin(user : String, pass : String)
+  async function request(user : String, pass : String)
   {
-      let result = await fetch("localhost/3000/api...")
-      return result.ok
+      let result = await fetch('http://localhost:8080/internal/user',
+      { method : 'GET',
+        mode : 'cors'}
+      )
+      return result
+  }
+
+  function showNotification(time : number = NotificationType.NORMAL_TIME)
+  {
+      setShow(true);
+      setTimeout(() => setShow(false),time)
   }
 
 }
+
+  function setDisconnectedProps()
+  {
+    return new NotificationProps(NotificationType.ERROR,"Ocurrió un error",
+    "Ocurrió un problema al conectarse con el servidor",[]);
+  }
+
+  function setNotFoundProps()
+  {
+    return new NotificationProps(NotificationType.INFORMATIVE,"Error al iniciar sesión",
+    "No se encontró ninguna cuenta con esos valores",[]);
+  }
+
+  function setIncompleteFieldsProps()
+  {
+    return new NotificationProps(NotificationType.ERROR,"Campos incompletos",
+    "Complete todos los campos antes de continuar",[]);
+  }
+
+

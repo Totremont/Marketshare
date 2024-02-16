@@ -26,12 +26,24 @@ public class UsuarioComprador extends Usuario
     
     @ManyToOne
     @JoinColumn(name = "org_id")
-    private Empresa organization;   
+    private Empresa organization; 
+    
+    @ManyToOne
+    @JoinColumn(name = "bank_id")
+    private Banco bank;
+    
+    private Float money;
 
-    public UsuarioComprador(Empresa organization, String userName, String password, String email) {
-        super(userName, password, email);
+    public UsuarioComprador(Empresa organization, Banco bank, Float money, String name, String password, String email, Pais country) {
+        super(name, password, email, country);
         this.organization = organization;
+        this.bank = bank;
+        this.money = money;
     }
+
+    
+
+    
 
     
     

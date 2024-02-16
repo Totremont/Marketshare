@@ -14,6 +14,7 @@ import com.github.totremont.msusuario.service.UsuarioService;
 import java.util.Optional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author ezequ
  */
 @RestController
+@CrossOrigin()
 @RequestMapping("/internal/user")
 public class UsuarioController 
 {
@@ -37,7 +39,7 @@ public class UsuarioController
     
     
     @GetMapping()
-    public ResponseEntity<UsuarioDTO> validateUser(@Validated @RequestBody UsuarioDTO userDTO)
+    public ResponseEntity<UsuarioDTO> findByNameAndPassword(@Validated @RequestBody UsuarioDTO userDTO)
     {
         Optional<Usuario> user = service.findByNameAndPassword(userDTO.getName(),userDTO.getPassword());
         if(user.isPresent())
@@ -46,7 +48,7 @@ public class UsuarioController
     }
     
     @PostMapping()
-    public ResponseEntity<UsuarioDTO> saveUser(@Validated @RequestBody UsuarioDTO userDTO)
+    public ResponseEntity<UsuarioDTO> save(@Validated @RequestBody UsuarioDTO userDTO)
     {
         UsuarioType type = UsuarioUtils.getTypeName(userDTO.getType());
         UsuarioDTO newUser;
@@ -55,15 +57,17 @@ public class UsuarioController
             case COMPRADOR:
             {
                 Optional<UsuarioComprador> aux = 
-                        service.save(userDTO.getName(), userDTO.getPassword(),userDTO.getEmail(),
-                                userDTO.getOrganization().getName());
+                        service.save(
+                                userDTO.getName(), userDTO.getPassword(),userDTO.getEmail(),userDTO.getCountry().getName(),
+                                userDTO.getOrganization().getName(),userDTO.getBank().getName(),userDTO.getMoney());
                 newUser = UsuarioDTO.from(aux.get());
                 break;
             }
             case VENDEDOR:
             {
                 Optional<UsuarioVendedor> aux = 
-                        service.save(userDTO.getName(), userDTO.getPassword(),userDTO.getEmail());
+                        service.save(userDTO.getName(), userDTO.getPassword(),userDTO.getEmail(),userDTO.getCountry().getName(),
+                                userDTO.getOrganization().getName());
                 newUser = UsuarioDTO.from(aux.get());
                 break;
             }

@@ -20,9 +20,9 @@ model Producto {
   category          Categoria   @relation(fields: [category_id], references: [id])
   category_id       Int
   state             Estado      @default(NUEVO)
-  //Faltan imágenes acá
-  colors            Colores[]
-  price             BigInt
+  //Imagenes
+  colors            Colores[]   //No funcionan los arrays de enums
+  price             Int
   stock             Int
   features_text     String
   features_rows     String[]

@@ -1,6 +1,7 @@
-import { Estado,Colores, PrismaClient } from "@prisma/client";
+import {PrismaClient } from "@prisma/client";
+import ProductoMapper from "../mappers/ProductoMapper"
 
-class ProductoService
+export default class ProductoService
 {
     repo : PrismaClient
 
@@ -11,8 +12,8 @@ class ProductoService
 
     async save(product : {
         ownerId : number,name : string, 
-        description : string, category : string, state : Estado,
-        colors : Colores[], price : number, stock : number, featuresText : string,featuresRows : string[],
+        description : string, category : string, state : string,
+        colors : string[], price : number, stock : number, featuresText : string,featuresRows : string[],
         specialFeatures : string[] } )
     {
         return await this.repo.producto.create(
@@ -43,8 +44,8 @@ class ProductoService
                        }
                     }
                 },
-                state: product.state,
-                colors: product.colors,
+                state: ProductoMapper.toState(product.state),
+                colors: ProductoMapper.toColorArray(product.colors),
                 price : product.price,
                 stock : product.stock,
                 features_text : product.featuresText,
@@ -86,6 +87,40 @@ class ProductoService
                     owner:true
                 }
             })
+    }
+
+    async update(productId : number, product : {
+        name : string, 
+        description : string, category : string, state : string,
+        colors : string[], price : number, stock : number, featuresText : string,featuresRows : string[],
+        specialFeatures : string[] })
+    {
+        return await this.repo.producto.update({
+            where: { id : productId},
+            data:
+            {
+                name: product.name,
+                description: product.description,
+                category:
+                {
+                    connectOrCreate:
+                    {
+                       where:{name: product.category},
+                       create:
+                       {
+                            name:product.category
+                       }
+                    }
+                },
+                state: ProductoMapper.toState(product.state),
+                colors: ProductoMapper.toColorArray(product.colors),
+                price : product.price,
+                stock : product.stock,
+                features_text : product.featuresText,
+                features_rows: product.featuresRows,
+                features_special: product.specialFeatures, 
+            }
+        })
     }
 
     

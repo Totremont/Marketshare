@@ -12,10 +12,10 @@ CREATE TABLE "Producto" (
     "description" TEXT NOT NULL,
     "category_id" INTEGER NOT NULL,
     "state" "Estado" NOT NULL DEFAULT 'NUEVO',
-    "colors" "Colores" NOT NULL,
+    "colors" "Colores"[],
     "price" BIGINT NOT NULL,
     "stock" INTEGER NOT NULL,
-    "features_text" TEXT,
+    "features_text" TEXT NOT NULL,
     "features_rows" TEXT[],
     "features_special" TEXT[],
     "published" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -26,8 +26,7 @@ CREATE TABLE "Producto" (
 
 -- CreateTable
 CREATE TABLE "Proveedor" (
-    "id" SERIAL NOT NULL,
-    "external_id" INTEGER NOT NULL,
+    "id" INTEGER NOT NULL,
 
     CONSTRAINT "Proveedor_pkey" PRIMARY KEY ("id")
 );
@@ -41,7 +40,7 @@ CREATE TABLE "Categoria" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Proveedor_external_id_key" ON "Proveedor"("external_id");
+CREATE UNIQUE INDEX "Categoria_name_key" ON "Categoria"("name");
 
 -- AddForeignKey
 ALTER TABLE "Producto" ADD CONSTRAINT "Producto_owner_id_fkey" FOREIGN KEY ("owner_id") REFERENCES "Proveedor"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

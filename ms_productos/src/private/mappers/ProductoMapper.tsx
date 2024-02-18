@@ -1,7 +1,7 @@
 import { Estado,Colores } from "@prisma/client";
 
 //Cuasi DTOs
-class ProductoMapper
+export default class ProductoMapper
 {
     static toState(state : string) : Estado
     {

@@ -4,19 +4,32 @@
  */
 package com.github.totremont.msusuario.repository.database.model;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  *
  * @author ezequ
  */
 @Entity
-@DiscriminatorValue("seller")
-public class UsuarioVendedor 
+@DiscriminatorValue("VENDEDOR")
+@Getter @Setter @NoArgsConstructor
+public class UsuarioVendedor extends Usuario
 {
-    @Column(nullable = true)
+    @ManyToOne
+    @JoinColumn(name = "org_id")
     private Empresa organization;
+    
+    public UsuarioVendedor(String userName, String password, String email, Pais country, Empresa organization) {
+        super(userName, password, email,country);
+        this.organization = organization;
+    }
+    
+    
     
 }

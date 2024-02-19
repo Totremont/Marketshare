@@ -4,10 +4,13 @@
  */
 package com.github.totremont.msusuario.repository.database.model;
 
+import io.micrometer.common.lang.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.io.Serializable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,20 +19,25 @@ import lombok.Setter;
  *
  * @author ezequ
  */
-@Entity
 @Getter @Setter @NoArgsConstructor
-public class Empresa {
+@Entity
+public class Pais implements Serializable {
     
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
     
-    @Column(nullable = false)
-    protected String name; 
+    @Column(nullable = false, unique = true)
+    protected String code;
+    
+    @Column(nullable = false, unique = true)
+    protected String name;
 
-    public Empresa(String name) {
+    public Pais(String code, String name) {
+        this.code = code;
         this.name = name;
     }
+    
     
     
     

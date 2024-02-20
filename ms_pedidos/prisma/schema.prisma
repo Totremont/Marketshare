@@ -16,7 +16,7 @@ model Pedido {
   id             String                @id @default(auto()) @map("_id") @db.ObjectId
   amount         Int
   client_id      Int
-  created        DateTime
+  created        DateTime              @default(now())
   discount       Int
   price          Float
   product_id     Int

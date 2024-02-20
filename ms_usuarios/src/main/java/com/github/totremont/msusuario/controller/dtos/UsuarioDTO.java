@@ -38,6 +38,10 @@ public class UsuarioDTO {
         
     }
     
+    //Subset de atributos que pueden actualizarse
+    //Nombre, email, password, banco, money, country
+    
+    
     //CompradorDTO
 
     public UsuarioDTO(Long id, String name, String password, String type, String email, EmpresaDTO organization, BancoDTO bank, PaisDTO country, Float money) {

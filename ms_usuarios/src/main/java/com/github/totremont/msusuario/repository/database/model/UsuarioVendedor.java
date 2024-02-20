@@ -29,6 +29,15 @@ public class UsuarioVendedor extends Usuario
         super(userName, password, email,country);
         this.organization = organization;
     }
+
+    public UsuarioVendedor(Empresa organization, Long id, String name, String password, String email, Pais country) {
+        super(id, name, password, email, country);
+        this.organization = organization;
+    }
+    
+    
+    
+    
     
     
     

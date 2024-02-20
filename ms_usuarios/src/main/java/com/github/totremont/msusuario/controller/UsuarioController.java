@@ -16,7 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,6 +44,15 @@ public class UsuarioController
     public ResponseEntity<UsuarioDTO> findByNameAndPassword(@Validated @RequestBody UsuarioDTO userDTO)
     {
         Optional<Usuario> user = service.findByNameAndPassword(userDTO.getName(),userDTO.getPassword());
+        if(user.isPresent())
+            return ResponseEntity.ok().body(UsuarioDTO.from(user.get()));
+        else return ResponseEntity.notFound().build();
+    }
+    
+    @GetMapping("/{id}") //internal/user/{id}
+    public ResponseEntity<UsuarioDTO> findById(@Validated @PathVariable Long id)
+    {
+        Optional<Usuario> user = service.findById(id);
         if(user.isPresent())
             return ResponseEntity.ok().body(UsuarioDTO.from(user.get()));
         else return ResponseEntity.notFound().build();
@@ -76,5 +87,37 @@ public class UsuarioController
         }
         return ResponseEntity.ok().body(newUser);
     }
+    
+    @PutMapping
+    public ResponseEntity<UsuarioDTO> update(@Validated @RequestBody UsuarioDTO userDTO)
+    {
+        UsuarioType type = UsuarioUtils.getTypeName(userDTO.getType());
+        UsuarioDTO newUser;
+        switch(type)
+        {
+            case COMPRADOR:
+            {
+                Usuario aux = 
+                        service.update(userDTO.getId(),
+                                userDTO.getName(), userDTO.getPassword(),userDTO.getEmail(),userDTO.getCountry().getName(),
+                                userDTO.getOrganization().getName(),userDTO.getBank().getName(),userDTO.getMoney());
+                newUser = UsuarioDTO.from(aux);
+                break;
+            }
+            case VENDEDOR:
+            {
+                Usuario aux = 
+                        service.update(userDTO.getId(), 
+                                userDTO.getName(), userDTO.getPassword(),userDTO.getEmail(),userDTO.getCountry().getName(),
+                                userDTO.getOrganization().getName());
+                newUser = UsuarioDTO.from(aux);
+                break;
+            }
+            default:
+                return ResponseEntity.badRequest().build();            
+        }
+        return ResponseEntity.ok().body(newUser);
+    }
+    
     
 }

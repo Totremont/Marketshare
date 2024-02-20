@@ -41,6 +41,15 @@ public class UsuarioComprador extends Usuario
         this.money = money;
     }
 
+    public UsuarioComprador(Empresa organization, Banco bank, Float money, Long id, String name, String password, String email, Pais country) {
+        super(id, name, password, email, country);
+        this.organization = organization;
+        this.bank = bank;
+        this.money = money;
+    }
+    
+    
+
     
 
     

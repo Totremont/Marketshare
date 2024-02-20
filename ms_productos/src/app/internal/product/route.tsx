@@ -7,7 +7,6 @@ const prisma = new PrismaClient()
 const service = new ProductoService(prisma);
 
 //localhost/internal/product?owner_id=xxx
-//localhost/internal/product/update?owner_id=xxx
 export async function GET(request: Request) 
 {
     const { searchParams } = new URL(request.url)

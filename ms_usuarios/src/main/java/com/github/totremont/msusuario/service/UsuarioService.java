@@ -13,6 +13,7 @@ import com.github.totremont.msusuario.repository.database.model.UsuarioComprador
 import com.github.totremont.msusuario.repository.database.model.UsuarioVendedor;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -38,6 +39,11 @@ public class UsuarioService {
     {
         return repo.findOptionalByNameAndPassword(name,password);
         
+    }
+    
+    public Optional<Usuario> findById(Long id)
+    {
+        return repo.findById(id);
     }
     
     
@@ -88,7 +94,46 @@ public class UsuarioService {
         
         return Optional.ofNullable(user);
         
+    }
+    
+    //Update para vendedor
+    public Usuario update(Long id, String name, String password, String email, String country, String organization)   //Todo
+    {
+        Pais pais;
+        Empresa empresa;
+        Optional<Pais> paisQuery = paisService.findByName(country);
+        Optional<Empresa> empresaQuery = empresaService.findByName(organization);
         
+        pais = paisQuery.get();
+        empresa = empresaQuery.get();
+        
+        UsuarioVendedor user = new UsuarioVendedor(empresa,id,name,password,email,pais); 
+        return repo.update(user);
+    }
+    
+    //Update para comprador
+    public Usuario update(Long id, String name, String password, 
+            String email, String country, String organization, String bank, Float money)
+    {
+        Empresa empresa;
+        Banco banco;
+        Pais pais;
+        UsuarioComprador user;
+        
+        Optional<Empresa> empresaQuery = empresaService.findByName(organization);
+        Optional<Banco> bancoQuery = bancoService.findByName(bank);
+        Optional<Pais> paisQuery = paisService.findByName(country); //DEBE ESTAR CARGADO
+        
+        empresa = empresaQuery.get();
+        
+        if(bancoQuery.isEmpty()) banco = bancoService.save(bank);
+        else banco = bancoQuery.get();
+        
+        pais = paisQuery.get();
+
+        user = new UsuarioComprador(empresa,banco, money, id,name, password, email, pais);
+        
+        return repo.update(user);
     }
     
    

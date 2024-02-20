@@ -89,14 +89,15 @@ export default class ProductoService
             })
     }
 
-    async update(productId : number, product : {
-        name : string, 
-        description : string, category : string, state : string,
+    async update(product : {
+        id : number,
+        ownerId : number,name : string, 
+        description : string, category : {name : string}, state : string,
         colors : string[], price : number, stock : number, featuresText : string,featuresRows : string[],
         specialFeatures : string[] })
     {
         return await this.repo.producto.update({
-            where: { id : productId},
+            where: { id : product.id},
             data:
             {
                 name: product.name,
@@ -105,10 +106,10 @@ export default class ProductoService
                 {
                     connectOrCreate:
                     {
-                       where:{name: product.category},
+                       where:{name: product.category.name},
                        create:
                        {
-                            name:product.category
+                            name:product.category.name
                        }
                     }
                 },

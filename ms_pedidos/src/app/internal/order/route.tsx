@@ -1,5 +1,5 @@
 import RequestStatus from "@/private/mappers/RequestStatus";
-import { findAllFromClient, findAllFromSeller, save } from "@/private/services/PedidoService"
+import { findAllPedidoFromClient, findAllPedidoFromSeller, savePedido } from "@/private/services/PedidoService"
 
 
 //localhost/internal/order?client_id=xxx
@@ -10,7 +10,7 @@ export async function GET(request: Request)
     const clientId = searchParams.get('client_id')
     if(sellerId)
     {
-        return (findAllFromSeller(Number(sellerId))).then(
+        return (findAllPedidoFromSeller(Number(sellerId))).then(
             (response) => 
             {
                 return response.length > 0 ? Response.json(response) : new Response('', {
@@ -21,7 +21,7 @@ export async function GET(request: Request)
     } 
     if(clientId)
     {
-        return (findAllFromClient(Number(clientId))).then(
+        return (findAllPedidoFromClient(Number(clientId))).then(
             (response) => 
             {
                 return response.length > 0 ? Response.json(response) : new Response('', {
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
 
     let product = await request.json()
 
-    return save(product).then(
+    return savePedido(product).then(
         (response) => Response.json(response),
         (error) => {
             console.log(error);

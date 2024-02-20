@@ -12,6 +12,15 @@ type PedidoStatusHistory {
   status String
 }
 
+model Opinion {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  order    Pedido  @relation(fields: [order_id], references: [id])
+  order_id String  @unique @db.ObjectId
+  rating   Int
+  summary  String
+  title    String
+}
+
 model Pedido {
   id             String                @id @default(auto()) @map("_id") @db.ObjectId
   amount         Int
@@ -22,4 +31,5 @@ model Pedido {
   product_id     Int
   seller_id      Int
   status_history PedidoStatusHistory[]
+  review         Opinion?
 }

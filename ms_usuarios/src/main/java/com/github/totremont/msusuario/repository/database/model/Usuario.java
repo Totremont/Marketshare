@@ -67,6 +67,16 @@ public abstract class Usuario implements Serializable {
         this.email = email;
         this.country = country;
     }
+
+    protected Usuario(Long id, String name, String password, String email, Pais country) {
+        this.id = id;
+        this.name = name;
+        this.password = password;
+        this.email = email;
+        this.country = country;
+    }
+    
+    
     
     protected Usuario(){};
     

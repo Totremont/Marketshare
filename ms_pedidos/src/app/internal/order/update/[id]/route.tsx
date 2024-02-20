@@ -1,5 +1,5 @@
 import RequestStatus from "@/private/mappers/RequestStatus"
-import { update } from "@/private/services/PedidoService"
+import { updatePedido } from "@/private/services/PedidoService"
 
 //localhost/internal/order/update/1?status=xxx
 export async function PUT(request: Request, { params }: { params: { id: string } }) 
@@ -9,7 +9,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 
     if(params.id && newStatus)
     {
-        return update(params.id,newStatus).then(
+        return updatePedido(params.id,newStatus).then(
             (response) => Response.json(response),
             (error) => new Response('', {
                 status: RequestStatus.NOT_FOUND

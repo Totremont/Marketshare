@@ -1,12 +1,6 @@
 import Image from "next/image";
-import { sendMessage } from "./private/MessageService";
-import  MessageType  from "./private/MessageType";
 
 export default function Home() {
-
-  sendMessage(MessageType.ACCOUNT_CHANGED,"ezequielmizaguirre@gmail.com").then(
-    response => console.log(`Funcionó con ${response}`),
-    error => console.log(`No anduvo con ${error}`))
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">

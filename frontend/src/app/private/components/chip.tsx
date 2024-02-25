@@ -1,3 +1,5 @@
+import Colors from "../Utils/Colors"
+import SpecialFeature from "../Utils/specialfeatures"
 
 export default function Chip(props : {id : string, title : string, checked : boolean, 
     callback : ((event : React.MouseEvent<HTMLElement>) => void)})
@@ -49,6 +51,44 @@ export function ChipGroup(props :
     )
 
     return view;
+
+}
+
+//No son clickeables, solo resaltan una cualidad de un producto
+export function ChipFeature(props : {feature : number})
+{
+    let color;
+    let icon;
+    let title;
+    switch(props.feature)
+    {
+        case SpecialFeature.ENVIO_GRATIS:
+            color = Colors.GREEN;
+            icon = "/shipping.svg";
+            title = "Envío gratis";
+            break;
+        case SpecialFeature.AHORA_12:
+            color = Colors.GRAY;
+            icon = "/card.svg";
+            title = "Ahora 12";
+            break;
+        case SpecialFeature.GARANTIA:
+            color = Colors.PURPLE;
+            icon = "/shield.svg";
+            title = "Garantía";
+            break;
+        case SpecialFeature.SUSTENTABLE:
+            color = Colors.OLIVE;
+            icon = "/leaf.svg";
+            title = "Sustentable";
+            break;
+        default:
+            return null;
+    }
+    return(
+    <p className={`rounded-lg bg-[${color}] 
+    p-1 px-3 text-sm font-semibold text-slate-200 flex items-center`}>
+    <img className="me-1" src={icon}/>{title}</p>)
 
 }
 

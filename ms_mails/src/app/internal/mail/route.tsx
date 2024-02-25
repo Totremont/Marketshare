@@ -20,7 +20,7 @@ export async function PUT(request: Request)
     if(newStatus)
     {
         const type = toMessageType(newStatus);
-
+you
         switch(type)
         {
             case MessageType.NEW_ACCOUNT:

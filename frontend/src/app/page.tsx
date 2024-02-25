@@ -33,8 +33,8 @@ export default function Login()
 
     if(user && pass)  //Si no son null, undefined, empty string, false, etc | [Falsy]
     {
-      let req_promise = request(user,pass);
-      req_promise.then(response => 
+      let msRequest = request(user,pass);
+      msRequest.then(response => 
       {
         switch(response.status)
         {
@@ -51,7 +51,7 @@ export default function Login()
             break;
         }
       })
-      req_promise.catch(e =>
+      msRequest.catch(e =>
       {
         setDisconnectedProps();
           showNotification;

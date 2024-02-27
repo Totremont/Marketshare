@@ -4,6 +4,8 @@
  */
 package com.github.totremont.msusuario.controller;
 
+import com.github.totremont.msusuario.controller.exceptions.CredentialsNotFoundException;
+import com.github.totremont.msusuario.controller.exceptions.InvalidCredentialsException;
 import com.github.totremont.msusuario.repository.database.exceptions.InvalidUserTypeException;
 import java.io.IOException;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,18 @@ public class GlobalControllerHandler {
   public ResponseEntity<String> invalidUserTypeHandler(InvalidUserTypeException ex) 
   {
       return ResponseEntity.badRequest().body("Invalid user type");
+  }
+  
+  @ExceptionHandler(InvalidCredentialsException.class)
+  public ResponseEntity<String> invalidCredentialsHandler(InvalidCredentialsException ex) 
+  {
+      return ResponseEntity.status(401).build();
+  }
+  
+  @ExceptionHandler(CredentialsNotFoundException.class)
+  public ResponseEntity<String> credentialsNotFoundHandler(CredentialsNotFoundException ex2 ) 
+  {
+      return ResponseEntity.badRequest().body("No token found");
   }
   
   @ExceptionHandler(IllegalArgumentException.class)

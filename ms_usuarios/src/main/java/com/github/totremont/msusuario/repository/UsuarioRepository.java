@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Long>  {
     
-    public Optional<Usuario> findOptionalByNameAndPassword(String userName, String password);
+    public Optional<Usuario> findOptionalByName(String userName);
     
     @Query("SELECT u FROM Usuario u WHERE TYPE(u) = UsuarioVendedor")
     public List<UsuarioVendedor> getAllFromTypeVendedor();

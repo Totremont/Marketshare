@@ -12,6 +12,7 @@ import com.github.totremont.msusuario.repository.database.model.UsuarioVendedor;
 import com.github.totremont.msusuario.repository.database.utils.UsuarioUtils;
 import com.github.totremont.msusuario.service.UsuarioService;
 import java.util.Optional;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -41,16 +43,20 @@ public class UsuarioController
     
     
     @GetMapping()
-    public ResponseEntity<UsuarioDTO> findByNameAndPassword(@Validated @RequestBody UsuarioDTO userDTO)
+    public ResponseEntity<UsuarioDTO> findByUsername(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String token, 
+            @Validated @RequestBody UsuarioDTO userDTO)
     {
-        Optional<Usuario> user = service.findByNameAndPassword(userDTO.getName(),userDTO.getPassword());
+        Optional<Usuario> user = service.findByUsername(userDTO.getName());
         if(user.isPresent())
             return ResponseEntity.ok().body(UsuarioDTO.from(user.get()));
         else return ResponseEntity.notFound().build();
     }
     
     @GetMapping("/{id}") //internal/user/{id}
-    public ResponseEntity<UsuarioDTO> findById(@Validated @PathVariable Long id)
+    public ResponseEntity<UsuarioDTO> findById(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String token,
+            @Validated @PathVariable Long id)
     {
         Optional<Usuario> user = service.findById(id);
         if(user.isPresent())
@@ -59,7 +65,9 @@ public class UsuarioController
     }
     
     @PostMapping()
-    public ResponseEntity<UsuarioDTO> save(@Validated @RequestBody UsuarioDTO userDTO)
+    public ResponseEntity<UsuarioDTO> save(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String token,
+            @Validated @RequestBody UsuarioDTO userDTO)
     {
         UsuarioType type = UsuarioUtils.getTypeName(userDTO.getType());
         UsuarioDTO newUser;
@@ -89,7 +97,9 @@ public class UsuarioController
     }
     
     @PutMapping
-    public ResponseEntity<UsuarioDTO> update(@Validated @RequestBody UsuarioDTO userDTO)
+    public ResponseEntity<UsuarioDTO> update(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String token,
+            @Validated @RequestBody UsuarioDTO userDTO)
     {
         UsuarioType type = UsuarioUtils.getTypeName(userDTO.getType());
         UsuarioDTO newUser;

@@ -41,7 +41,7 @@ public abstract class Usuario implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
     
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     protected String name;
     
     @Column(nullable = false)

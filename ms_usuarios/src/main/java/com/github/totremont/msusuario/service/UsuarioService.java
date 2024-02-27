@@ -35,9 +35,9 @@ public class UsuarioService {
     }
 
     
-    public Optional<Usuario> findByNameAndPassword(String name, String password)
+    public Optional<Usuario> findByUsername(String name)
     {
-        return repo.findOptionalByNameAndPassword(name,password);
+        return repo.findOptionalByName(name);
         
     }
     

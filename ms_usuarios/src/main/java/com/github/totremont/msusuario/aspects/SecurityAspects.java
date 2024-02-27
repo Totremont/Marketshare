@@ -34,7 +34,7 @@ public class SecurityAspects {
     public void validate(JoinPoint jp) 
     {
         String token = null;
-        String trailingText = "Basic ";
+        String trailingText = "Bearer ";
         Object[] args = jp.getArgs();
         for(int i = 0; i < args.length; i++)
         {

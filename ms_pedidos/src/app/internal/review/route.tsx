@@ -1,4 +1,5 @@
 import RequestStatus from "@/private/mappers/RequestStatus";
+import validate from "@/private/securityaspect";
 import { findAllOpinionFromProduct, findAllOpinionFromSeller, saveOpinion } from "@/private/services/OpinionService";
 
 
@@ -6,6 +7,10 @@ import { findAllOpinionFromProduct, findAllOpinionFromSeller, saveOpinion } from
 //localhost/internal/review
 export async function POST(request: Request) 
 {
+    //Si devolvió una respuesta es porque no tenia permisos
+    let authorized = await validate(request.headers.get("Authorization"))
+    if(authorized instanceof Response) return authorized;
+    
     let review = await request.json()
 
     return saveOpinion(review).then(
@@ -22,7 +27,9 @@ export async function POST(request: Request)
 //localhost/internal/review?product_id=xxx
 export async function GET(request: Request) 
 {
-    let review = await request.json()
+    //Si devolvió una respuesta es porque no tenia permisos
+    let authorized = await validate(request.headers.get("Authorization"))
+    if(authorized instanceof Response) return authorized;
 
     const { searchParams } = new URL(request.url)
     const sellerId = searchParams.get('seller_id')

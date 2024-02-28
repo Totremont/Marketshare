@@ -1,6 +1,7 @@
 import ProductoService from '@/private/services/ProductoService';
 import RequestStatus from '@/private/mappers/RequestStatus';
 import { PrismaClient } from '@prisma/client'
+import validate from '@/private/securityaspect';
 
 const prisma = new PrismaClient()
 
@@ -30,6 +31,10 @@ export async function GET(request: Request)
 //localhost/internal/product | Json body
 
 export async function POST(request: Request) {
+
+    //Si devolvió una respuesta es porque no tenia permisos
+    let authorized = await validate(request.headers.get("Authorization"))
+    if(authorized instanceof Response) return authorized;
 
     let product = await request.json()
 

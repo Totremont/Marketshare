@@ -1,9 +1,14 @@
 import RequestStatus from "@/private/mappers/RequestStatus"
+import validate from "@/private/securityaspect";
 import { findOpinionByOrder } from "@/private/services/OpinionService"
 
 //localhost/internal/review
 export async function GET(request: Request, { params }: { params: { id: string } }) 
 {
+    //Si devolvió una respuesta es porque no tenia permisos
+    let authorized = await validate(request.headers.get("Authorization"))
+    if(authorized instanceof Response) return authorized;
+    
     if(params.id)
     {
         return findOpinionByOrder(params.id).then(

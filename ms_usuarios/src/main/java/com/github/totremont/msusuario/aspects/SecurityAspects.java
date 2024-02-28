@@ -4,6 +4,7 @@
  */
 package com.github.totremont.msusuario.aspects;
 
+import com.github.totremont.msusuario.controller.UsuarioController;
 import com.github.totremont.msusuario.controller.dtos.TokenDTO;
 import com.github.totremont.msusuario.controller.exceptions.CredentialsNotFoundException;
 import com.github.totremont.msusuario.controller.exceptions.InvalidCredentialsException;
@@ -35,6 +36,7 @@ public class SecurityAspects {
     {
         String token = null;
         String trailingText = "Bearer ";
+        String clientText = "Basic ";   //Los clientes (microservicios) pueden consultar la lista de usuarios solo con sus credenciales    
         Object[] args = jp.getArgs();
         for(int i = 0; i < args.length; i++)
         {
@@ -42,13 +44,22 @@ public class SecurityAspects {
             if(arg instanceof String)
             {
                 token = arg.toString();
-                token = token.substring(trailingText.length());
             }
         }
         if(token != null)
         {
-            TokenDTO result = request(token).block();
-            if(result == null || !result.getActive()) throw new InvalidCredentialsException();
+            if(jp.getSignature().getName().equals("findByUsername"))
+            {
+                token = token.substring(clientText.length());
+                //Credenciales de cliente en base64
+                if(!token.equals("cHJ1ZWJhOmRhbg==")) throw new InvalidCredentialsException();
+            }
+            else
+            {
+                token = token.substring(trailingText.length());
+                TokenDTO result = request(token).block();
+                if(result == null || !result.getActive()) throw new InvalidCredentialsException();
+            }
         } else throw new CredentialsNotFoundException();
     }
     

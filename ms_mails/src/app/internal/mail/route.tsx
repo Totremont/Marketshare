@@ -1,10 +1,15 @@
 import { sendGreetings, sendOrderDelivered, sendOrderCanceled, sendOrderCreated, sendAccountChanged } from "@/app/private/MessageService";
 import MessageType, { toMessageType } from "@/app/private/MessageType"
 import RequestStatus from "@/app/private/RequestStatus";
+import validate from "@/app/private/securityaspect";
 
 //localhost/internal/mail?type=xxx || json
 export async function PUT(request: Request) 
 {
+    //Si devolvió una respuesta es porque no tenia permisos
+    let authorized = await validate(request.headers.get("Authorization"))
+    if(authorized instanceof Response) return authorized;
+    
     const { searchParams } = new URL(request.url)
     const newStatus = searchParams.get('type')
     const args = await request.json();
@@ -20,7 +25,6 @@ export async function PUT(request: Request)
     if(newStatus)
     {
         const type = toMessageType(newStatus);
-you
         switch(type)
         {
             case MessageType.NEW_ACCOUNT:

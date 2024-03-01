@@ -7,6 +7,7 @@ package com.github.totremont.msusuario.service;
 import com.github.totremont.msusuario.repository.PaisRepository;
 import com.github.totremont.msusuario.repository.database.model.Pais;
 import java.util.Optional;
+import java.util.List;
 import org.springframework.stereotype.Service;
 
 /**
@@ -31,6 +32,11 @@ public class PaisService {
     {
         Pais entity = new Pais(code,name);
         return repo.save(entity);
+    }
+    
+    public List<Pais> findAll()
+    {
+        return repo.findAll();
     }
     
 }

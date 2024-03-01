@@ -1,10 +1,10 @@
 'use client'
 import {useState, useRef} from "react"
-import { ChipData, ChipGroup } from "@/app/private/components/chip";
-import ImagePreview from "@/app/private/components/imagepreview"
-import { NotificationType,NotificationComponent, NotificationProps } from "@/app/private/components/notification";
-import Checkboxes, { CheckboxData } from "@/app/private/components/checkboxes";
-import FeatureRow from "@/app/private/components/featurerow";
+import { ChipData, ChipGroup } from "@/components/chip";
+import ImagePreview from "@/components/imagepreview"
+import { NotificationType,NotificationComponent, NotificationProps } from "@/components/notification";
+import Checkboxes, { CheckboxData } from "@/components/checkboxes";
+import FeatureRow from "@/components/featurerow";
 
 //Pestaña principal
 
@@ -76,7 +76,6 @@ export default function CreateProduct()
     function onRemoveImage(event : React.SyntheticEvent, src : string)
     {
         event.preventDefault();
-        console.log("Se ejecutó una vez")
         setImages(images.filter( it => it != src));
     }
 
@@ -151,7 +150,7 @@ export default function CreateProduct()
 
         <input className="mt-6 block rounded-xl bg-blue-900 px-6 py-2 font-semibold hover:bg-blue-700 cursor-pointer" type="submit" value="Crear producto" />
     </form>
-    {show ? <NotificationComponent title={props.current.title} 
+    {show ? <NotificationComponent title={props.current.title} key={"notification"}
     body={props.current.body} type={props.current.type} options={props.current.options}/> : null}
     </main>
 

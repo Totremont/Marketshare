@@ -9,7 +9,8 @@ export const metadata: Metadata = {
   description: "Empresa de eCommerce"
 };
 
-export default function RootLayout({children,}: Readonly<{children: React.ReactNode;}>) {
+export default function RootLayout({children,}: Readonly<{children: React.ReactNode;}>) 
+{
   return (
     <html lang="en">
       <head>

@@ -6,6 +6,7 @@ package com.github.totremont.msusuario.service;
 
 import com.github.totremont.msusuario.repository.BancoRepository;
 import com.github.totremont.msusuario.repository.database.model.Banco;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +32,11 @@ public class BancoService {
     {
         Banco entity = new Banco(name);
         return repo.save(entity);
+    }
+    
+    public List<Banco> findAll()
+    {
+        return repo.findAll();
     }
     
 }

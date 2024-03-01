@@ -1,8 +1,8 @@
-import Headline from "../private/components/headline";
-import Logo from "../private/components/logo";
-import OrderCard from "../private/components/ordercard";
-import ProductCard from "../private/components/productcard";
-import UserCard from "../private/components/usercard";
+import Headline from "../../components/headline";
+import Logo from "../../components/logo";
+import OrderCard from "../../components/ordercard";
+import ProductCard from "../../components/productcard";
+import UserCard from "../../components/usercard";
 
 export default function Home()
 {

@@ -1,8 +1,8 @@
 'use client'
-import {useState, useRef} from "react"
-import {redirect} from 'next/navigation'
-import { NotificationType,NotificationComponent, NotificationProps } from "./private/components/notification";
-import Logo from "./private/components/logo";
+import {useState, useRef, useEffect} from "react"
+import { NotificationType,NotificationComponent, NotificationProps } from "../components/notification";
+import Logo from "../components/logo";
+import validateSession from "@/private/authorization";
 
 //Pestaña principal de inicio de sesión
 
@@ -109,12 +109,20 @@ export default function Login()
 
   );
 
+  //Un get al ms_usuario no requiere bearer token
   async function request(user : String, pass : String)
   {
       let result = await fetch('http://localhost:8080/internal/user',
       { method : 'GET',
-        mode : 'cors'}
-      )
+        mode : 'cors',
+        headers: 
+        {
+          "Authorization":    "Basic cHJ1ZWJhOmRhbg==",
+          "Content-Type":     "application/x-www-form-urlencoded",
+          "Accept":           "application/json",
+        },
+      }
+      );
       return result
   }
 
@@ -129,7 +137,7 @@ export default function Login()
   function setDisconnectedProps()
   {
     return new NotificationProps(NotificationType.ERROR,"Ocurrió un error",
-    "Ocurrió un problema al conectarse con el servidor",[]);
+    "Ocurrió un problema inesperado",[]);
   }
 
   function setNotFoundProps()

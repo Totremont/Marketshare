@@ -21,7 +21,7 @@ export default function FeatureRow(
     }
 
     let addingView = (
-    <tr>
+    <tr key="adding_view">
         <td className="w-1/3 font-semibold py-3">
           <input type="text" id="feature_name" className="border 
           rounded-md py-1 px-1 bg-gray-800 border-slate-600 me-1 w-[95%]"

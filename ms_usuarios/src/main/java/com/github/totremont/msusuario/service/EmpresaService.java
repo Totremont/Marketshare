@@ -6,6 +6,7 @@ package com.github.totremont.msusuario.service;
 
 import com.github.totremont.msusuario.repository.EmpresaRepository;
 import com.github.totremont.msusuario.repository.database.model.Empresa;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +32,11 @@ public class EmpresaService {
     {
         Empresa entity = new Empresa(name);
         return repo.save(entity);
+    }
+    
+    public List<Empresa> findAll()
+    {
+        return repo.findAll();
     }
     
 }

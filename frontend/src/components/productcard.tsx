@@ -1,4 +1,4 @@
-import Colors from "../Utils/Colors";
+import Colors from "../private/utils/Colors";
 import { ChipFeature } from "./chip";
 
 export default function ProductCard(props : 

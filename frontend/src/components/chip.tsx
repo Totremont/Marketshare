@@ -1,5 +1,5 @@
-import Colors from "../Utils/Colors"
-import SpecialFeature from "../Utils/specialfeatures"
+import Colors from "../private/utils/Colors"
+import SpecialFeature from "../private/utils/specialfeatures"
 
 export default function Chip(props : {id : string, title : string, checked : boolean, 
     callback : ((event : React.MouseEvent<HTMLElement>) => void)})

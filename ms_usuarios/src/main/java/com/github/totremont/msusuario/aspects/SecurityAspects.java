@@ -4,6 +4,9 @@
  */
 package com.github.totremont.msusuario.aspects;
 
+import com.github.totremont.msusuario.controller.BancoController;
+import com.github.totremont.msusuario.controller.EmpresaController;
+import com.github.totremont.msusuario.controller.PaisController;
 import com.github.totremont.msusuario.controller.UsuarioController;
 import com.github.totremont.msusuario.controller.dtos.TokenDTO;
 import com.github.totremont.msusuario.controller.exceptions.CredentialsNotFoundException;
@@ -28,7 +31,7 @@ import reactor.core.publisher.Mono;
 public class SecurityAspects {
     
     //Target : Calling object | Proxy : Called object
-    @Pointcut("execution(public * com.github.totremont.msusuario.controller.UsuarioController.*(..))")
+    @Pointcut("execution(public * com.github.totremont.msusuario.controller.*.*(..))")
     public void apiRequest() {}
     
     @Before("apiRequest()")
@@ -47,8 +50,11 @@ public class SecurityAspects {
             }
         }
         if(token != null)
-        {
-            if(jp.getSignature().getName().equals("findByUsername"))
+        {   //Si es una consulta por usuario, pais, empresa y banco, solo validar que provenga de un microservicio
+            if(jp.getSignature().getName().equals("findByUsername") 
+                    || jp.getTarget().getClass() == PaisController.class
+                    || jp.getTarget().getClass() == EmpresaController.class
+                    || jp.getTarget().getClass() == BancoController.class)
             {
                 token = token.substring(clientText.length());
                 //Credenciales de cliente en base64

@@ -20,18 +20,18 @@ export default function Checkboxes(props :
 
     let checkedState = function(id : string, label : string)
     {   return (
-        <><input id={id} key={id} onClick={onClick} className="h-4 w-4 rounded border border-[#556B2F] bg-[#556B2F] text-sm font-semibold ps-[0.12rem] cursor-pointer text-slate-300 focus:outline-none" 
+        <div id={id} key={id} className="inline"><input onClick={onClick} className="h-4 w-4 rounded border border-[#556B2F] bg-[#556B2F] text-sm font-semibold ps-[0.12rem] cursor-pointer text-slate-300 focus:outline-none" 
         value="✓" readOnly/>
-        <label htmlFor={id} className="ms-2 me-3 text-sm">{label}</label></>)
+        <label htmlFor={id} className="ms-2 me-3 text-sm">{label}</label></div>)
     }
     
 
     let unCheckedState = function(id : string, label : string) 
     {
         return (
-        <><input id={id} key={id} onClick={onClick} className="h-4 w-4 rounded border border-slate-600 bg-gray-800 cursor-pointer text-sm focus:outline-none" 
+        <div id={id} key={id} className="inline"><input onClick={onClick} className="h-4 w-4 rounded border border-slate-600 bg-gray-800 cursor-pointer text-sm focus:outline-none" 
         value="" readOnly/>
-        <label htmlFor={id} className="ms-2 me-3 text-sm">{label}</label></>)
+        <label htmlFor={id} className="ms-2 me-3 text-sm">{label}</label></div>)
     }
 
     let view = (

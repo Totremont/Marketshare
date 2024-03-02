@@ -8,6 +8,7 @@ import com.github.totremont.msusuario.controller.dtos.PaisDTO;
 import java.util.List;
 import com.github.totremont.msusuario.service.PaisService;
 import com.github.totremont.msusuario.repository.database.model.Pais;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -30,8 +31,7 @@ public class PaisController {
     public PaisController(PaisService service) {
         this.service = service;
     }
-    
-    
+      
     @GetMapping()
     public ResponseEntity<List<PaisDTO>> findAll(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String token)

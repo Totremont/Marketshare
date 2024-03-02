@@ -12,8 +12,9 @@ import com.github.totremont.msusuario.repository.database.model.Usuario;
 import com.github.totremont.msusuario.repository.database.model.UsuarioComprador;
 import com.github.totremont.msusuario.repository.database.model.UsuarioVendedor;
 import java.util.Optional;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -26,6 +27,8 @@ public class UsuarioService {
     private final EmpresaService empresaService;
     private final BancoService bancoService;
     private final PaisService paisService;
+    
+    private final PasswordEncoder encoder = new BCryptPasswordEncoder();
 
     public UsuarioService(UsuarioRepository repo, EmpresaService empresaService, BancoService bancoService, PaisService paisService) {
         this.repo = repo;
@@ -37,7 +40,7 @@ public class UsuarioService {
     
     public Optional<Usuario> findByUsername(String name)
     {
-        return repo.findOptionalByName(name);
+        return repo.findOptionalByName(name.toLowerCase());
         
     }
     
@@ -67,7 +70,7 @@ public class UsuarioService {
         
         pais = paisQuery.get();
 
-        user = new UsuarioComprador(empresa, banco, money, name, password, email, pais);
+        user = new UsuarioComprador(empresa, banco, money, name.toLowerCase(), encoder.encode(password), email, pais);
         
         user = repo.save(user);
         
@@ -89,7 +92,7 @@ public class UsuarioService {
         
         pais = paisQuery.get();
         
-        UsuarioVendedor user = new UsuarioVendedor(name,password,email,pais,empresa);      
+        UsuarioVendedor user = new UsuarioVendedor(name.toLowerCase(),encoder.encode(password),email,pais,empresa);      
         user = repo.save(user);
         
         return Optional.ofNullable(user);
@@ -107,7 +110,7 @@ public class UsuarioService {
         pais = paisQuery.get();
         empresa = empresaQuery.get();
         
-        UsuarioVendedor user = new UsuarioVendedor(empresa,id,name,password,email,pais); 
+        UsuarioVendedor user = new UsuarioVendedor(empresa,id,name.toLowerCase(),encoder.encode(password),email,pais); 
         return repo.update(user);
     }
     
@@ -131,7 +134,7 @@ public class UsuarioService {
         
         pais = paisQuery.get();
 
-        user = new UsuarioComprador(empresa,banco, money, id,name, password, email, pais);
+        user = new UsuarioComprador(empresa,banco, money, id, name.toLowerCase(), encoder.encode(password), email, pais);
         
         return repo.update(user);
     }

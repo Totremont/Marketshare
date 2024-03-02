@@ -11,6 +11,7 @@ import com.github.totremont.msusuario.repository.database.model.UsuarioComprador
 import com.github.totremont.msusuario.repository.database.model.UsuarioVendedor;
 import com.github.totremont.msusuario.repository.database.utils.UsuarioUtils;
 import com.github.totremont.msusuario.service.UsuarioService;
+import jakarta.websocket.server.PathParam;
 import java.util.Optional;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -31,7 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @CrossOrigin()
-@RequestMapping("/internal/user")
+@RequestMapping("/api/users")
 public class UsuarioController 
 {
     
@@ -41,19 +43,22 @@ public class UsuarioController
         this.service = service;
     }
     
-    
+    //@Validated @RequestBody UsuarioDTO userDTO)
+    //api/users?username=xxx
     @GetMapping()
     public ResponseEntity<UsuarioDTO> findByUsername(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String token, 
-            @Validated @RequestBody UsuarioDTO userDTO)
+            @Validated @RequestParam String username)
     {
-        Optional<Usuario> user = service.findByUsername(userDTO.getName());
+        Optional<Usuario> user = service.findByUsername(username);
         if(user.isPresent())
             return ResponseEntity.ok().body(UsuarioDTO.from(user.get()));
         else return ResponseEntity.notFound().build();
     }
     
-    @GetMapping("/{id}") //internal/user/{id}
+    //api/users?id=xxx
+    /*
+    @GetMapping("/{id}") //api/users/{}
     public ResponseEntity<UsuarioDTO> findById(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String token,
             @Validated @PathVariable Long id)
@@ -63,6 +68,7 @@ public class UsuarioController
             return ResponseEntity.ok().body(UsuarioDTO.from(user.get()));
         else return ResponseEntity.notFound().build();
     }
+    */
     
     @PostMapping()
     public ResponseEntity<UsuarioDTO> save(

@@ -7,8 +7,10 @@ export const TOKEN_KEY = "marketshare.user.token"
 //En realidad solo se debe usar al logearse
 
 //Redirect con ?usertype=xxx&&username=xxx
+
 export async function middleware(request: NextRequest) 
 {
+    /*
     const token  = request.cookies.get(TOKEN_KEY)?.value;
     const currentUrl = new URL(request.nextUrl.pathname, request.nextUrl);
     const host = new URL("/", request.nextUrl);
@@ -32,7 +34,9 @@ export async function middleware(request: NextRequest)
         return NextResponse.next();
     }
     //response.cookies.set(TOKEN_KEY, "hola");
+    */
 }
+
 
 
 //Solo ejecutar en endpoints

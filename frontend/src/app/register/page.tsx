@@ -3,8 +3,10 @@ import {useState, useRef, useEffect} from "react"
 import Chip from "../../components/chip";
 import Logo from "../../components/logo";
 import Visibility from "@/private/utils/domvisibility";
+import RequestStatus from "@/private/utils/requeststatus";
 
 //Pestaña para registrarse
+
 
 export default function SignIn()
 {
@@ -18,31 +20,15 @@ export default function SignIn()
     let [bank,setBank] = useState("Santander")
     let [money,setMoney] = useState("")
     let [organization,setOrganization] = useState("IBM")
+    //State para datos que se obtienen de otro ms
+    let [bankList, setBankList] = useState([{value:"unknown",text:"Seleccioná un banco"}]);             //{value, text}
+    let [countryList, setCountryList] = useState([{value:"unknown",text:"Seleccioná un país"}]);
+    let [orgList, setOrgList] = useState([{value:"unknown",text:"Seleccioná una empresa"}]);
 
-    const bankOptions = 
-    [
-        {value: 'unknown', text: 'Elige tu banco'},
-        {value: 'Santander', text: 'Santander'},
-        {value: 'BBVA', text: 'BBVA'},
-        {value: 'Nacion', text: 'Nación'}
-    ];
-
-    const countryOptions = 
-    [
-        {value: 'unknown', text: 'Elige tu país'},
-        {value: 'Argentina', text: 'Argentina'},
-        {value: 'Estados Unidos', text: 'Estados Unidos'},
-        {value: 'Canada', text: 'Canada'}
-    ];
-
-    const orgOptions = 
-    [
-        {value: 'unknown', text: 'Elige tu organización'},
-        {value: 'IBM', text: 'IBM'},
-        {value: 'Microsoft', text: 'Microsoft'},
-        {value: 'Apple', text: 'Apple'}
-    ];
-
+    useEffect(() => 
+    {
+        requestFormData(setOrgList,setBankList,setCountryList);
+    },[])
 
     //View states
     let [rolSelected, setRolSelected] = useState("vendedor");
@@ -93,13 +79,13 @@ export default function SignIn()
     {
         let view = rolSelected === 'vendedor' ?
                 <>
-                    {vendedorView("visible")}
-                    {compradorView("invisible")}
+                    {vendedorView(Visibility.VISIBLE)}
+                    {compradorView(Visibility.INVISIBLE)}
                 </>
         : 
                 <>
-                    {compradorView("visible")}
-                    {vendedorView("invisible")}
+                    {compradorView(Visibility.VISIBLE)}
+                    {vendedorView(Visibility.INVISIBLE)}
                 </>
         
         return view;
@@ -116,7 +102,7 @@ export default function SignIn()
         <select id="organization" className="mt-2 w-[60%] rounded-md 
         border border-slate-600 bg-gray-800 px-1 py-1 md:w-[300px]" 
         onChange={onChange}>
-            {orgOptions.map((it,index) =>
+            {orgList.map((it,index) =>
             <option key={`org_${index}`} value={it.value}>{it.text}</option> )}
         </select>
         <button className="text-orange-100 text-sm mt-2 block font-semibold" onClick={(ev) => {ev.preventDefault(); setCustomOrganization(true)}}>No encuentro mi empresa</button>
@@ -138,7 +124,7 @@ export default function SignIn()
 
                 <label htmlFor="bank" className="block font-semibold mt-4">Banco</label>
                 <select id="bank" onChange={onChange} className="mt-2 w-[60%] md:w-[300px] rounded-md border border-slate-600 bg-gray-800 px-1 py-1">
-                {bankOptions.map((it,index) => (<option key={`bank_${index}`} value={it.value}>{it.text}</option>))}
+                {bankList.map((it,index) => (<option key={`bank_${index}`} value={it.value}>{it.text}</option>))}
                 </select>
 
                 <label htmlFor="money" className="mt-4 block font-semibold">Dinero</label>
@@ -193,7 +179,7 @@ export default function SignIn()
 
             <label htmlFor="country" className="mt-4 block font-semibold">País</label>
             <select id="country" onChange={onChange} className="mt-2 w-[60%] md:w-[300px] rounded-md border border-slate-600 bg-gray-800 px-1 py-1">
-            {countryOptions.map((it,index) => (<option key={`country_${index}`}value={it.value}>{it.text}</option>))}
+            {countryList.map((it,index) => (<option key={`country_${index}`}value={it.value}>{it.text}</option>))}
             </select>
 
             <label className="mt-4 block font-semibold">Rol</label>
@@ -217,3 +203,73 @@ export default function SignIn()
 
     return view;
 }
+
+//Datos de paises, organizaciones y bancos
+function requestFormData(orgCallback : any, bankCallback : any, countryCallback : any)
+{
+    let req = (endpoint : string) => fetch(`${process.env.NEXT_PUBLIC_MS_USUARIO_HOST}/${endpoint}`,
+      { method : 'GET',
+        mode : 'cors',
+        headers: 
+        {
+          "Authorization":    "Basic cHJ1ZWJhOmRhbg==",
+          //"Content-Type":     "application/x-www-form-urlencoded",
+          "Accept":           "application/json",
+        },
+      }
+    );
+
+    req('internal/countries').then(
+        async (response) => 
+        {
+            if(response.status === RequestStatus.OK)
+            {
+                let body = await response.json();
+                countryCallback
+                (
+                    [{value:"unknown",text:"Seleccioná un pais"}].concat
+                    (
+                        body.map((it : any) => {return {value : it.name, text : it.name}})
+                    )
+                );
+            }
+        }
+    )
+
+    req('internal/banks').then(
+        async (response) => 
+        {
+            if(response.status === RequestStatus.OK)
+            {
+                let body = await response.json();
+                bankCallback
+                (
+                    [{value:"unknown",text:"Seleccioná un banco"}].concat
+                    (
+                        body.map((it : any) => {return {value : it.name, text : it.name}})
+                    )
+                );
+            }
+        }
+    )
+
+    req('internal/organizations').then(
+        async (response) => 
+        {
+            if(response.status === RequestStatus.OK)
+            {
+                let body = await response.json();
+                orgCallback
+                (
+                    [{value:"unknown",text:"Seleccioná una empresa"}].concat
+                    (
+                        body.map((it : any) => {return {value : it.name, text : it.name}})
+                    )
+                );
+            }
+        }
+    )
+    
+     
+}
+

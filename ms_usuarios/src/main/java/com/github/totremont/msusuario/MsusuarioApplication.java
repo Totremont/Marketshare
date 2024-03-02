@@ -7,9 +7,9 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 @SpringBootApplication
 @EnableAspectJAutoProxy
 public class MsusuarioApplication {
-
-	public static void main(String[] args) {
-		SpringApplication.run(MsusuarioApplication.class, args);
-	}
+   
+    public static void main(String[] args) {
+            SpringApplication.run(MsusuarioApplication.class, args);
+    }
 
 }

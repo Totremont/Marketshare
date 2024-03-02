@@ -5,6 +5,8 @@
 package com.totremont.msauthorization;
 
 import com.totremont.msauthorization.dtos.UsuarioDTO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,19 +21,25 @@ import reactor.core.publisher.Mono;
  *
  * @author ezequ
  */
-public class CustomUserDetailsService implements UserDetailsService {
+public class CustomUserDetailsService implements UserDetailsService 
+{
+    @Value("${ms-users.host}")
+    private String msUsersHost;
+    
+    @Value("${auth-server.key}")
+    private String ownKey;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException 
     {
         try
         {
-            UsuarioDTO userDTO = request(username).block();
+            UsuarioDTO userDTO = requestUser(username).block();
 
-            UserDetails userDetails = User.withDefaultPasswordEncoder()
+            UserDetails userDetails = User.builder()    //No codificamos la password porque ya está codificada en ms_usuarios
                     .username(username)
                     .password(userDTO.getPassword())
-                    .roles(userDTO.getType())
+                    .roles(userDTO.getType())           //Prefija con ROLE | ej: ROLE_vendedor
                     .build();
             
             return userDetails;
@@ -42,15 +50,18 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
     }
     
-    private Mono<UsuarioDTO> request(String name)
+    private Mono<UsuarioDTO> requestUser(String name)
     {
         UsuarioDTO body = new UsuarioDTO();
         body.setName(name);
-        WebClient client = WebClient.create("http://localhost:8080");
+        WebClient client = WebClient.create(msUsersHost);
         Mono<UsuarioDTO> response = client.method(HttpMethod.GET)
-                .uri("/internal/user")
+                .uri(uriBuilder -> uriBuilder
+                    .path("/api/users")
+                    .queryParam("username", name)
+                    .build())
+                .header("Authorization", "Basic " + ownKey)
                 .accept(MediaType.APPLICATION_JSON)
-                .bodyValue(body)
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError,(it) -> Mono.empty())
                 .onStatus(HttpStatus::is5xxServerError,(it) -> Mono.empty())

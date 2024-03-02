@@ -3,6 +3,7 @@ import {useState, useRef, useEffect} from "react"
 import { NotificationType,NotificationComponent, NotificationProps } from "../components/notification";
 import Logo from "../components/logo";
 import validateSession from "@/private/authorization";
+import RequestStatus from "@/private/utils/requeststatus";
 
 //Pestaña principal de inicio de sesión
 
@@ -33,27 +34,27 @@ export default function Login()
 
     if(user && pass)  //Si no son null, undefined, empty string, false, etc | [Falsy]
     {
-      let msRequest = request(user,pass);
+      let msRequest = requestUser(user,pass);
       msRequest.then(response => 
       {
+        //console.log(response.status);
         switch(response.status)
         {
-          case 200:
-            alert("Todo salió OK");
+          case RequestStatus.OK:
             break;
-          case 404:
-            setNotFoundProps();
-            showNotification;
+          case RequestStatus.NOT_FOUND:
+            props.current = setNotFoundProps();
+            showNotification();
             break;
           default:
-            setDisconnectedProps();
-            showNotification;
+            props.current = setDisconnectedProps();
+            showNotification();
             break;
         }
       })
       msRequest.catch(e =>
       {
-        setDisconnectedProps();
+          setDisconnectedProps();
           showNotification;
       } )
   
@@ -90,7 +91,7 @@ export default function Login()
       rounded-md py-1 px-1 w-full md:w-[350px] bg-gray-800 border-slate-600 mt-2"/>
 
       <input className="block mt-6 bg-blue-900 py-2 px-6 rounded-xl font-semibold
-        hover:bg-blue-700 w-full" type="submit" value="Iniciar sesión"/>
+        hover:bg-blue-700 w-full cursor-pointer" type="submit" value="Iniciar sesión"/>
 
     </form>
 
@@ -110,17 +111,17 @@ export default function Login()
   );
 
   //Un get al ms_usuario no requiere bearer token
-  async function request(user : String, pass : String)
+  async function requestUser(user : String, pass : String)
   {
-      let result = await fetch('http://localhost:8080/internal/user',
+      let result = await fetch(`${process.env.NEXT_PUBLIC_MS_USUARIO_HOST}/internal/user`,
       { method : 'GET',
         mode : 'cors',
         headers: 
         {
           "Authorization":    "Basic cHJ1ZWJhOmRhbg==",
-          "Content-Type":     "application/x-www-form-urlencoded",
           "Accept":           "application/json",
         },
+        body:JSON.stringify({name : user, password : pass})
       }
       );
       return result

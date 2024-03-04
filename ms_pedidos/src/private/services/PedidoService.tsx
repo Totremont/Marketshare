@@ -6,15 +6,15 @@ import RequestStatus from "../mappers/RequestStatus";
 const repo = new PrismaClient()
 
 //No es necesario el async porque prisma.$transacion devuelve una promise
-export function savePedido(order : {clientId : number, productId : number, 
+export function savePedido(authToken : string, order : {clientId : number, productId : number, 
     sellerId : number, amount : number, discount : number, status : string})
 {
     //La operacion debe ser transacional para garantizar que todo se haga atómicamente (o no se haga nada)
     //Si la promesa falla, se revierte todo
     return repo.$transaction(async() => 
     {
-        let productRequest = await requestProduct(order.productId);
-        let clientRequest = await requestUser(order.clientId);
+        let productRequest = await requestProduct(order.productId,authToken);
+        let clientRequest = await requestUser(order.clientId,authToken);
 
         let product = productRequest.status === 200 ? await productRequest.json() : null;
         let client = clientRequest.status === 200 ? await clientRequest.json() : null;
@@ -52,11 +52,11 @@ export function savePedido(order : {clientId : number, productId : number,
                 client.money -= totalPrice;
                 product.stock -= order.amount;
 
-                await updateProduct(product);
-                await updateUser(client);
+                await updateProduct(product,authToken);
+                await updateUser(client,authToken);
 
-                let resultProduct = await updateProduct(product);
-                let resultUser = await updateUser(client);
+                let resultProduct = await updateProduct(product,authToken);
+                let resultUser = await updateUser(client,authToken);
 
                 console.log(`Producto: ${JSON.stringify(product)}`)
 
@@ -72,7 +72,7 @@ export function savePedido(order : {clientId : number, productId : number,
 }
 
 //Para actualizar su estado [RECIBIDO,EN_DISTRIBUCION,ENTREGADO] o CANCELAR
-export function updatePedido(orderId : string, newStatus : string)
+export function updatePedido(authToken : string, orderId : string, newStatus : string)
 {
     return repo.$transaction(async() => 
     {
@@ -96,8 +96,8 @@ export function updatePedido(orderId : string, newStatus : string)
 
             if(newStatus === PedidoStatus.CANCELADO)    //Si se canceló el pedido se debe devolver el stock y el dinero
             {
-                let productRequest = await requestProduct(order.product_id);
-                let clientRequest = await requestUser(order.client_id);
+                let productRequest = await requestProduct(order.product_id,authToken);
+                let clientRequest = await requestUser(order.client_id,authToken);
 
                 let product = productRequest.status === 200 ? await productRequest.json() : null;
                 let client = clientRequest.status === 200 ? await clientRequest.json() : null;
@@ -105,8 +105,8 @@ export function updatePedido(orderId : string, newStatus : string)
                 client.money += order.price;
                 product.stock += order.amount;
 
-                let resultProduct = await updateProduct(product);
-                let resultUser = await updateUser(client);
+                let resultProduct = await updateProduct(product,authToken);
+                let resultUser = await updateUser(client,authToken);
 
                 if(resultProduct.status != RequestStatus.OK || resultUser.status != RequestStatus.OK)
                     throw new Error("Couldn't update user or product");
@@ -135,49 +135,68 @@ export async function findAllPedidoFromProduct(productId : number)
 }
 
 //Obtener un usuario por su id
-async function requestUser(userId : number)
+async function requestUser(userId : number, authToken : string)
 {
-    let result = await fetch(`http://localhost:8080/internal/user/${userId}`,
-    { method : 'GET',
-    mode : 'cors'}
+    let result = await fetch(`${process.env.ms_usuarios_host}/api/users/${userId}`,
+    {   
+        method : 'GET',
+        headers:
+        {
+            "Authorization":    `${authToken}`
+        },
+        mode : 'cors'
+    }
     )
 
     return result
 }
 
 //Obtener un producto por su id
-async function requestProduct(productId : number)
+async function requestProduct(productId : number, authToken : string)
 {
-    let result = await fetch(`http://localhost:8060/internal/product/${productId}`,
-    { method : 'GET',
-    mode : 'cors'}
+    let result = await fetch(`${process.env.ms_productos_host}/api/products/${productId}`,
+    {   
+        method : 'GET',
+        headers:
+        {
+            "Authorization":    `${authToken}`
+        },
+        mode : 'cors'
+    }
     )
 
     return result
 }
 
-async function updateUser(user : any)
+async function updateUser(user : any, authToken : string)
 {
-    return await fetch(`http://localhost:8080/internal/user`,
-    { method : 'PUT',
-    mode : 'cors',
-    body : JSON.stringify(user),
-    headers: {
-        "Content-Type": "application/json",
-      }
+    return await fetch(`${process.env.ms_usuarios_host}/api/users`,
+    {   
+        method : 'PUT',
+        mode : 'cors',
+        body : JSON.stringify(user),
+        headers: 
+        {
+            "Authorization":    `${authToken}`,
+            "Content-Type":     "application/json",
+        }
     }
     )
 }
 
-async function updateProduct(product : any)
+async function updateProduct(product : any, authToken : string)
 {
-    return await fetch(`http://localhost:8060/internal/product/update`,
-    { method : 'PUT',
-    mode : 'cors',
-    body : JSON.stringify(product),
-    headers: {
-        "Content-Type": "application/json",
-      }}
+    return await fetch(`${process.env.ms_productos_host}/api/products/update`,
+    { 
+        method : 'PUT',
+        mode : 'cors',
+        body : JSON.stringify(product),
+        headers: 
+        {
+            "Authorization":    `${authToken}`,
+            "Content-Type":     "application/json",
+        }
+    }
     )
 }
 

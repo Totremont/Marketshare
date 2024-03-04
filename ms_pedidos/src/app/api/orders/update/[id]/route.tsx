@@ -2,19 +2,21 @@ import RequestStatus from "@/private/mappers/RequestStatus"
 import validate from "@/private/securityaspect";
 import { updatePedido } from "@/private/services/PedidoService"
 
-//localhost/internal/order/update/1?status=xxx
-export async function PUT(request: Request, { params }: { params: { id: string } }) 
+//localhost/api/order/update?id=xxx&new_status=xxx
+export async function PUT(request: Request) 
 {
     //Si devolvió una respuesta es porque no tenia permisos
-    let authorized = await validate(request.headers.get("Authorization"))
+    let token = request.headers.get("Authorization");
+    let authorized = await validate(token);
     if(authorized instanceof Response) return authorized;
     
     const { searchParams } = new URL(request.url)
-    const newStatus = searchParams.get('status')
+    const id = searchParams.get('id')
+    const newStatus = searchParams.get('new_status')
 
-    if(params.id && newStatus)
+    if(id && newStatus)
     {
-        return updatePedido(params.id,newStatus).then(
+        return updatePedido(token!,id,newStatus).then(
             (response) => Response.json(response),
             (error) => new Response('', {
                 status: RequestStatus.NOT_FOUND

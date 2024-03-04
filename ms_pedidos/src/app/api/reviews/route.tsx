@@ -4,7 +4,7 @@ import { findAllOpinionFromProduct, findAllOpinionFromSeller, saveOpinion } from
 
 
 
-//localhost/internal/review
+//localhost/api/reviews
 export async function POST(request: Request) 
 {
     //Si devolvió una respuesta es porque no tenia permisos
@@ -23,8 +23,8 @@ export async function POST(request: Request)
     )
 }
 
-//localhost/internal/review?seller_id=xxx
-//localhost/internal/review?product_id=xxx
+//localhost/api/reviews?seller_id=xxx
+//localhost/api/reviews?product_id=xxx
 export async function GET(request: Request) 
 {
     //Si devolvió una respuesta es porque no tenia permisos

@@ -1,10 +1,16 @@
 import RequestStatus from "@/private/mappers/RequestStatus";
+import validate from "@/private/securityaspect";
 import { findAllPedidoFromClient, findAllPedidoFromSeller, savePedido } from "@/private/services/PedidoService"
 
 
-//localhost/internal/order?client_id=xxx
+//localhost/api/order?client_id=xxx
 export async function GET(request: Request) 
 {
+    //Si devolvió una respuesta es porque no tenia permisos
+    let token = request.headers.get("Authorization");
+    let authorized = await validate(token);
+    if(authorized instanceof Response) return authorized;
+    
     const { searchParams } = new URL(request.url)
     const sellerId = searchParams.get('seller_id')
     const clientId = searchParams.get('client_id')
@@ -38,9 +44,14 @@ export async function GET(request: Request)
 
 export async function POST(request: Request) {
 
+        //Si devolvió una respuesta es porque no tenia permisos
+        let token = request.headers.get("Authorization");
+        let authorized = await validate(token);
+        if(authorized instanceof Response) return authorized;
+
     let product = await request.json()
 
-    return savePedido(product).then(
+    return savePedido(token!,product).then(
         (response) => Response.json(response),
         (error) => {
             console.log(error);

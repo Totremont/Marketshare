@@ -28,17 +28,18 @@ export async function GET(request: Request)
     
 }
 
-//localhost/internal/product | Json body
+//localhost/api/product | Json body
 
 export async function POST(request: Request) {
 
     //Si devolvió una respuesta es porque no tenia permisos
-    let authorized = await validate(request.headers.get("Authorization"))
+    let token = request.headers.get("Authorization");
+    let authorized = await validate(token)
     if(authorized instanceof Response) return authorized;
 
     let product = await request.json()
 
-    return service.save(product).then(
+    return service.save(token!,product).then(
         (response) => Response.json(response),
         (error) => {
             console.log(error);

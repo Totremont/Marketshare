@@ -1,5 +1,6 @@
 import {PrismaClient } from "@prisma/client";
 import ProductoMapper from "../mappers/ProductoMapper"
+import RequestStatus from "../mappers/RequestStatus";
 
 export default class ProductoService
 {
@@ -10,51 +11,58 @@ export default class ProductoService
         this.repo = prismaClient;
     }
 
-    async save(product : {
+    async save(authToken : string, product : {
         ownerId : number,name : string, 
         description : string, category : string, state : string,
         colors : string[], price : number, stock : number, featuresText : string,featuresRows : string[],
         specialFeatures : string[] } )
     {
-        return await this.repo.producto.create(
+        return await this.repo.$transaction(async () => 
         {
-            data:
+            let clientRequest = await requestUser(product.ownerId, authToken);
+            let client = clientRequest.status === RequestStatus.OK ? await clientRequest.json() : null;
+            if(client.hasOwnProperty("type") && client.type === "VENDEDOR")
+            return this.repo.producto.create(
             {
-                owner:
+                data:
                 {
-                    connectOrCreate:
+                    owner:
                     {
-                       where:{id: product.ownerId},
-                       create:
-                       {
-                            id:product.ownerId
-                       }
-                    }
-                },
-                name: product.name,
-                description: product.description,
-                category:
-                {
-                    connectOrCreate:
+                        connectOrCreate:
+                        {
+                        where:{id: product.ownerId},
+                        create:
+                        {
+                                id:product.ownerId
+                        }
+                        }
+                    },
+                    name: product.name,
+                    description: product.description,
+                    category:
                     {
-                       where:{name: product.category},
-                       create:
-                       {
-                            name:product.category
-                       }
-                    }
-                },
-                state: ProductoMapper.toState(product.state),
-                colors: ProductoMapper.toColorArray(product.colors),
-                price : product.price,
-                stock : product.stock,
-                features_text : product.featuresText,
-                features_rows: product.featuresRows,
-                features_special: product.specialFeatures,
+                        connectOrCreate:
+                        {
+                        where:{name: product.category},
+                        create:
+                        {
+                                name:product.category
+                        }
+                        }
+                    },
+                    state: ProductoMapper.toState(product.state),
+                    colors: ProductoMapper.toColorArray(product.colors),
+                    price : product.price,
+                    stock : product.stock,
+                    features_text : product.featuresText,
+                    features_rows: product.featuresRows,
+                    features_special: product.specialFeatures,
 
+                }
             }
-        }
-        )
+            )
+            else throw Error("An user of type 'COMPRADOR' can't create a product");
+        })
     }
 
     async find(productId : number)
@@ -125,4 +133,20 @@ export default class ProductoService
     }
 
     
+}
+
+async function requestUser(userId : number, authToken : string)
+{
+    let result = await fetch(`${process.env.ms_usuarios_host}/api/users/${userId}`,
+    {   
+        method : 'GET',
+        headers:
+        {
+            "Authorization":    `${authToken}`
+        },
+        mode : 'cors'
+    }
+    )
+
+    return result
 }

@@ -4,6 +4,7 @@
  */
 package com.totremont.msauthorization;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -23,12 +24,14 @@ import org.springframework.security.web.SecurityFilterChain;
 //Se encarga de cosas como filtrar requests y obtener usuarios para autenticación
 public class WebSecurityConfig {
     
-  
+    @Value("${auth-server.signing-key}")
+    private String signingKey;
+    
     @Bean
     public UserDetailsService userDetailsService() {
         return new CustomUserDetailsService();
     }
-    
+       
     @Bean
     public TokenStore tokenStore() {
         return new JwtTokenStore(accessTokenConverter());
@@ -37,7 +40,7 @@ public class WebSecurityConfig {
     @Bean
     public JwtAccessTokenConverter accessTokenConverter() {
         JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-        converter.setSigningKey("123");
+        converter.setSigningKey(signingKey);
         return converter;
     }
 

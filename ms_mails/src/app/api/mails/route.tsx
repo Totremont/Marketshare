@@ -3,7 +3,7 @@ import MessageType, { toMessageType } from "@/app/private/MessageType"
 import RequestStatus from "@/app/private/RequestStatus";
 import validate from "@/app/private/securityaspect";
 
-//localhost/internal/mail?type=xxx || json
+//localhost/api/mails?type=xxx || json
 export async function PUT(request: Request) 
 {
     //Si devolvió una respuesta es porque no tenia permisos

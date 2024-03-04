@@ -27,12 +27,12 @@ export default async function validate(auth : string | null)
 
 async function request(token : string)
 {
-    let result = await fetch('http://localhost:8020/oauth/check_token',
+    let result = await fetch(`${process.env.auth_server_host}/oauth/check_token`,
     { 
         method : 'POST',
         headers: 
         {
-            "Authorization":    "Basic cHJ1ZWJhOmRhbg==",
+            "Authorization":    `Basic ${process.env.clients_key}`,
             "Content-Type":     "application/x-www-form-urlencoded",
             "Accept":           "application/json",
         },

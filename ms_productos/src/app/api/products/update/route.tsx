@@ -7,7 +7,7 @@ const prisma = new PrismaClient()
 
 const service = new ProductoService(prisma);
 
-//localhost/internal/product/update y json body
+//localhost/api/products/update y json body
 export async function PUT(request: Request) 
 {
     //Si devolvió una respuesta es porque no tenia permisos

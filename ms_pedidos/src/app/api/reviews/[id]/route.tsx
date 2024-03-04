@@ -1,25 +1,17 @@
-import ProductoService from '@/private/services/ProductoService';
-import RequestStatus from '@/private/mappers/RequestStatus';
-import { PrismaClient } from '@prisma/client'
-import validate from "@/private/securityaspect" 
+import RequestStatus from "@/private/mappers/RequestStatus"
+import validate from "@/private/securityaspect";
+import { findOpinionByOrder } from "@/private/services/OpinionService"
 
-const prisma = new PrismaClient()
-
-const service = new ProductoService(prisma);
-
-let functions = {"functions" : [GET]}
-
-
-//localhost/internal/product/{id}
+//localhost/api/reviews/{id}
 export async function GET(request: Request, { params }: { params: { id: string } }) 
 {
     //Si devolvió una respuesta es porque no tenia permisos
     let authorized = await validate(request.headers.get("Authorization"))
     if(authorized instanceof Response) return authorized;
-
+    
     if(params.id)
     {
-        return service.find(Number.parseInt(params.id)).then(
+        return findOpinionByOrder(params.id).then(
             (response) => 
             {
                 return response ? Response.json(response) : new Response('', {

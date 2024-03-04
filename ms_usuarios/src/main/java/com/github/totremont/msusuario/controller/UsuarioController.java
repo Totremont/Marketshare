@@ -56,8 +56,7 @@ public class UsuarioController
         else return ResponseEntity.notFound().build();
     }
     
-    //api/users?id=xxx
-    /*
+    //api/users/{id}
     @GetMapping("/{id}") //api/users/{}
     public ResponseEntity<UsuarioDTO> findById(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String token,
@@ -68,7 +67,7 @@ public class UsuarioController
             return ResponseEntity.ok().body(UsuarioDTO.from(user.get()));
         else return ResponseEntity.notFound().build();
     }
-    */
+    
     
     @PostMapping()
     public ResponseEntity<UsuarioDTO> save(

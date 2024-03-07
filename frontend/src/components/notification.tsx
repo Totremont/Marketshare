@@ -37,8 +37,8 @@ export function NotificationComponent(props :
 
     let success = () => (
         <div className="fixed bottom-4 w-full ">
-        <article className="text-[#d2e8d4] bg-[#2E8B57] text-start 
-        w-[400px] h-fit mx-auto p-3 rounded-lg shadow-sm shadow-slate-900">
+        <article className="text-[#d2e8d4] bg-[#2E8B57] text-start max-w-[70%] 
+        md:w-[600px] h-fit mx-auto p-3 rounded-lg shadow-sm shadow-slate-900">
         <p className="font-semibold">{props.title}</p>
         <p className="text-sm my-2">{props.body}</p>
         {
@@ -73,14 +73,15 @@ export class NotificationType
 
     static NORMAL_TIME = 3000
     static LONG_TIME = 5000
+    static PERMANENT = -1;
 }
 
 export class NotificationOptions
 {
     optionName : String;
-    onClick : () => undefined;
+    onClick : () => void;
 
-    constructor(optionName : String, onClick : () => undefined)
+    constructor(optionName : String, onClick : () => void)
     {
         this.optionName = optionName;
         this.onClick = onClick;

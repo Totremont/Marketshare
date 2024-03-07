@@ -2,7 +2,7 @@
 import {useState, useRef, useEffect} from "react"
 import { NotificationType,NotificationComponent, NotificationProps } from "../components/notification";
 import Logo from "../components/logo";
-import validateSession from "@/private/authorization";
+import validateToken from "@/private/authorization";
 import RequestStatus from "@/private/utils/requeststatus";
 
 //Pestaña principal de inicio de sesión

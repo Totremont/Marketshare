@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { AuthServerInternalError, InvalidUserAuthorities, InvalidUserToken, NoTokenFoundError } from "./exceptions";
 
-export default async function validateSession(token : string | undefined)
+export default async function validateToken(token : string | undefined)
 {
     let error;
     let userData : {role : string, username : string} | void
@@ -12,8 +12,8 @@ export default async function validateSession(token : string | undefined)
             {
                 let body = await res.json();
                 if(body.hasOwnProperty("active") && body.active)
-                    if(body.hasOwnProperty("authorities") && body.hasOwnProperty("username"))
-                        return {role : body.authorities[0], username : body.username}
+                    if(body.hasOwnProperty("authorities") && body.hasOwnProperty("user_name"))
+                        return {role : body.authorities, username : body.username}
                     else error = new InvalidUserAuthorities();
                 else error = new InvalidUserToken();
             },

@@ -1,7 +1,7 @@
 'use server'
 import { ACCESS_TOKEN, REFRESH_TOKEN, USER_ROLE } from "@/middleware";
 import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
+import { RedirectType, redirect } from 'next/navigation'
 
 //SSA = Server side action
 async function requestTokenSSA(username : string, password : string, role : string)
@@ -9,7 +9,6 @@ async function requestTokenSSA(username : string, password : string, role : stri
     let successful = false;
     try
     {
-        console.log(`Requesting token`);
         const req = await fetch(`${process.env.NEXT_PUBLIC_ms_auth_host}/oauth/token`,
             { 
                 method : 'POST',
@@ -23,11 +22,9 @@ async function requestTokenSSA(username : string, password : string, role : stri
                 body: `grant_type=password&scope=user&username=${username}&password=${password}`
             }
         )
-        console.log(`Token result: ${req.status}`);
         if(req.ok)
         {
             let {access_token, refresh_token} = await req.json();
-            console.log(`Seteamos cookies`);
             cookies().set({
                 name: ACCESS_TOKEN,
                 value: access_token,
@@ -61,16 +58,17 @@ async function requestTokenSSA(username : string, password : string, role : stri
     }
     finally
     {
-        if(successful) redirect('/home');
+        if(successful) redirect('/home',RedirectType.replace);
     }
 }
 
-export async function createUserSSA(userRole : string, formData : FormData)
+export async function createUserSSA(initialState : any, formData : FormData)
 {
+    let requestToken = false;
     try{
-        console.log("creating user...");
-        let available = await checkUsernameIsAvailable(formData.get('user')!.toString());
-        if(available.title === 'USERNAME_TAKEN') return available;
+        let nameStatus = await checkUsernameIsAvailable(formData.get('user')!.toString());
+        if(nameStatus.title === 'USERNAME_TAKEN') return nameStatus;
+        
         let req = await fetch(`${process.env.NEXT_PUBLIC_ms_usuarios_host}/api/users`,
         { 
             method : 'POST',
@@ -86,7 +84,7 @@ export async function createUserSSA(userRole : string, formData : FormData)
                     name : formData.get('user'),
                     password : formData.get('pass'),
                     country : formData.get('country'),
-                    type : userRole,
+                    type : formData.get('role'),
                     email : formData.get('email'),
                     organization : formData.get('organization'),
                     bank : formData.get('bank'),
@@ -94,13 +92,18 @@ export async function createUserSSA(userRole : string, formData : FormData)
                 })
         }
         )
-        console.log(`POST a usuario: ${req.status}`);
-        if(req.ok) return await requestTokenSSA(formData.get('user')!.toString(),formData.get('pass')!.toString(),userRole);
-        else return {title : 'USER_CREATION_ERROR'};
-    } catch(e)
+        if(!req.ok) return {title : 'USER_CREATION_ERROR'};
+        else requestToken = true;
+    } 
+    catch(e)
     {
         console.log(e);
         return {title : 'REQUEST_ERROR'};
+    }
+    finally //Hay que sacar el redirect del try-catch
+    {
+        if(requestToken) return await requestTokenSSA(formData.get('user')!.toString(),
+        formData.get('pass')!.toString(),formData.get('role')!.toString());
     }
 }
 

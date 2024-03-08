@@ -5,7 +5,7 @@ export function NotificationComponent(props :
 
     let informative = () => (
         <div className="fixed bottom-4 w-full ">
-        <article className="text-[#FFFAFA] bg-[#4682B4] text-start 
+        <article className="text-[#FFFAFA] bg-[#A0522D] text-start 
         w-[400px] h-fit mx-auto p-3 rounded-lg shadow-sm shadow-slate-900">
         <p className="font-semibold">{props.title}</p>
         <p className="text-sm my-2">{props.body}</p>
@@ -71,8 +71,8 @@ export class NotificationType
     static INFORMATIVE = 1
     static SUCCESSFUL = 2
 
-    static NORMAL_TIME = 3000
-    static LONG_TIME = 5000
+    static NORMAL_TIME = 4000
+    static LONG_TIME = 7000
     static PERMANENT = -1;
 }
 

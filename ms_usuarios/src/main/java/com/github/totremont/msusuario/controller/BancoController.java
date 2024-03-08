@@ -21,8 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
  * @author ezequ
  */
 @RestController
-@CrossOrigin()
-@RequestMapping("/internal/banks")
+@CrossOrigin(origins = "*")
+@RequestMapping("/api/banks")
 public class BancoController {
     
     private final BancoService service;

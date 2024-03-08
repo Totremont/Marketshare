@@ -20,6 +20,11 @@ public class PaisDTO {
     private Long id;
     private String name;
     private String code;
+
+    public PaisDTO(String name) {
+        this.name = name;
+    }
+    
     
     public static PaisDTO from(Pais country)
     {

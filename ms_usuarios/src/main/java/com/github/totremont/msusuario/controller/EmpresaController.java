@@ -22,8 +22,8 @@ import com.github.totremont.msusuario.repository.database.model.Empresa;
  * @author ezequ
  */
 @RestController
-@CrossOrigin()
-@RequestMapping("/internal/organizations")
+@CrossOrigin(origins = "*")
+@RequestMapping("/api/organizations")
 public class EmpresaController {
     
     private final EmpresaService service;

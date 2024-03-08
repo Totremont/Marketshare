@@ -19,7 +19,7 @@ import lombok.Setter;
 
 //Un usuario que representa una empresa compradora
 @Entity
-@DiscriminatorValue("COMPRADOR")
+@DiscriminatorValue("ROLE_COMPRADOR")
 @Getter @Setter @NoArgsConstructor
 public class UsuarioComprador extends Usuario 
 {

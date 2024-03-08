@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import { AuthServerInternalError, InvalidUserAuthorities, InvalidUserToken, NoTokenFoundError } from "./exceptions";
 
 export default async function validateToken(token : string | undefined)
@@ -13,7 +12,7 @@ export default async function validateToken(token : string | undefined)
                 let body = await res.json();
                 if(body.hasOwnProperty("active") && body.active)
                     if(body.hasOwnProperty("authorities") && body.hasOwnProperty("user_name"))
-                        return {role : body.authorities, username : body.username}
+                        return {role : body.authorities, username : body.user_name}
                     else error = new InvalidUserAuthorities();
                 else error = new InvalidUserToken();
             },
@@ -27,12 +26,12 @@ export default async function validateToken(token : string | undefined)
 
 async function requestAuth(token : string)
 {
-    let result = await fetch('http://localhost:8020/oauth/check_token',
+    let result = await fetch(`${process.env.NEXT_PUBLIC_ms_auth_host}/oauth/check_token`,
     { 
         method : 'POST',
         headers: 
         {
-            "Authorization":    "Basic cHJ1ZWJhOmRhbg==",
+            "Authorization":    `Basic ${process.env.NEXT_PUBLIC_clients_key}`,
             "Content-Type":     "application/x-www-form-urlencoded",
             "Accept":           "application/json",
         },

@@ -7,6 +7,7 @@ package com.github.totremont.msusuario.aspects;
 import com.github.totremont.msusuario.controller.BancoController;
 import com.github.totremont.msusuario.controller.EmpresaController;
 import com.github.totremont.msusuario.controller.PaisController;
+import com.github.totremont.msusuario.controller.UsuarioController;
 import com.github.totremont.msusuario.controller.dtos.TokenDTO;
 import com.github.totremont.msusuario.controller.exceptions.CredentialsNotFoundException;
 import com.github.totremont.msusuario.controller.exceptions.InvalidCredentialsException;
@@ -54,15 +55,13 @@ public class SecurityAspects {
         
         if(token != null)
         {                   //Si es una consulta por usuario, solo auth puede hacerla
-            if(jp.getSignature().getName().equals("findByUsername") )
-            {
-                token = token.substring(clientText.length());
-                if(!token.equals(authKey)) throw new InvalidCredentialsException();
-            }
-                            //Si es por pais, banco u org, cualquier ms sin token
-            else if(jp.getTarget().getClass() == PaisController.class
-                    || jp.getTarget().getClass() == EmpresaController.class
-                    || jp.getTarget().getClass() == BancoController.class)
+            if  (
+                        jp.getSignature().getName().equals("findByUsername") 
+                    ||  jp.getTarget().getClass() == PaisController.class
+                    ||  jp.getTarget().getClass() == EmpresaController.class
+                    ||  jp.getTarget().getClass() == BancoController.class
+                    ||  (jp.getTarget().getClass() == UsuarioController.class && jp.getSignature().getName().equals("save"))
+                )
             {
                 token = token.substring(clientText.length());
                 if(!token.equals(clientKey) && !token.equals(authKey)) throw new InvalidCredentialsException();

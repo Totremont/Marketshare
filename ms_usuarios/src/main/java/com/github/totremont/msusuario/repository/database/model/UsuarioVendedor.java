@@ -17,7 +17,7 @@ import lombok.Setter;
  * @author ezequ
  */
 @Entity
-@DiscriminatorValue("VENDEDOR")
+@DiscriminatorValue("ROLE_VENDEDOR")
 @Getter @Setter @NoArgsConstructor
 public class UsuarioVendedor extends Usuario
 {

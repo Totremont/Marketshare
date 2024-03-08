@@ -48,7 +48,6 @@ public class GlobalControllerHandler {
   @ExceptionHandler({IOException.class, Exception.class})
   public ResponseEntity<String> ioHandler(Exception ex) 
   {
-      System.out.println(ex);
       return ResponseEntity.internalServerError().build();
   }
   

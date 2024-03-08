@@ -22,8 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
  * @author ezequ
  */
 @RestController
-@CrossOrigin()
-@RequestMapping("/internal/countries")
+@CrossOrigin(origins = "*")
+@RequestMapping("/api/countries")
 public class PaisController {
     
     private final PaisService service;

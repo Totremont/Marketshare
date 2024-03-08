@@ -18,10 +18,10 @@ public final class UsuarioUtils {
         UsuarioType type;
         switch(rawType)
         {
-            case "COMPRADOR":
+            case "ROLE_COMPRADOR":
                 type = UsuarioType.COMPRADOR;
                 break;
-            case "VENDEDOR":
+            case "ROLE_VENDEDOR":
                 type = UsuarioType.VENDEDOR;
                 break;
             default:

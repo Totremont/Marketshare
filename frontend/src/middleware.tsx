@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import validateToken from "./private/authorization";
 import RequestStatus from "./private/utils/requeststatus";
 import { InvalidUserToken } from "./private/exceptions";
+import { NextURL } from "next/dist/server/web/next-url";
 
 export const ACCESS_TOKEN = "marketshare.user.access-token"
 export const REFRESH_TOKEN = "marketshare.user.refresh-token"
@@ -19,49 +20,50 @@ const auth_endpoints =
 
 export async function middleware(request: NextRequest) 
 {  
-    const accesstoken  = request.cookies.get(ACCESS_TOKEN)?.value;
-    const refreshtoken = request.cookies.get(REFRESH_TOKEN)?.value;
+    const accessToken  = request.cookies.get(ACCESS_TOKEN)?.value;
+    const refreshToken = request.cookies.get(REFRESH_TOKEN)?.value;
     const userRole = request.cookies.get(USER_ROLE)?.value;
-
-    console.log(`path : ${request.nextUrl.pathname}, base : ${request.nextUrl.host}`);
 
     const currentUrl = request.nextUrl;
     const endpoint = currentUrl.pathname;
 
     console.log("Sección middleware, inicio");
-    //Todas las requests exitosas se reescriben como ?username=xxx&role=xxx (se usan luego en el UI)
+    //Todas las requests exitosas envian username y userrole por headers
     try
     {
-        if(accesstoken)
+        if(accessToken)
         {
-            return await handleSession(endpoint,accesstoken,refreshtoken!,currentUrl,userRole!,request);
+            return await handleSession(currentUrl, {access : accessToken, refresh: refreshToken!},userRole!,request);
         }       
         else {
             console.log("No hay token");
-            return handleGuest(endpoint);  //Si no hay token, iniciar sesión    
+            return handleGuest(currentUrl);  //Si no hay token, iniciar sesión    
         }   
     }
     catch(e : any)
     {   
         console.log("Sección excepcion exterior");
         //Si hay tokens pero el access expiró, probar refrescando
-        if((e instanceof InvalidUserToken) && refreshtoken)
+        if((e instanceof InvalidUserToken) && refreshToken)
         {
-            return await useRefreshToken(endpoint, refreshtoken,currentUrl,userRole!,request);       
+            return await useRefreshToken(currentUrl,refreshToken,userRole!,request);       
         } 
-        else return handleGuest(endpoint);
+        else return handleGuest(currentUrl);
     }
     
 }
 
 //Supplementary methods
 
-async function handleSession(endpoint : string, token : string, refreshtoken : string, currentUrl : URL, userRole : string, request : NextRequest)
+async function handleSession(currentUrl : NextURL, tokens : {access : string, refresh : string}, userRole : string, request : NextRequest)
 {
     console.log("Sección access-token");
-    let {username} = await validateToken(token);
-    currentUrl.searchParams.set('role', userRole);
-    currentUrl.searchParams.set('username', username)
+    const endpoint = currentUrl.pathname;
+    let {username} = await validateToken(tokens.access);
+    currentUrl.searchParams.forEach(value => currentUrl.searchParams.delete(value));
+    //Los valores van en headers -- para ocultar los path queries
+    //currentUrl.searchParams.set('role', userRole);
+    //currentUrl.searchParams.set('username', username)
     //Si quiere entrar a una pantalla en la que no tiene permiso, ir a home
     let res : NextResponse;
     if(!auth_endpoints[endpoint as keyof typeof auth_endpoints].includes(userRole))
@@ -71,25 +73,32 @@ async function handleSession(endpoint : string, token : string, refreshtoken : s
         res = NextResponse.redirect(currentUrl);
     }   
     else {
-        res = NextResponse.rewrite(currentUrl);   //Mismo endpoint pero ocultando path queries
+        console.log("Sección access-token | mantener URL");
+        res = NextResponse.next() //NextResponse.rewrite(currentUrl);   //Mismo endpoint pero ocultando path queries
     }
-    addCookie(request,res,ACCESS_TOKEN,token);
+    res.headers.set('X-USER-NAME',username);
+    res.headers.set('X-USER-ROLE',userRole);
+    addCookie(request,res,ACCESS_TOKEN,tokens.access);
     addCookie(request,res,USER_ROLE,userRole);
-    addCookie(request,res,REFRESH_TOKEN,refreshtoken);
+    addCookie(request,res,REFRESH_TOKEN,tokens.refresh);
     return res;
 }
 
-function handleGuest(endpoint : string)
+function handleGuest(currentUrl : NextURL)
 {
     console.log("Es un guest");
+    const endpoint = currentUrl.pathname;
     let res;
     if(!auth_endpoints[endpoint as keyof typeof auth_endpoints].includes('VISITANTE'))
-        res = NextResponse.redirect('/');
+    {
+        currentUrl.pathname = '/';
+        res = NextResponse.redirect(currentUrl);
+    }
     else res = NextResponse.next();
     return res;
 }
 
-async function useRefreshToken(endpoint : string, token : string, currentUrl : URL, userRole : string, request : NextRequest)
+async function useRefreshToken(currentUrl : NextURL, token : string, userRole : string, request : NextRequest)
 {
     console.log("Refrescando token");
     try{
@@ -110,15 +119,15 @@ async function useRefreshToken(endpoint : string, token : string, currentUrl : U
     {     
         console.log("Sección obtener tokens | Respuesta OK");
         let {access_token, refresh_token} = await req.json();
-        return await handleSession(endpoint, access_token,refresh_token,currentUrl,userRole,request); 
+        return await handleSession(currentUrl, {access : access_token,refresh : refresh_token},userRole,request); 
     } 
     else
     {
         //Borrar cookies
-        return handleGuest(currentUrl.pathname);
+        return handleGuest(currentUrl);
     }
     }
-    catch(e){return handleGuest(currentUrl.pathname);}
+    catch(e){return handleGuest(currentUrl);}
 }
 
     const deleteCookie = (request: NextRequest, response: NextResponse, cookieName: string) => 

@@ -19,6 +19,11 @@ public class BancoDTO {
     
     private Long id;
     private String name;
+
+    public BancoDTO(String name) {
+        this.name = name;
+    }
+     
     
     public static BancoDTO from(Banco bank)
     {

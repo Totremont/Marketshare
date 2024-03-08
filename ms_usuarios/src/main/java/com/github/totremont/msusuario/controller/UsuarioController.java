@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author ezequ
  */
 @RestController
-@CrossOrigin()
+@CrossOrigin(origins = "*")
 @RequestMapping("/api/users")
 public class UsuarioController 
 {

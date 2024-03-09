@@ -26,10 +26,10 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long>  {
     public Optional<Usuario> findOptionalByName(String userName);
     
     @Query("SELECT u FROM Usuario u WHERE TYPE(u) = UsuarioVendedor")
-    public List<UsuarioVendedor> getAllFromTypeVendedor();
+    public List<UsuarioVendedor> findAllFromTypeVendedor();
     
     @Query("SELECT u FROM Usuario u WHERE TYPE(u) = UsuarioComprador")
-    public List<UsuarioComprador> getAllFromTypeComprador();
+    public List<UsuarioComprador> findAllFromTypeComprador();
     
     @Transactional  //Al ser transactional se debería actualizar la entidad al finalizar el método automáticamente
     default public Usuario update(Usuario user)

@@ -5,7 +5,7 @@ import Logo from "../../components/logo";
 import ViewVisibility from "@/private/utils/domvisibility";
 import RequestStatus from "@/private/utils/requeststatus";
 import { NotificationComponent, NotificationOptions, NotificationProps, NotificationType } from "@/components/notification";
-import { createUserSSA } from "@/private/actions/register";
+import { createUserSSA } from "@/private/actions/session";
 import { useFormState, useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
 
@@ -17,7 +17,7 @@ function SubmitButton()
     return (
     pendingForm.pending ? 
     <input key="submit_button_disabled" className="mt-6 block rounded-xl bg-gray-800 px-6 
-    py-2 font-semibold" aria-disabled value="Enviando..." />
+    py-2 font-semibold" aria-disabled type="submit" value="Enviando..." />
     
     : <input key="submit_button" className="mt-6 block rounded-xl bg-blue-900 px-6 py-2 font-semibold 
     hover:bg-blue-800 cursor-pointer" type="submit" value="Crear cuenta" />
@@ -35,7 +35,7 @@ export default function SignIn()
     let [customOrganization, setCustomOrganization] = useState(false)
     let [userTaken, setUserTaken] = useState(false);
 
-    const initialState = {title : 'CREATING_USER'};
+    const initialState = {title : ''};
 
     const [state, formAction] = useFormState(createUserSSA, initialState);
 
@@ -190,7 +190,7 @@ export default function SignIn()
     return view;
 }
 
-//Comprobar si existe el username y si no, crearlo
+
 function getFromMsUsuarios(endpoint : string)
 {
     return fetch(`${process.env.NEXT_PUBLIC_ms_usuarios_host}/${endpoint}`,
@@ -269,15 +269,13 @@ function handleFormResult(router : any, state : {title : string} | undefined, se
     //{'USERNAME_TAKEN','USER_CREATION_ERROR','REQUEST_ERROR',''SUCCESS','AUTH_ERROR'}
     switch(state.title)
     {
-        case 'CREATING_USER':   //No se subió el formulario
-            break;
         case 'USERNAME_TAKEN':
             setUserTaken(true);
             showUsernameTakenMsg(setShowSnack,ref);
             break;
         case 'USER_CREATION_ERROR':
-            showUsercreatedNoToken(setShowSnack,ref);    //Se creó el user pero fallo en obtener el token
-            router.push('/');
+            showUsercreatedNoToken(setShowSnack,ref);    //Se creó el user pero fallo en obtener el token 
+            setTimeout(() => router.push('/'), NotificationType.NORMAL_TIME);
             break;
         default:
             showServerError(setShowSnack,ref);

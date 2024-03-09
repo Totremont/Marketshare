@@ -12,7 +12,7 @@ export default async function validateToken(token : string | undefined)
                 let body = await res.json();
                 if(body.hasOwnProperty("active") && body.active)
                     if(body.hasOwnProperty("authorities") && body.hasOwnProperty("user_name"))
-                        return {role : body.authorities, username : body.user_name}
+                        return {role : body.authorities[0], username : body.user_name}
                     else error = new InvalidUserAuthorities();
                 else error = new InvalidUserToken();
             },

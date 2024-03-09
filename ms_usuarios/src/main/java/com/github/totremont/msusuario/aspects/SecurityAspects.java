@@ -9,9 +9,14 @@ import com.github.totremont.msusuario.controller.EmpresaController;
 import com.github.totremont.msusuario.controller.PaisController;
 import com.github.totremont.msusuario.controller.UsuarioController;
 import com.github.totremont.msusuario.controller.dtos.TokenDTO;
+import com.github.totremont.msusuario.controller.dtos.UsuarioDTO;
 import com.github.totremont.msusuario.controller.exceptions.CredentialsNotFoundException;
 import com.github.totremont.msusuario.controller.exceptions.InvalidCredentialsException;
+import java.util.List;
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
@@ -19,6 +24,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -43,11 +49,11 @@ public class SecurityAspects {
     //Target : Calling object | Proxy : Called object
     @Pointcut("execution(public * com.github.totremont.msusuario.controller.*.*(..))")
     public void apiRequest() {}
-    
-    @Before("apiRequest()")
-    public void validate(JoinPoint jp) 
+ 
+    @Around("apiRequest()")
+    public ResponseEntity validate(ProceedingJoinPoint jp) throws Throwable
     {
-        String token = null;
+        String token;
         String trailingText = "Bearer ";
         String clientText = "Basic ";       
         Object[] args = jp.getArgs();
@@ -64,15 +70,37 @@ public class SecurityAspects {
                 )
             {
                 token = token.substring(clientText.length());
-                if(!token.equals(clientKey) && !token.equals(authKey)) throw new InvalidCredentialsException();
+                if(!token.equals(clientKey) && !token.equals(authKey)) return ResponseEntity.status(401).build();
             }
             else
             {
                 token = token.substring(trailingText.length());
                 TokenDTO result = request(token).block();
-                if(result == null || !result.getActive()) throw new InvalidCredentialsException();
+                if(result == null || !result.getActive()) return ResponseEntity.status(401).build();
             }
-        } else throw new CredentialsNotFoundException();
+        } else return ResponseEntity.badRequest().body("No token found");
+        
+        //Ejecutar el método
+        try
+        {
+            ResponseEntity response = (ResponseEntity) jp.proceed();
+            if(!token.equals(authKey) && jp.getTarget().getClass() == UsuarioController.class)
+            {
+                if(response.getBody().getClass().equals(List.class))
+                {   
+                    List<UsuarioDTO> dtos = (List<UsuarioDTO>) response.getBody();
+                    dtos.stream().forEach(it -> it.setPassword(""));
+                }
+                else
+                {
+                    UsuarioDTO dto = (UsuarioDTO) response.getBody();
+                    dto.setPassword("");
+                }
+            }  
+        
+            return response;
+        } 
+        catch(Exception e){ return ResponseEntity.badRequest().build(); }
     }
     
     
@@ -90,8 +118,6 @@ public class SecurityAspects {
                 .onStatus(HttpStatusCode::is5xxServerError,( it) -> Mono.empty())
                 .bodyToMono(TokenDTO.class);
         return response;
-    }
-
-    
+    }       
     
 }

@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { headers } from "next/headers";
+import { USERNAME_HEADER, USER_ROLE_HEADER } from "@/middleware";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Marketshare",
+  title: "marketshare",
   description: "Empresa de eCommerce"
 };
 

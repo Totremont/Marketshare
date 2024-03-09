@@ -2,70 +2,34 @@
 import {useState, useRef, useEffect} from "react"
 import { NotificationType,NotificationComponent, NotificationProps } from "../components/notification";
 import Logo from "../components/logo";
-import validateToken from "@/private/authorization";
-import RequestStatus from "@/private/utils/requeststatus";
+import { useFormState, useFormStatus } from "react-dom";
+import { requestTokenSSA } from "@/private/actions/session";
 
 //Pestaña principal de inicio de sesión
 
+function SubmitButton()
+{
+    let pendingForm = useFormStatus();
+    return (
+    pendingForm.pending ? 
+    <input key="submit_button_disabled" className="mt-6 w-full block rounded-xl bg-gray-800 px-6 
+    py-2 font-semibold" aria-disabled type="submit" value="Enviando..." />
+    
+    : <input key="submit_button" className="block mt-6 bg-blue-900 py-2 px-6 rounded-xl font-semibold
+    hover:bg-blue-700 w-full cursor-pointer" type="submit" value="Iniciar sesión"/>
+    )
+}
+
 export default function Login() 
 {
-  let [user, setUser] = useState("");
-  let [pass, setPass] = useState("");
-  let [show,setShow] = useState(false);
-  let props = useRef(setIncompleteFieldsProps());
+  let [showSnack,setShowSnack] = useState(false);
+  let snackProps = useRef<NotificationProps>();
 
-  let onChange = function(event : React.SyntheticEvent)
-  {
-    let target = event.target as HTMLInputElement
-    switch(target.id)
-    {
-      case "user":
-        setUser(target.value)
-        break;
-      case "pass":
-        setPass(target.value)
-        break;
-    }
-  }
+  const initialState = {title : ''};
 
-  let onSubmit = function(event : React.SyntheticEvent)
-  {
-    event.preventDefault()  //Necesario en formularios que usan un input type="submit"
+  const [state, formAction] = useFormState(requestTokenSSA, initialState);
 
-    if(user && pass)  //Si no son null, undefined, empty string, false, etc | [Falsy]
-    {
-      let msRequest = requestUser(user,pass);
-      msRequest.then(response => 
-      {
-        //console.log(response.status);
-        switch(response.status)
-        {
-          case RequestStatus.OK:
-            break;
-          case RequestStatus.NOT_FOUND:
-            props.current = setNotFoundProps();
-            showNotification();
-            break;
-          default:
-            props.current = setDisconnectedProps();
-            showNotification();
-            break;
-        }
-      })
-      msRequest.catch(e =>
-      {
-          setDisconnectedProps();
-          showNotification;
-      } )
-  
-    }
-    else  //Completar campos
-    {
-      props.current = setIncompleteFieldsProps();
-      showNotification();
-    }
-
-  }
+  useEffect(() => handleFormResult(state,setShowSnack,snackProps),[state])
 
   return (
   <main className="bg-gray-900 h-full w-full flex items-center">
@@ -76,22 +40,21 @@ export default function Login()
       <h2 className="text-slate-400">Ingresá con tu cuenta</h2>
     </header>
 
-    <form onSubmit={onSubmit} className="bg-gray-900 w-fit mx-auto rounded-lg p-3">
+    <form action={formAction} className="bg-gray-900 w-fit mx-auto rounded-lg p-3">
       
       <label htmlFor="user" className="block font-semibold">Usuario</label>
-      <input type="text" id="user" onChange={onChange} className="border 
-      rounded-md py-1 px-1  w-full md:w-[350px] bg-gray-800 border-slate-600 mt-2"/>
+      <input type="text" name="user" required className="border 
+      rounded-md py-1 px-1  w-full md:w-[350px] bg-gray-800 border-slate-600 mt-3"/>
 
       <div className="flex items-center mt-4">
         <label htmlFor="pass" className="block font-semibold flex-1">Contraseña</label>
         <a className="text-sm font-semibold 
         text-teal-400 hover:text-teal-300 ms-8" href="#">Olvidé mi contraseña</a>
       </div>
-      <input type="password" id="pass" onChange={onChange} className="border 
-      rounded-md py-1 px-1 w-full md:w-[350px] bg-gray-800 border-slate-600 mt-2"/>
+      <input type="password" name="pass" required className="border 
+      rounded-md py-1 px-1 w-full md:w-[350px] bg-gray-800 border-slate-600 mt-3"/>
 
-      <input className="block mt-6 bg-blue-900 py-2 px-6 rounded-xl font-semibold
-        hover:bg-blue-700 w-full cursor-pointer" type="submit" value="Iniciar sesión"/>
+      <SubmitButton/>
 
     </form>
 
@@ -104,53 +67,59 @@ export default function Login()
       </div>
     </section>
   </div>
-    {show ? <NotificationComponent title={props.current.title} 
-    body={props.current.body} type={props.current.type} options={props.current.options}/> : null}
+    {showSnack ? <NotificationComponent title={snackProps.current!.title} 
+    body={snackProps.current!.body} type={snackProps.current!.type} options={snackProps.current!.options}/> : null}
   </main>
 
-  );
-
-  //Un get al ms_usuario no requiere bearer token
-  async function requestUser(user : String, pass : String)
-  {
-      let result = await fetch(`${process.env.NEXT_PUBLIC_MS_USUARIO_HOST}/internal/user`,
-      { method : 'GET',
-        mode : 'cors',
-        headers: 
-        {
-          "Authorization":    "Basic cHJ1ZWJhOmRhbg==",
-          "Accept":           "application/json",
-        },
-        body:JSON.stringify({name : user, password : pass})
-      }
-      );
-      return result
-  }
-
-  function showNotification(time : number = NotificationType.NORMAL_TIME)
-  {
-      setShow(true);
-      setTimeout(() => setShow(false),time)
-  }
+  ); 
 
 }
 
-  function setDisconnectedProps()
-  {
-    return new NotificationProps(NotificationType.ERROR,"Ocurrió un error",
-    "Ocurrió un problema inesperado",[]);
-  }
+function handleFormResult(state : {title : string}, setShowSnack : any, ref : any)
+{
+  if(!state) return;
+  setShowSnack(false);
+    //{'USERNAME_TAKEN','USER_CREATION_ERROR','REQUEST_ERROR',''SUCCESS','AUTH_ERROR'}
+    switch(state.title)
+    {
+        case 'AUTH_ERROR':
+            showInvalidData(setShowSnack,ref);
+            break;
+        case 'REQUEST_ERROR':
+            showServerError(setShowSnack,ref);
+            break;
+        default:
+            break;
+    }
+}
 
-  function setNotFoundProps()
-  {
-    return new NotificationProps(NotificationType.INFORMATIVE,"Error al iniciar sesión",
-    "No se encontró ninguna cuenta con esos valores",[]);
-  }
+function showServerError(setShowSnack : any, ref : any, time : number = NotificationType.NORMAL_TIME )
+{
+    ref.current = new NotificationProps(NotificationType.ERROR,"Error de servidor",
+    "Ocurrió un error inesperado. Intentalo más tarde",[]);
 
-  function setIncompleteFieldsProps()
-  {
-    return new NotificationProps(NotificationType.ERROR,"Campos incompletos",
-    "Complete todos los campos antes de continuar",[]);
-  }
+    setShowSnack(true);
+    setTimeout(() => setShowSnack(false),time)
 
+}
+
+function showInvalidData(setShowSnack : any, ref : any, time : number = NotificationType.NORMAL_TIME )
+{
+    ref.current = new NotificationProps(NotificationType.ERROR,"Datos erroneos",
+    "La combinación de usuario y contraseña es incorrecta.",[]);
+
+    setShowSnack(true);
+    setTimeout(() => setShowSnack(false),time)
+
+}
+
+function showMissingData(setShowSnack : any, ref : any, time : number = NotificationType.NORMAL_TIME )
+{
+    ref.current = new NotificationProps(NotificationType.INFORMATIVE,"Datos incompletos",
+    "Complete todos los campos antes de continuar.",[]);
+
+    setShowSnack(true);
+    setTimeout(() => setShowSnack(false),time)
+
+}
 

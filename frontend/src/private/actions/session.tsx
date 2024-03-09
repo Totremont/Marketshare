@@ -2,11 +2,15 @@
 import { ACCESS_TOKEN, REFRESH_TOKEN, USER_ROLE } from "@/middleware";
 import { cookies } from 'next/headers'
 import { RedirectType, redirect } from 'next/navigation'
+import validateToken from "../authorization";
 
 //SSA = Server side action
-async function requestTokenSSA(username : string, password : string, role : string)
+export async function requestTokenSSA(initialState : {title : string}, formData : FormData)
 {
     let successful = false;
+    const username = formData.get('user')?.toString();
+    const password = formData.get('pass')?.toString();
+    let userRole = formData.get('role')?.toString();
     try
     {
         const req = await fetch(`${process.env.NEXT_PUBLIC_ms_auth_host}/oauth/token`,
@@ -39,9 +43,11 @@ async function requestTokenSSA(username : string, password : string, role : stri
                 sameSite: "strict",
                 secure: true,
             })
+            if(!userRole) userRole = await (await validateToken(access_token)).role;
+
             cookies().set({
                 name: USER_ROLE,
-                value: role,
+                value: userRole,
                 httpOnly: true,
                 sameSite: "strict",
                 secure: true,
@@ -49,11 +55,13 @@ async function requestTokenSSA(username : string, password : string, role : stri
             successful = true;
             return {title : 'SUCCESS'}
         }
-        else return {title : 'AUTH_ERROR'}
+        else{
+            return {title : 'AUTH_ERROR'}
+        }
     }
     catch(e)
     {
-        console.log(e);
+        cookies().getAll().forEach(cookie => cookies().delete(cookie.name));
         return {title : 'REQUEST_ERROR'}
     }
     finally
@@ -102,8 +110,7 @@ export async function createUserSSA(initialState : any, formData : FormData)
     }
     finally //Hay que sacar el redirect del try-catch
     {
-        if(requestToken) return await requestTokenSSA(formData.get('user')!.toString(),
-        formData.get('pass')!.toString(),formData.get('role')!.toString());
+        if(requestToken) return await requestTokenSSA(null,formData);
     }
 }
 

@@ -6,13 +6,14 @@ package com.github.totremont.msusuario.controller;
 
 import com.github.totremont.msusuario.controller.dtos.UsuarioDTO;
 import com.github.totremont.msusuario.repository.database.enums.UsuarioType;
+import static com.github.totremont.msusuario.repository.database.enums.UsuarioType.COMPRADOR;
 import com.github.totremont.msusuario.repository.database.model.Usuario;
 import com.github.totremont.msusuario.repository.database.model.UsuarioComprador;
 import com.github.totremont.msusuario.repository.database.model.UsuarioVendedor;
 import com.github.totremont.msusuario.repository.database.utils.UsuarioUtils;
 import com.github.totremont.msusuario.service.UsuarioService;
-import jakarta.websocket.server.PathParam;
 import java.util.Optional;
+import java.util.List;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -44,16 +45,48 @@ public class UsuarioController
     }
     
     //@Validated @RequestBody UsuarioDTO userDTO)
-    //api/users?username=xxx
+    //api/users?username=xxx | //api/users?role=xxx
     @GetMapping()
     public ResponseEntity<UsuarioDTO> findByUsername(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String token, 
-            @Validated @RequestParam String username)
+            @RequestParam String username)
     {
         Optional<Usuario> user = service.findByUsername(username);
         if(user.isPresent())
             return ResponseEntity.ok().body(UsuarioDTO.from(user.get()));
         else return ResponseEntity.notFound().build();
+    }
+    
+    //api/users/list?role=xxx
+    @GetMapping("/list")
+    public ResponseEntity<List<UsuarioDTO>> findAllByRole(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String token,
+            @Validated @RequestParam String role)
+    {
+        UsuarioType type = UsuarioUtils.getTypeName(role);
+        switch(type)
+        {
+            case COMPRADOR:
+            {
+                List<UsuarioComprador> users = service.findAllRoleComprador();
+                List<UsuarioDTO> dtos = users.stream().map(it -> UsuarioDTO.from(it)).toList();
+                if(!dtos.isEmpty())
+                {
+                    return ResponseEntity.ok().body(dtos);
+                } else return ResponseEntity.notFound().build();
+            }
+            case VENDEDOR:
+            {
+                List<UsuarioVendedor> users = service.findAllRoleVendedor();
+                List<UsuarioDTO> dtos = users.stream().map(it -> UsuarioDTO.from(it)).toList();
+                if(!dtos.isEmpty())
+                {
+                    ResponseEntity entity =  ResponseEntity.ok().body(dtos);
+                } else return ResponseEntity.notFound().build();
+            }
+            default:
+                return ResponseEntity.badRequest().build();  
+        }
     }
     
     //api/users/{id}

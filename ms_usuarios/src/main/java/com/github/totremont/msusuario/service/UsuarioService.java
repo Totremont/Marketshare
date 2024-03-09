@@ -5,6 +5,7 @@
 package com.github.totremont.msusuario.service;
 
 import com.github.totremont.msusuario.repository.UsuarioRepository;
+import com.github.totremont.msusuario.repository.database.enums.UsuarioType;
 import com.github.totremont.msusuario.repository.database.model.Banco;
 import com.github.totremont.msusuario.repository.database.model.Empresa;
 import com.github.totremont.msusuario.repository.database.model.Pais;
@@ -12,6 +13,7 @@ import com.github.totremont.msusuario.repository.database.model.Usuario;
 import com.github.totremont.msusuario.repository.database.model.UsuarioComprador;
 import com.github.totremont.msusuario.repository.database.model.UsuarioVendedor;
 import java.util.Optional;
+import java.util.List;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -37,16 +39,24 @@ public class UsuarioService {
         this.paisService = paisService;
     }
 
-    
     public Optional<Usuario> findByUsername(String name)
     {
-        return repo.findOptionalByName(name.toLowerCase());
-        
+        return repo.findOptionalByName(name.toLowerCase()); 
     }
     
     public Optional<Usuario> findById(Long id)
     {
         return repo.findById(id);
+    }
+    
+    public List<UsuarioComprador> findAllRoleComprador()
+    {
+        return repo.findAllFromTypeComprador();
+    }
+    
+    public List<UsuarioVendedor> findAllRoleVendedor()
+    {
+        return repo.findAllFromTypeVendedor();
     }
     
     

@@ -2,7 +2,7 @@ import { useState } from "react";
 import Logo from "./logo";
 
 export default function Header(props : {
-    onClick : (selected : string) => void,
+    onClick : (selected : string) => any,
     selected : string}) //El prop 'selected' es un state que permite cambiar la opción seleccionada cuando 
                         //el usuario no hace clic pero scrollea (esto no activa callbacks)
 {

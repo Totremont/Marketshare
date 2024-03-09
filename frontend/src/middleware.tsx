@@ -8,6 +8,9 @@ export const ACCESS_TOKEN = "marketshare.user.access-token"
 export const REFRESH_TOKEN = "marketshare.user.refresh-token"
 export const USER_ROLE = "marketshare.user.user-role"
 
+export const USERNAME_HEADER = "X-USER-NAME";
+export const USER_ROLE_HEADER = "X-USER-ROLE";
+
 //¿Quién puede acceder a cada endpoint?
 const auth_endpoints = 
 {
@@ -22,10 +25,8 @@ export async function middleware(request: NextRequest)
 {  
     const accessToken  = request.cookies.get(ACCESS_TOKEN)?.value;
     const refreshToken = request.cookies.get(REFRESH_TOKEN)?.value;
-    const userRole = request.cookies.get(USER_ROLE)?.value;
 
     const currentUrl = request.nextUrl;
-    const endpoint = currentUrl.pathname;
 
     console.log("Sección middleware, inicio");
     //Todas las requests exitosas envian username y userrole por headers
@@ -33,11 +34,13 @@ export async function middleware(request: NextRequest)
     {
         if(accessToken)
         {
-            return await handleSession(currentUrl, {access : accessToken, refresh: refreshToken!},userRole!,request);
+            return await handleSession(currentUrl, {access : accessToken, refresh: refreshToken!},request);
         }       
-        else {
+        else 
+        {
+            if(refreshToken) return await useRefreshToken(currentUrl,refreshToken,request);
             console.log("No hay token");
-            return handleGuest(currentUrl);  //Si no hay token, iniciar sesión    
+            return handleGuest(currentUrl,request);  //Si no hay token, iniciar sesión    
         }   
     }
     catch(e : any)
@@ -46,27 +49,27 @@ export async function middleware(request: NextRequest)
         //Si hay tokens pero el access expiró, probar refrescando
         if((e instanceof InvalidUserToken) && refreshToken)
         {
-            return await useRefreshToken(currentUrl,refreshToken,userRole!,request);       
+            return await useRefreshToken(currentUrl,refreshToken,request);       
         } 
-        else return handleGuest(currentUrl);
+        else return handleGuest(currentUrl,request);
     }
     
 }
 
 //Supplementary methods
 
-async function handleSession(currentUrl : NextURL, tokens : {access : string, refresh : string}, userRole : string, request : NextRequest)
+async function handleSession(currentUrl : NextURL, tokens : {access : string, refresh : string}, request : NextRequest)
 {
     console.log("Sección access-token");
     const endpoint = currentUrl.pathname;
-    let {username} = await validateToken(tokens.access);
+    let {username, role} = await validateToken(tokens.access);
     currentUrl.searchParams.forEach(value => currentUrl.searchParams.delete(value));
     //Los valores van en headers -- para ocultar los path queries
     //currentUrl.searchParams.set('role', userRole);
     //currentUrl.searchParams.set('username', username)
     //Si quiere entrar a una pantalla en la que no tiene permiso, ir a home
     let res : NextResponse;
-    if(!auth_endpoints[endpoint as keyof typeof auth_endpoints].includes(userRole))
+    if(!auth_endpoints[endpoint as keyof typeof auth_endpoints].includes(role))
     {
         console.log("Sección access-token | Redireccionar a /home");
         currentUrl.pathname = '/home';
@@ -74,17 +77,17 @@ async function handleSession(currentUrl : NextURL, tokens : {access : string, re
     }   
     else {
         console.log("Sección access-token | mantener URL");
-        res = NextResponse.next() //NextResponse.rewrite(currentUrl);   //Mismo endpoint pero ocultando path queries
+        res = NextResponse.next()
     }
-    res.headers.set('X-USER-NAME',username);
-    res.headers.set('X-USER-ROLE',userRole);
+    res.headers.set(USERNAME_HEADER,username);
+    res.headers.set(USER_ROLE_HEADER,role);
     addCookie(request,res,ACCESS_TOKEN,tokens.access);
-    addCookie(request,res,USER_ROLE,userRole);
+    addCookie(request,res,USER_ROLE,role);
     addCookie(request,res,REFRESH_TOKEN,tokens.refresh);
     return res;
 }
 
-function handleGuest(currentUrl : NextURL)
+function handleGuest(currentUrl : NextURL,request : NextRequest)
 {
     console.log("Es un guest");
     const endpoint = currentUrl.pathname;
@@ -95,10 +98,11 @@ function handleGuest(currentUrl : NextURL)
         res = NextResponse.redirect(currentUrl);
     }
     else res = NextResponse.next();
+    deleteAllCookie(request,res);
     return res;
 }
 
-async function useRefreshToken(currentUrl : NextURL, token : string, userRole : string, request : NextRequest)
+async function useRefreshToken(currentUrl : NextURL, token : string, request : NextRequest)
 {
     console.log("Refrescando token");
     try{
@@ -119,37 +123,36 @@ async function useRefreshToken(currentUrl : NextURL, token : string, userRole : 
     {     
         console.log("Sección obtener tokens | Respuesta OK");
         let {access_token, refresh_token} = await req.json();
-        return await handleSession(currentUrl, {access : access_token,refresh : refresh_token},userRole,request); 
+        return await handleSession(currentUrl, {access : access_token,refresh : refresh_token},request); 
     } 
     else
     {
         //Borrar cookies
-        return handleGuest(currentUrl);
+        return handleGuest(currentUrl,request);
     }
     }
-    catch(e){return handleGuest(currentUrl);}
+    catch(e){return handleGuest(currentUrl,request);}
 }
 
-    const deleteCookie = (request: NextRequest, response: NextResponse, cookieName: string) => 
-    {
-        let cookie = request.cookies.get(cookieName);
-        if (cookie) 
+const deleteAllCookie = (request: NextRequest, response: NextResponse) => 
+{
+    request.cookies.getAll().forEach(cookie => 
         {
-            if(!response.cookies.get(cookieName)) response.cookies.set(cookie);
-            response.cookies.delete(cookie);
-        }
-    };
+        response.cookies.set(cookie);
+        response.cookies.delete(cookie);
+    });
+};
 
-    const addCookie = (request: NextRequest, response: NextResponse, cookieName: string, cookieValue : string) => 
-    {  
-        response.cookies.set({
-            name: cookieName,
-            value: cookieValue,
-            httpOnly: true,
-            sameSite: "strict",
-            secure: true,
-        })
-    };
+const addCookie = (request: NextRequest, response: NextResponse, cookieName: string, cookieValue : string) => 
+{  
+    response.cookies.set({
+        name: cookieName,
+        value: cookieValue,
+        httpOnly: true,
+        sameSite: "strict",
+        secure: true,
+    })
+};
 
 //Solo ejecutar en endpoints
 

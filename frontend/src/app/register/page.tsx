@@ -1,6 +1,6 @@
 'use client'
 import {useState, useRef, useEffect} from "react"
-import Chip from "../../components/chip";
+import SingleChip from "../../components/chip";
 import Logo from "../../components/logo";
 import ViewVisibility from "@/private/utils/domvisibility";
 import RequestStatus from "@/private/utils/requeststatus";
@@ -8,21 +8,9 @@ import { NotificationComponent, NotificationOptions, NotificationProps, Notifica
 import { createUserSSA } from "@/private/actions/session";
 import { useFormState, useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
+import SubmitButton from "@/components/submitbutton";
 
 //Pestaña para registrarse
-
-function SubmitButton()
-{
-    let pendingForm = useFormStatus();
-    return (
-    pendingForm.pending ? 
-    <input key="submit_button_disabled" className="mt-6 block rounded-xl bg-gray-800 px-6 
-    py-2 font-semibold" aria-disabled type="submit" value="Enviando..." />
-    
-    : <input key="submit_button" className="mt-6 block rounded-xl bg-blue-900 px-6 py-2 font-semibold 
-    hover:bg-blue-800 cursor-pointer" type="submit" value="Crear cuenta" />
-    )
-}
 
 export default function SignIn()
 {
@@ -108,9 +96,9 @@ export default function SignIn()
 
                 <label htmlFor="money" className="mt-4 block font-semibold">Dinero</label>
                 <p className="text-sm text-slate-400 w-[60%] md:w-[300px]">Transfiere dinero a tu cuenta y empieza a comprar</p>
-                <input type="number" name="money" id="money" required={rolSelected === 'ROLE_COMPRADOR'} className="mt-3
+                <input type="number" min={0} name="money" id="money" required={rolSelected === 'ROLE_COMPRADOR'} className="mt-3
                  w-[40%] md:w-[200px] rounded-md border border-slate-600 bg-gray-800 px-1 py-1" />
-                <SubmitButton/>
+                <SubmitButton title="Crear cuenta"/>
             </div>
         </fieldset>
     )
@@ -125,7 +113,7 @@ export default function SignIn()
         <div>
           <label htmlFor="organization" className="block font-semibold">Empresa que representas</label>
             {customOrganization ? customOrganizationView : selectOrganizationView } 
-            <SubmitButton/>
+            <SubmitButton title="Crear cuenta"/>
         </div>
       </fieldset>
     )
@@ -167,10 +155,10 @@ export default function SignIn()
             <label className="mt-4 block font-semibold">Rol</label>
             <p className="text-sm text-slate-400">¿Qué deseas hacer en Marketshare?</p>
 
-            <Chip id="ROLE_VENDEDOR" key="ROLE_VENDEDOR" title="Soy vendedor" 
+            <SingleChip id="ROLE_VENDEDOR" key="ROLE_VENDEDOR" title="Soy vendedor" 
             checked={rolSelected === "ROLE_VENDEDOR" ? true : false} callback={(e) => setRolSelected(e.currentTarget.id)}/>
 
-            <Chip id="ROLE_COMPRADOR" key="ROLE_COMPRADOR" title="Soy comprador" 
+            <SingleChip id="ROLE_COMPRADOR" key="ROLE_COMPRADOR" title="Soy comprador" 
             checked={rolSelected === "ROLE_COMPRADOR" ? true : false} callback={(e) => setRolSelected(e.currentTarget.id)}/>
 
             <input type="hidden" name="role" value={rolSelected} />

@@ -6,6 +6,7 @@ package com.github.totremont.msusuario.repository.database.model;
 
 import com.github.totremont.msusuario.repository.database.enums.UsuarioType;
 import com.github.totremont.msusuario.repository.database.utils.UsuarioUtils;
+import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;
@@ -22,6 +23,8 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import java.io.Serializable;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -53,6 +56,10 @@ public abstract class Usuario implements Serializable {
     @ManyToOne
     @JoinColumn(name = "country_id",nullable = false)
     protected Pais country;
+    
+    @Basic
+    @Column(name = "register_date")
+    protected ZonedDateTime registerDate = ZonedDateTime.now(ZoneId.of("America/Argentina/Buenos_Aires"));
     
     @Transient
     public UsuarioType getType() 

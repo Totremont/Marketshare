@@ -1,4 +1,4 @@
-import { Estado,Colores } from "@prisma/client";
+import { Estado,Producto } from "@prisma/client";
 
 //Cuasi DTOs
 export default class ProductoMapper
@@ -29,47 +29,72 @@ export default class ProductoMapper
         }
     }
 
-    static toColorArray(colors : string[]) : Colores[]
+    //Los array se pueden obtener con getAll
+    formToJSON(formData : FormData)
     {
-        let result : Colores[] = [];
-
-        colors.forEach(color =>
+        try 
+        {
+            const product =  
             {
-                switch(color.toLowerCase())
-                {
-                    case 'rojo':
-                        result.concat(Colores.ROJO);
-                    case 'naranja':
-                        result.concat(Colores.NARANJA);
-                    case 'azul':
-                        result.concat(Colores.AZUL);
-                    case 'verde':
-                        result.concat(Colores.VERDE);
-                }
-            })
+                id : formData.get('id') ? Number(formData.get('id')) : -1,
+                ownerId : 13,//Number(formData.get('owner_id')),
+                name : formData.get('name'),
+                description : formData.get('description'),
+                category : {name : formData.get('category') },
+                state : formData.get('state'),
+                images : formData.getAll('files'), //Se obtiene un File - o Blob -
+                colors : formData.getAll('colors'),
+                price : Number(formData.get('price')),
+                stock : Number(formData.get('stock')),
+                featuresText : formData.get('features_text'),
+                featuresRows : formData.getAll('features_rows'),        // '['{prop}:{value}']'
+                specialFeatures : formData.getAll('special_features')   //['envio_gratis','12_cuotas']
+            }      
+            return product;
 
-        return result;      
+        } catch(e){throw new Error('Form data could not be converted to json');}
     }
 
-    static fromColorArray(colors : Colores[]) : string[]
+    jsonToForm(products : Producto[]) : FormData
     {
-        let result : string[] = [];
-
-        colors.forEach(color =>
-            {
-                switch(color)
+        try
+        {
+            const formData = new FormData();
+            products.forEach(it => 
                 {
-                    case Colores.ROJO:
-                        result.concat('rojo');
-                    case Colores.NARANJA:
-                        result.concat('naranja');
-                    case Colores.VERDE:
-                        result.concat('verde');
-                    case Colores.AZUL:
-                        result.concat('azul');
-                }
-            })
+                    if(it.id) formData.append('id',it.id);
+                    formData.append('owner_id',it.owner_id);
+                    formData.append('name',it.name);
+                    formData.append('description',it.description);
+                    formData.append('category',it.category.name);
+                    formData.append('state',it.state);
+                    //Imágenes
+                    let images : File[] = (it.blobImages ?? []);
+                    formData.append('files_count',images.length)
+                    images.forEach(img => formData.append('files',img));
+                    //Colores
+                    let colors = it.colors;
+                    formData.append('colors_count', colors.length);
+                    colors.forEach(color => formData.append('colors', color));
+                    formData.append('price',it.price);
+                    formData.append('stock',it.stock);
+                    formData.append('features_text',it.features_text);
+                    //Filas
+                    let rows = it.features_rows;
+                    formData.append('rows_count',rows.length);
+                    rows.forEach(row => formData.append('features_rows',row));
+                    //Especiales
+                    let specials = it.features_special;
+                    formData.append('special_count',specials.length);
+                    specials.forEach(special => formData.append('special_features',special ));
+                })
+            
+            return formData
 
-        return result;    
+        } catch(e)
+        {
+            console.log(e);
+            throw new Error('Could not convert from json to form data');
+        }
     }
 }

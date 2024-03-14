@@ -20,13 +20,13 @@ model Producto {
   category          Categoria   @relation(fields: [category_id], references: [id])
   category_id       Int
   state             Estado      @default(NUEVO)
-  //Imagenes
-  colors            Colores[]   //No funcionan los arrays de enums
+  images            String[]    @default([])  //Direcciones a archivos
+  colors            String[]    @default([])  //No funcionan los arrays de enums
   price             Int
   stock             Int
   features_text     String
-  features_rows     String[]
-  features_special  String[]
+  features_rows     String[]    @default([])
+  features_special  String[]    @default([])
   published         DateTime    @default(now())
   available         Boolean     @default(true)
 }
@@ -46,11 +46,4 @@ model Categoria {
 enum Estado {
   NUEVO
   USADO
-}
-
-enum Colores {
-  ROJO
-  NARANJA
-  AZUL
-  VERDE
 }

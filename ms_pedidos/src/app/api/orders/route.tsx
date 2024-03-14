@@ -1,9 +1,9 @@
 import RequestStatus from "@/private/mappers/RequestStatus";
 import validate from "@/private/securityaspect";
-import { findAllPedidoFromClient, findAllPedidoFromSeller, savePedido } from "@/private/services/PedidoService"
+import { findAllPedidoFromClient, findAllPedidoFromClientAndProduct, findAllPedidoFromSeller, savePedido } from "@/private/services/PedidoService"
 
 
-//localhost/api/order?client_id=xxx
+//localhost/api/orders?client_id=xxx    |&product_id=xxx (opcional)
 export async function GET(request: Request) 
 {
     //Si devolvió una respuesta es porque no tenia permisos
@@ -14,6 +14,7 @@ export async function GET(request: Request)
     const { searchParams } = new URL(request.url)
     const sellerId = searchParams.get('seller_id')
     const clientId = searchParams.get('client_id')
+    const productId = searchParams.get('product_id')
     if(sellerId)
     {
         return (findAllPedidoFromSeller(Number(sellerId))).then(
@@ -27,14 +28,24 @@ export async function GET(request: Request)
     } 
     if(clientId)
     {
-        return (findAllPedidoFromClient(Number(clientId))).then(
-            (response) => 
-            {
-                return response.length > 0 ? Response.json(response) : new Response('', {
-                    status: RequestStatus.NOT_FOUND
-                    })
-            }
-        )
+        if(productId)
+            return (findAllPedidoFromClientAndProduct(Number(clientId), Number(productId))).then(
+                (response) => 
+                {
+                    return response.length > 0 ? Response.json(response) : 
+                    new Response('', {status: RequestStatus.NOT_FOUND})
+                },
+                (err) => new Response('', {status : RequestStatus.INTERNAL})
+            )
+        else
+            return (findAllPedidoFromClient(Number(clientId))).then(
+                (response) => 
+                {
+                    return response.length > 0 ? Response.json(response) : 
+                    new Response('', {status: RequestStatus.NOT_FOUND})
+                },
+                (err) => new Response('', {status : RequestStatus.INTERNAL})
+            )
     }
     else return new Response('', {
     status: RequestStatus.BAD_REQUEST

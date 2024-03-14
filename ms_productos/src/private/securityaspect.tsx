@@ -2,9 +2,9 @@ import RequestStatus from "./mappers/RequestStatus";
 
 export default async function validate(auth : string | null)
 {
-    let token;
     let type = "Bearer ";
-    token = auth?.substring(type.length);
+    const token : string | undefined = auth?.substring(type.length);
+    console.log(token);
     if(!token) return new Response('No credentials found', {status: RequestStatus.BAD_REQUEST})
 
     try 

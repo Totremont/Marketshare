@@ -1,24 +1,84 @@
-import { headers } from "next/headers";
-import Headline from "../../components/headline";
-import OrderCard from "../../components/ordercard";
-import ProductCard from "../../components/productcard";
-import UserCard from "../../components/usercard";
-import { USERNAME_HEADER, USER_ROLE_HEADER } from "@/middleware";
+import { cookies, headers } from "next/headers";
+import Headline from "../../components/home/headline";
+import OrderCard from "../../components/home/ordercard";
+import ProductCard from "../../components/home/productcard";
+import UserCard from "../../components/home/usercard";
+import { ACCESS_TOKEN, USERNAME_HEADER, USER_ROLE_HEADER } from "@/middleware";
+import { findAllOrdersByRole, findAllProducts, findAllUsersByOppositeRole, findUser } from "@/private/actions/homedata";
+import ErrorPage, { ERROR_MISSING_DATA } from "@/components/error";
+import { redirect } from "next/navigation";
 
 export default function Home()
 { 
+  /*
   //Home es un server component. Los componentes son clients (y en ellos se encuentra la interactividad)
   let username = headers().get(USERNAME_HEADER);
   let userRole = headers().get(USER_ROLE_HEADER);
+  let token = cookies().get(ACCESS_TOKEN)?.value;
 
-   
+  //Eliminar cookies y otros datos
+  const onRefresh = () => 
+  {
+      cookies().getAll().forEach(cookie => cookies().delete(cookie));
+      redirect('/');
+  }
 
+  if(!username || !userRole || !token) return <ErrorPage errorType={ERROR_MISSING_DATA} onClick={onRefresh} />
+
+  let notFoundView = (title : string) => <p>{title}</p>;
+
+  //Datos | Cuando son null hubo un problema con la request
+  let ownUser;
+  let otherUsers;
+  let products;
+  let orders;
+
+  //Callback que se añade a cualquier fetch. Esto devuelve otra promesa (por ser async) que resuelve en null o el body
+  let resolve = (arg : Error | Response) => 
+  {
+    if(arg instanceof Error) return Promise.resolve(undefined);
+    else if(arg.ok) return arg.json()
+    else return Promise.resolve(undefined);
+  }
+
+  try
+  {
+    ownUser = await findUser(username);     
+  } catch(e){}
+
+  if(ownUser)
+  {
+    let requestUsers = findAllUsersByOppositeRole(userRole,token).then(resolve,resolve);
+    let requestProducts = findAllProducts(token).then(resolve,resolve);
+    let requestOrders = findAllOrdersByRole(userRole,ownUser.id,token).then(resolve,resolve);
+    //Como todos los callbacks resuelven, este conjunto nunca se rechaza
+    Promise.all([requestUsers,requestProducts,requestOrders]).then(
+      (values) => 
+      {
+        values.forEach((it, index) => 
+        {
+          if(index === 0) otherUsers = values[index];
+          else if(index == 1) products = values[index];
+          else orders = values[index];
+        }
+        )
+      })     
+  }
+  */
 
   let view = 
   (       
   <div className="h-fit w-full bg-gray-900 px-3 pb-3 text-slate-200">
-
-  <Header/>
+    {
+      /*
+      findUser(username).then
+      (
+        (res) => "<Header/>"
+      ,
+      (err) => 
+      )
+      */
+    }
 
   <main className="max-w-[1500px] mx-auto">
 
@@ -32,7 +92,7 @@ export default function Home()
         </header>
 
         <div className="flex md:block">
-          <Headline />
+          <p>Acá va un headline</p>
         </div>
       </section>
         
@@ -44,7 +104,7 @@ export default function Home()
         </header>
 
         <div className="flex md:block">
-          <Headline />
+        <p>Acá va un headline</p>
         </div>
       </section>
 
@@ -66,7 +126,16 @@ export default function Home()
       </header>
 
       <section className="flex flex-wrap my-8">
-        <ProductCard />
+      {
+        /*
+        findAllProducts(token).then
+        (
+          (res) => "<ProductCard />"
+          ,
+          (err) => 
+        )
+        */
+      }
       </section>
 
       <header className="pb-3 border-slate-600">
@@ -81,7 +150,16 @@ export default function Home()
       </header>
 
       <section className="flex flex-wrap mb-8 mt-6 items-start">
-      <UserCard />
+      {
+        /*
+        findAllUsersByOppositeRole(userRole,token).then
+        (
+          (res) => "<UserCard />"
+          ,
+          (err) => 
+        )
+        */
+      }
       </section>
 
       <header className="pb-3 border-slate-600">
@@ -97,7 +175,16 @@ export default function Home()
       </header>
 
       <section className="flex flex-wrap my-6 items-start">
-        <OrderCard />
+      {
+        /*
+        findAllOrdersByRole(userRole,id,token).then
+        (
+          (res) => "<OrderCard />"
+          ,
+          (err) => 
+        )
+        */
+      }
       </section>
 
     </section>

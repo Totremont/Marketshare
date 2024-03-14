@@ -121,17 +121,22 @@ export function updatePedido(authToken : string, orderId : string, newStatus : s
 
 export async function findAllPedidoFromClient(clientId : number)
 {
-    return repo.pedido.findMany({where:{client_id : clientId}, include : {review : true}});
+    return repo.pedido.findMany({where:{client_id : clientId}, include : {review : true}, orderBy : {created : 'desc'}});
+}
+
+export async function findAllPedidoFromClientAndProduct(clientId : number, productId : number)
+{
+    return repo.pedido.findMany({where:{client_id : clientId, product_id : productId}, include : {review : true}, orderBy : {created : 'desc'}});
 }
 
 export async function findAllPedidoFromSeller(sellerId : number)
 {
-    return repo.pedido.findMany({where : {seller_id : sellerId}, include : {review : true}});
+    return repo.pedido.findMany({where : {seller_id : sellerId}, include : {review : true}, orderBy : {created : 'desc'}});
 }
 
 export async function findAllPedidoFromProduct(productId : number)
 {
-    return repo.pedido.findMany({where : {product_id : productId}, include : {review : true}});
+    return repo.pedido.findMany({where : {product_id : productId}, include : {review : true}, orderBy : {created : 'desc'}});
 }
 
 //Obtener un usuario por su id

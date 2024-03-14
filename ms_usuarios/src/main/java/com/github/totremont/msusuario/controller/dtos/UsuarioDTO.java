@@ -8,6 +8,8 @@ import com.github.totremont.msusuario.repository.database.enums.UsuarioType;
 import com.github.totremont.msusuario.repository.database.model.Usuario;
 import com.github.totremont.msusuario.repository.database.model.UsuarioComprador;
 import com.github.totremont.msusuario.repository.database.model.UsuarioVendedor;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,6 +32,7 @@ public class UsuarioDTO {
     private BancoDTO bank;
     private PaisDTO country;
     private Float money;
+    private Long registerDate;
 
     public UsuarioDTO(String userName, String password, String type) {
         this.name = userName;
@@ -44,7 +47,9 @@ public class UsuarioDTO {
     
     //CompradorDTO
 
-    public UsuarioDTO(Long id, String name, String password, String type, String email, EmpresaDTO organization, BancoDTO bank, PaisDTO country, Float money) {
+    public UsuarioDTO(Long id, String name, String password, 
+            String type, String email, EmpresaDTO organization, BancoDTO bank, 
+            PaisDTO country, Float money, ZonedDateTime registerDate) {
         this.id = id;
         this.name = name;
         this.password = password;
@@ -54,12 +59,14 @@ public class UsuarioDTO {
         this.bank = bank;
         this.country = country;
         this.money = money;
+        this.registerDate = registerDate.toEpochSecond();
     }
     
 
     //Vendedor DTO
 
-    public UsuarioDTO(Long id, String name, String password, String type, String email, PaisDTO country, EmpresaDTO organization) {
+    public UsuarioDTO(Long id, String name, String password, 
+            String type, String email, PaisDTO country, EmpresaDTO organization, ZonedDateTime registerDate) {
         this.id = id;
         this.name = name;
         this.password = password;
@@ -67,6 +74,7 @@ public class UsuarioDTO {
         this.email = email;
         this.country = country;
         this.organization = organization;
+        this.registerDate = registerDate.toEpochSecond();
     }
     
   
@@ -77,7 +85,7 @@ public class UsuarioDTO {
             UsuarioVendedor aux = ((UsuarioVendedor) user);
             return new UsuarioDTO(user.getId(), user.getName(),
             user.getPassword(),user.getType().name(),user.getEmail(), PaisDTO.from(user.getCountry()),
-                    EmpresaDTO.from(aux.getOrganization()));
+                    EmpresaDTO.from(aux.getOrganization()),aux.getRegisterDate());
         }
         else
         {            
@@ -87,7 +95,7 @@ public class UsuarioDTO {
                     EmpresaDTO.from(aux.getOrganization()),
                     BancoDTO.from(aux.getBank()),
                     PaisDTO.from(aux.getCountry()),
-                    aux.getMoney());
+                    aux.getMoney(),aux.getRegisterDate());
         }
     }
              

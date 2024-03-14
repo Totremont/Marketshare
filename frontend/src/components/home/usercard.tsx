@@ -1,4 +1,4 @@
-import SellerReputation from "../private/utils/reputation";
+import SellerReputation from "../../private/utils/reputation";
 
 export default function UserCard(props : {name : string, 
     country : string, categories : string[], orgName : string, isClient : boolean, reputation : number

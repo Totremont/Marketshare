@@ -1,16 +1,15 @@
 import { useState } from "react";
 import Logo from "./logo";
 
-export default function Header(props : {
-    onClick : (selected : string) => any,
-    selected : string}) //El prop 'selected' es un state que permite cambiar la opción seleccionada cuando 
-                        //el usuario no hace clic pero scrollea (esto no activa callbacks)
+export default function Header(props : 
+    {onClickSection : (selected : string) => any, username : string, onClickProfile : any})
 {
-    let [selected, setSelected] = useState(props.selected);
+    let [selected, setSelected] = useState('');
+
     let onClick = function(newSelected : string)
     {
         setSelected(newSelected);
-        props.onClick(newSelected);
+        props.onClickSection(newSelected);
     }
 
     let view = (
@@ -22,23 +21,24 @@ export default function Header(props : {
         </section>
 
         <section className="font-semibold md:mx-auto px-2">
-            <p id="header_0" onClick={() => onClick("header_0")} className={`me-3 hover:text-slate-300 
-            ${selected === "header_0" ? `text-orange-300 border-b pb-4 border-orange-300` : ""  }`}>Productos</p>
+            <button id="header_0" onClick={() => onClick("header_0")} className={`me-3 hover:text-slate-300 
+            ${selected === "header_0" ? `text-orange-300 border-b pb-4 border-orange-300` : ""  }`}>Productos</button>
 
-            <p id="header_1" onClick={() => onClick("header_1")} className={`me-3 hover:text-slate-300 
-            ${selected === "header_1" ? `text-orange-300 border-b pb-4 border-orange-300` : ""  }`}>Pedidos</p>
+            <button id="header_1" onClick={() => onClick("header_1")} className={`me-3 hover:text-slate-300 
+            ${selected === "header_1" ? `text-orange-300 border-b pb-4 border-orange-300` : ""  }`}>Pedidos</button>
 
-            <a id="header_2" onClick={() => onClick("header_2")} className={`me-3 hover:text-slate-300 
-            ${selected === "header_2" ? `text-orange-300 border-b pb-4 border-orange-300` : ""  }`}>Clientes</a>
+            <button id="header_2" onClick={() => onClick("header_2")} className={`me-3 hover:text-slate-300 
+            ${selected === "header_2" ? `text-orange-300 border-b pb-4 border-orange-300` : ""  }`}>Clientes</button>
 
-            <a id="header_3" onClick={() => onClick("header_3")} className={`me-3 hover:text-slate-300 
-            ${selected === "header_3" ? `text-orange-300 border-b pb-4 border-orange-300` : ""  }`}>Empresa</a>
+            <button id="header_3" onClick={() => onClick("header_3")} className={`me-3 hover:text-slate-300 
+            ${selected === "header_3" ? `text-orange-300 border-b pb-4 border-orange-300` : ""  }`}>Empresa</button>
         </section>
 
         <section className="flex items-center px-2 ms-auto shrink-0">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/f/fc/IBM_logo_in.jpg" 
-            className="w-8 h-8 rounded-full aspect-auto"/>
-            <p className="before:content-['🔔'] mx-4">3</p>
+
+        <button onClick={props.onClickProfile} className="px-2 border rounded-lg py-1 cursor-pointer bg-slate-900 border-slate-400 font-semibold">
+        Hola, {props.username}<span className="text-sm text-slate-300 font-normal "> | Ver perfil</span></button>
+
         </section>
     </nav>);
 

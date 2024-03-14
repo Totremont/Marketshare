@@ -4,21 +4,9 @@ import { NotificationType,NotificationComponent, NotificationProps } from "../co
 import Logo from "../components/logo";
 import { useFormState, useFormStatus } from "react-dom";
 import { requestTokenSSA } from "@/private/actions/session";
+import SubmitButton from "@/components/submitbutton";
 
 //Pestaña principal de inicio de sesión
-
-function SubmitButton()
-{
-    let pendingForm = useFormStatus();
-    return (
-    pendingForm.pending ? 
-    <input key="submit_button_disabled" className="mt-6 w-full block rounded-xl bg-gray-800 px-6 
-    py-2 font-semibold" aria-disabled type="submit" value="Enviando..." />
-    
-    : <input key="submit_button" className="block mt-6 bg-blue-900 py-2 px-6 rounded-xl font-semibold
-    hover:bg-blue-700 w-full cursor-pointer" type="submit" value="Iniciar sesión"/>
-    )
-}
 
 export default function Login() 
 {
@@ -54,7 +42,7 @@ export default function Login()
       <input type="password" name="pass" required className="border 
       rounded-md py-1 px-1 w-full md:w-[350px] bg-gray-800 border-slate-600 mt-3"/>
 
-      <SubmitButton/>
+      <SubmitButton title="Iniciar sesión"/>
 
     </form>
 

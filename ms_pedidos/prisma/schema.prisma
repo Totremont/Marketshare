@@ -13,7 +13,7 @@ type PedidoStatusHistory {
 }
 
 model Opinion {
-  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
   order    Pedido  @relation(fields: [order_id], references: [id])
   order_id String  @unique @db.ObjectId
   rating   Int

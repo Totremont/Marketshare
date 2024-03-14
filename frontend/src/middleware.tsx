@@ -23,6 +23,7 @@ const auth_endpoints =
 
 export async function middleware(request: NextRequest) 
 {  
+    
     const accessToken  = request.cookies.get(ACCESS_TOKEN)?.value;
     const refreshToken = request.cookies.get(REFRESH_TOKEN)?.value;
 

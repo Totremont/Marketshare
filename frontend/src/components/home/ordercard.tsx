@@ -1,4 +1,4 @@
-import OrderStatus from "../private/utils/orderstatus";
+import OrderStatus from "../../private/utils/orderstatus";
 
 export default function OrderCard(props : {productName : string, image : string,
     buyerName : string, units : number, price : number, status : number, date : string})

@@ -1,16 +1,15 @@
-'use server'
-
-export default function ErrorPage(props : {errorType : number, onClick : any})
+'use client'
+export default function ErrorComponent(props : {errorType : number, onClick : any})
 {
-    let type;
-    let title;
-    let subtitle;
-    if(type === ERROR_NOT_FOUND)
+    let type : string;
+    let title : string;
+    let subtitle : string;
+    if(props.errorType === ERROR_NOT_FOUND)
     {
         type = '404 | Página desconocida';
         title = 'No encontrado';
         subtitle = 'La página solicitada no existe o se movió.';
-    } else if(type === ERROR_MISSING_DATA)
+    } else if(props.errorType === ERROR_MISSING_DATA)
     {
         type = 'Datos faltantes';
         title = 'Ocurrió un error';
@@ -25,7 +24,7 @@ export default function ErrorPage(props : {errorType : number, onClick : any})
 
     let view = 
     (     
-        <div className="h-screen w-screen bg-gray-900 text-slate-200 p-3 flex items-center">
+        <div className="h-screen w-screen bg-gray-900 text-slate-200 p-3 flex items-center justify-center">
 
         <article>
         <img className="w-[175px] md:w-[210px] block px-2 ms-auto md:ms-0 " src={`/marketshare.svg`}/>
@@ -36,7 +35,7 @@ export default function ErrorPage(props : {errorType : number, onClick : any})
             <h2 className="text-slate-300 mb-8">{subtitle}</h2>
             <button onClick={props.onClick} className="font-semibold text-orange-300 text-sm">Volver</button>
             </div>
-            <img src={`/unknown.svg`} className="my-4"/>
+            <img src={`/unknown.jpg`} className="my-4"/>
         </section>
         </article>
 

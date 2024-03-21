@@ -15,16 +15,13 @@ const mapper = new ProductoMapper();
 //localhost/api/products/{id}
 export async function GET(request: Request, { params }: { params: { id: string } }) 
 {
-    //Si devolvió una respuesta es porque no tenia permisos
-    let authorized = await validate(request.headers.get("Authorization"))
-    if(authorized instanceof Response) return authorized;
 
     const { searchParams } = new URL(request.url);
     const sendImages = searchParams.get('send_images');
 
     if(params.id)
     {
-        return service.find(Number.parseInt(params.id),!!sendImages).then(
+        return service.find(Number.parseInt(params.id),sendImages === 'true').then(
             (response) => new Response(mapper.jsonToForm([response])),
             (err) => {
             if(err instanceof NotFoundError) return new Response('',{status : RequestStatus.NOT_FOUND});

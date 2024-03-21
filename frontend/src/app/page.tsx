@@ -23,7 +23,7 @@ export default function Login()
   <main className="bg-gray-900 h-full w-full flex items-center">
   <div className="w-fit h-fit text-slate-200 my-6 mx-auto min-w-[300px]">
     <header className="mx-auto text-center py-4">
-      <Logo/>
+      <Logo style="mx-auto" inverted={false}/>
       <h1 className="font-semibold text-lg mt-2">Bienvenido</h1>
       <h2 className="text-slate-400">Ingresá con tu cuenta</h2>
     </header>

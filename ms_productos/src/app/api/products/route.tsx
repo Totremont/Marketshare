@@ -41,11 +41,6 @@ export async function GET(request: Request)
 
 export async function POST(request: Request) {
 
-    //Si devolvió una respuesta es porque no tenia permisos
-    let token = request.headers.get("Authorization");
-    let authorized = await validate(token)
-    if(authorized instanceof Response) return authorized;
-
     const { searchParams } = new URL(request.url);
     const sendImages = searchParams.get('send_images');
 
@@ -55,7 +50,7 @@ export async function POST(request: Request) {
     {
         let product = mapper.formToJSON(form);
 
-        return service.save(token!,product,!!sendImages).then
+        return service.save(token!,product,sendImages === 'true').then
         (
             (response) => new Response(mapper.jsonToForm([response])),
             (err) => new Response('',{status : RequestStatus.BAD_REQUEST})        

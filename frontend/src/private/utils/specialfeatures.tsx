@@ -9,5 +9,17 @@ export default class SpecialFeature
 
 export function toSpecialFeature(feature : string)
 {
-    //todo
+    switch(feature)
+    {
+        case 'envio_gratis':
+            return SpecialFeature.ENVIO_GRATIS;
+        case 'ahora_12':
+            return SpecialFeature.AHORA_12;
+        case 'garantia':
+            return SpecialFeature.GARANTIA;
+        case 'sustentable':
+            return SpecialFeature.SUSTENTABLE;
+        default:
+            return -1;
+    }
 }

@@ -12,6 +12,8 @@ import com.github.totremont.msusuario.controller.dtos.TokenDTO;
 import com.github.totremont.msusuario.controller.dtos.UsuarioDTO;
 import com.github.totremont.msusuario.controller.exceptions.CredentialsNotFoundException;
 import com.github.totremont.msusuario.controller.exceptions.InvalidCredentialsException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -86,21 +88,25 @@ public class SecurityAspects {
             ResponseEntity response = (ResponseEntity) jp.proceed();
             if(!token.equals(authKey) && jp.getTarget().getClass() == UsuarioController.class)
             {
-                if(response.getBody().getClass().equals(List.class))
-                {   
-                    List<UsuarioDTO> dtos = (List<UsuarioDTO>) response.getBody();
-                    dtos.stream().forEach(it -> it.setPassword(""));
-                }
-                else
+                if(response.getStatusCode().is2xxSuccessful())
                 {
-                    UsuarioDTO dto = (UsuarioDTO) response.getBody();
-                    dto.setPassword("");
+                    if(List.class.isInstance(response.getBody()))   //If body is instance of list
+                    {   
+                        List<UsuarioDTO> dtos = (List<UsuarioDTO>) response.getBody();
+                        dtos.stream().forEach(it -> it.setPassword(""));
+                    }
+                    else
+                    {
+                        System.out.println("Es lista pero entró acá");
+                        UsuarioDTO dto = (UsuarioDTO) response.getBody();
+                        dto.setPassword("");
+                    }
                 }
             }  
         
             return response;
         } 
-        catch(Exception e){ return ResponseEntity.badRequest().build(); }
+        catch(Exception e){ System.out.println(e); return ResponseEntity.badRequest().build(); }
     }
     
     

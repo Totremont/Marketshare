@@ -1,3 +1,4 @@
+'use client'
 import { useRef } from "react"
 import Colors from "../private/utils/Colors"
 import SpecialFeature from "../private/utils/specialfeatures"

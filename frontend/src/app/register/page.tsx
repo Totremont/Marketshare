@@ -122,7 +122,7 @@ export default function SignIn()
     <main className="bg-gray-900 h-fit w-full py-6 ">
     <div className="mx-auto min-w-[400px] h-fit w-fit text-slate-200">
     <header className="py-4 text-center text-lg font-semibold">
-        <Logo/>
+        <Logo style="mx-auto" inverted={false}/>
         <h1 className="mt-3 text-base">Crear nueva cuenta</h1>
         <p className="mt-1 text-sm text-slate-400">¿Ya tenés una cuenta? <a className="ms-2 text-teal-400" href="/">Iniciar sesión</a></p>
     </header>

@@ -7,6 +7,9 @@ import { NextURL } from "next/dist/server/web/next-url";
 export const ACCESS_TOKEN = "marketshare.user.access-token"
 export const REFRESH_TOKEN = "marketshare.user.refresh-token"
 export const USER_ROLE = "marketshare.user.user-role"
+export const USER_ROLE_MAX_AGE = 31;    //Days
+export const ACCESS_TOKEN_MAX_AGE = 7;
+export const REFRESH_TOKEN_MAX_AGE = 31;
 
 export const USERNAME_HEADER = "X-USER-NAME";
 export const USER_ROLE_HEADER = "X-USER-ROLE";
@@ -55,6 +58,7 @@ export async function middleware(request: NextRequest)
         else return handleGuest(currentUrl,request);
     }
     
+    
 }
 
 //Supplementary methods
@@ -66,10 +70,10 @@ async function handleSession(currentUrl : NextURL, tokens : {access : string, re
     let {username, role} = await validateToken(tokens.access);
     currentUrl.searchParams.forEach(value => currentUrl.searchParams.delete(value));
     //Los valores van en headers -- para ocultar los path queries
-    //currentUrl.searchParams.set('role', userRole);
-    //currentUrl.searchParams.set('username', username)
     //Si quiere entrar a una pantalla en la que no tiene permiso, ir a home
     let res : NextResponse;
+    //Si la página no existe
+    if(!auth_endpoints[endpoint as keyof typeof auth_endpoints]) return NextResponse.next();
     if(!auth_endpoints[endpoint as keyof typeof auth_endpoints].includes(role))
     {
         console.log("Sección access-token | Redireccionar a /home");
@@ -82,9 +86,9 @@ async function handleSession(currentUrl : NextURL, tokens : {access : string, re
     }
     res.headers.set(USERNAME_HEADER,username);
     res.headers.set(USER_ROLE_HEADER,role);
-    addCookie(request,res,ACCESS_TOKEN,tokens.access);
-    addCookie(request,res,USER_ROLE,role);
-    addCookie(request,res,REFRESH_TOKEN,tokens.refresh);
+    addCookie(request,res,ACCESS_TOKEN,tokens.access,ACCESS_TOKEN_MAX_AGE);
+    addCookie(request,res,USER_ROLE,role,USER_ROLE_MAX_AGE);
+    addCookie(request,res,REFRESH_TOKEN,tokens.refresh,REFRESH_TOKEN_MAX_AGE);
     return res;
 }
 
@@ -93,7 +97,9 @@ function handleGuest(currentUrl : NextURL,request : NextRequest)
     console.log("Es un guest");
     const endpoint = currentUrl.pathname;
     let res;
-    if(!auth_endpoints[endpoint as keyof typeof auth_endpoints].includes('VISITANTE'))
+    //Si la página no existe
+    if(!auth_endpoints[endpoint as keyof typeof auth_endpoints]) return NextResponse.next();
+    if(!auth_endpoints[endpoint as keyof typeof auth_endpoints]?.includes('VISITANTE'))
     {
         currentUrl.pathname = '/';
         res = NextResponse.redirect(currentUrl);
@@ -143,15 +149,18 @@ const deleteAllCookie = (request: NextRequest, response: NextResponse) =>
         response.cookies.delete(cookie);
     });
 };
-
-const addCookie = (request: NextRequest, response: NextResponse, cookieName: string, cookieValue : string) => 
+//maxAge in days
+const addCookie = (request: NextRequest, response: NextResponse, cookieName: string, cookieValue : string, maxAge : number) => 
 {  
+    const exps = new Date();
+    exps.setDate(exps.getDate() + maxAge);
     response.cookies.set({
         name: cookieName,
         value: cookieValue,
         httpOnly: true,
         sameSite: "strict",
         secure: true,
+        expires: exps
     })
 };
 

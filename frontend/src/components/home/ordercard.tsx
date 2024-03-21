@@ -1,6 +1,14 @@
+'use client'
+import {Skeleton} from "@nextui-org/skeleton";
 import OrderStatus from "../../private/utils/orderstatus";
 
-export default function OrderCard(props : {productName : string, image : string,
+
+export default function GetOrderCards()
+{
+    
+}
+
+function OrderCard(props : {productName : string, image : string,
     buyerName : string, units : number, price : number, status : number, date : string})
 {
     let ribbon;
@@ -53,5 +61,23 @@ export default function OrderCard(props : {productName : string, image : string,
     </article>
     )
 
+    return view;
+}
+
+export function OrderCardSkeleton()
+{
+    const view = 
+    (
+    <article className="flex h-[225px] min-w-[200px] max-w-[280px] flex-col rounded-lg bg-gray-800 p-3">
+      <div className="flex items-center">
+        <Skeleton className="h-12 w-12 flex-shrink-0 rounded-full bg-gray-700"></Skeleton>
+        <Skeleton className="ms-2 h-6 w-full rounded bg-gray-700"></Skeleton>
+      </div>
+      <div className="mt-3 grid flex-1 grid-rows-2 gap-3">
+        <Skeleton className="w-full rounded bg-gray-700"></Skeleton>
+        <Skeleton className="w-full rounded bg-gray-700"></Skeleton>
+      </div>
+    </article>
+    )
     return view;
 }

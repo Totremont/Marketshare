@@ -289,7 +289,6 @@ async function saveImages(productId : number, images : File[])
     const filenames = (index : number, image : File) => 
     {
         const [type,extension] = image.type.split('/');
-        console.log("Extensión: " + extension);
         let path;
         if(extension === 'png' || extension === 'gif' || extension === 'jpeg' || extension === 'webp')
             path = `${process.cwd()}/public/images/pr_${productId}_image_${index}.${extension}`;
@@ -335,9 +334,8 @@ async function readImages(paths : string[])
             try
             {
                 const filename = paths[i].split('/').pop();
-                console.log("Filename: " + filename);
                 const buffer = await readFile(paths[i]);
-                resolve(new File([buffer], filename ? filename : `image_${i}`));
+                resolve(new File([buffer], filename ?? `image_${i}`));
             } catch(e){resolve(null);}
         })
         promises = promises.concat(promise);

@@ -60,9 +60,11 @@ export default class ProductoMapper
         try
         {
             const formData = new FormData();
+            formData.set('elements',products?.length.toString() ?? '0');
             products.forEach(it => 
                 {
                     if(it.id) formData.append('id',it.id);
+                    formData.append('published',it.published.toISOString()) //YYYY-MM-DDTHH:mm:ss.sssZ
                     formData.append('owner_id',it.owner_id);
                     formData.append('name',it.name);
                     formData.append('description',it.description);
@@ -78,7 +80,8 @@ export default class ProductoMapper
                     colors.forEach(color => formData.append('colors', color));
                     formData.append('price',it.price);
                     formData.append('stock',it.stock);
-                    formData.append('features_text',it.features_text);
+                    formData.append('features_text_count',it.features_text ? '1' : '0');
+                    formData.append('features_text',it.features_text ? it.features_text : 'empty');
                     //Filas
                     let rows = it.features_rows;
                     formData.append('rows_count',rows.length);

@@ -81,7 +81,7 @@ public class UsuarioController
                 List<UsuarioDTO> dtos = users.stream().map(it -> UsuarioDTO.from(it)).toList();
                 if(!dtos.isEmpty())
                 {
-                    ResponseEntity entity =  ResponseEntity.ok().body(dtos);
+                    return ResponseEntity.ok().body(dtos);              
                 } else return ResponseEntity.notFound().build();
             }
             default:

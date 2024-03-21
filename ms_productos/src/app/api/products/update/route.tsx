@@ -14,9 +14,6 @@ const mapper = new ProductoMapper();
 //localhost/api/products/update y json body     |&send_images=true optional
 export async function PUT(request: Request) 
 {
-    //Si devolvió una respuesta es porque no tenia permisos
-    let authorized = await validate(request.headers.get("Authorization"))
-    if(authorized instanceof Response) return authorized;
 
     const { searchParams } = new URL(request.url);
     const sendImages = searchParams.get('send_images');
@@ -24,7 +21,7 @@ export async function PUT(request: Request)
     let form = await request.formData();
     let product = mapper.formToJSON(form);
     
-    return service.update(product,!!sendImages).then(
+    return service.update(product,sendImages === 'true').then(
         (response) => new Response(mapper.jsonToForm([response])),
         (err) => {
             if(err instanceof NotFoundError) return new Response('',{status : RequestStatus.NOT_FOUND});

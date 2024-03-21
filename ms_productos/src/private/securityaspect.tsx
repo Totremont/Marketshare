@@ -4,7 +4,6 @@ export default async function validate(auth : string | null)
 {
     let type = "Bearer ";
     const token : string | undefined = auth?.substring(type.length);
-    console.log(token);
     if(!token) return new Response('No credentials found', {status: RequestStatus.BAD_REQUEST})
 
     try 

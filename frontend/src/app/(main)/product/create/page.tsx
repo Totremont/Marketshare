@@ -1,10 +1,10 @@
 'use client'
 import {useState, useRef, useEffect} from "react"
 import { ChipData, ChipGroup } from "@/components/chip";
-import ImagePreview from "@/components/imagepreview"
+import ImagePreview from "@/components/createproduct/imagepreview"
 import { NotificationType,NotificationComponent, NotificationProps, NotificationOptions } from "@/components/notification";
 import Checkboxes, { CheckboxData } from "@/components/checkboxes";
-import FeatureRow from "@/components/featurerow";
+import FeatureRow from "@/components/createproduct/featurerow";
 import { createProductSSA } from "@/private/actions/product";
 import { useFormState } from "react-dom";
 import { SubmitButtonWithState } from "@/components/submitbutton";
@@ -93,7 +93,7 @@ export default function CreateProduct()
         }
         let target = event.currentTarget as HTMLInputElement
 
-        let newImages : {file : Blob, url : string}[] = [];
+        let newImages : {file : File, url : string}[] = [];
         for(let i = 0; i < target.files!.length; i++)
         {
             const currentFile = target.files?.item(i);
@@ -164,7 +164,7 @@ export default function CreateProduct()
     },[state])
 
     let view = (
-    <main className="h-fit w-full bg-gray-900 text-slate-200 bg-repeat py-8 px-3">
+    <div className="h-fit w-full py-[100px] px-3">
     <form action={formAction} ref={formRef} className="max-w-[800px] mx-auto">
         <p className="text-lg font-semibold">Agregar un producto</p>
         <p className="text-slate-400">Completá los siguientes campos para añadir un nuevo producto a tu tienda</p>
@@ -230,7 +230,7 @@ export default function CreateProduct()
     </form>
     {showSnack ? <NotificationComponent title={snackProps.current!.title} key={"notification"}
     body={snackProps.current!.body} type={snackProps.current!.type} options={snackProps.current!.options}/> : null}
-    </main>
+    </div>
 
     )
     return view;

@@ -14,14 +14,10 @@ const mapper = new ProductoMapper();
 //localhost/api/products/list
 export async function GET(request: Request) 
 {
-    //Si devolvió una respuesta es porque no tenia permisos
-    let authorized = await validate(request.headers.get("Authorization"))
-    if(authorized instanceof Response) return authorized;
-    
     const { searchParams } = new URL(request.url);
     const sendImages = searchParams.get('send_images');
     
-    return service.findAll(!!sendImages).then(
+    return service.findAll(sendImages === 'true').then(
         (response) => new Response(mapper.jsonToForm(response)),
         (err) => {
             if(err instanceof NotFoundError) return new Response('',{status : RequestStatus.NOT_FOUND});
@@ -29,4 +25,12 @@ export async function GET(request: Request)
         }
     )
     
+}
+
+export async function OPTIONS(request: Request)
+{
+    return new Response('', {
+        status: RequestStatus.OK,
+        headers: RequestStatus.CORS_HEADERS
+      })
 }

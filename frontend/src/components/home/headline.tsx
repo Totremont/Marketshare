@@ -1,5 +1,14 @@
+'use client'
+import { Button } from "@nextui-org/react";
+import {Skeleton} from "@nextui-org/skeleton";
 
-export default function Headline(props : {date : string, 
+
+export default function GetHeadlines(props : {})
+{
+
+}
+
+function Headline(props : {date : string, 
     title : string, type : number, options : 
     {
         orgName : string, userName : string, price : number, userImage : string, message : string
@@ -69,4 +78,21 @@ export class HeadlineType
     static NEW_PRODUCT = 0;
     static NEW_USER = 1;
     static NEW_MESSAGE = 2;
+}
+
+export function HeadlineSkeleton()
+{
+  return (
+    <article className="py-5 max-w-[250px] min-w-[200px] h-[300px] px-2 md:px-0 ">
+      <Skeleton className="w-1/3 h-6 bg-gray-700 rounded"/>
+      <Skeleton className="w-2/3 h-6 my-3 bg-gray-700 rounded"/>
+      <div className="flex items-center">
+        <div className="w-2/3 flex-shrink-0">
+          <Skeleton className="h-6 my-3 bg-gray-700 rounded"/>
+          <Skeleton className="h-6 my-3 bg-gray-700 rounded"/>
+        </div>
+        <Skeleton className="ms-2 h-6 my-3 w-full bg-gray-700 rounded"/>
+      </div>
+    </article>
+  )
 }

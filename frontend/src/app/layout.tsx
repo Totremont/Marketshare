@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { headers } from "next/headers";
-import { USERNAME_HEADER, USER_ROLE_HEADER } from "@/middleware";
+import { Providers } from "./providers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -14,13 +13,15 @@ export const metadata: Metadata = {
 export default function RootLayout({children,}: Readonly<{children: React.ReactNode;}>) 
 {
   return (
-    <html lang="en">
-      <head>
-      <link
-        rel="icon"
-        href="/favicon_white.svg"/>
-      </head>
-      <body className={inter.className + "touch-pan-x touch-pan-y h-dvh w-dvh"}>{children}</body>
-    </html>
+    
+      <html lang="en">
+        <head>
+        <link
+          rel="icon"
+          href="/favicon_white.svg"/>
+        </head>
+        
+        <body className={inter.className + "touch-pan-x touch-pan-y h-dvh w-dvh"}>{children}</body>
+      </html>
   );
 }

@@ -1,21 +1,20 @@
 'use client'
 import {useState, useRef, useEffect} from "react"
-import SingleChip from "../../components/chip";
+import SingleChip from "../../components/chips";
 import Logo from "../../components/logo";
-import ViewVisibility from "@/private/utils/domvisibility";
-import RequestStatus from "@/private/utils/requeststatus";
-import { NotificationComponent, NotificationOptions, NotificationProps, NotificationType } from "@/components/notification";
+import { SnackBar, SnackBarOption, SnackBarProps, SnackBarType } from "@/components/snackbar";
 import { createUserSSA } from "@/private/actions/session";
 import { useFormState, useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
 import SubmitButton from "@/components/submitbutton";
+import { ViewVisibility } from "@/private/utils/properties";
 
 //Pestaña para registrarse
 
 export default function SignIn()
 {
     let [showSnack,setShowSnack] = useState(false);
-    let snackProps = useRef<NotificationProps>();
+    let snackProps = useRef<SnackBarProps>();
 
     //View states
     const router = useRouter();
@@ -44,7 +43,7 @@ export default function SignIn()
         let view = rolSelected === 'ROLE_VENDEDOR' ?
                 <>
                     {vendedorView(ViewVisibility.VISIBLE)}
-                    {compradorView("invisible")}
+                    {compradorView(ViewVisibility.INVISIBLE)}
                 </>
         : 
                 <>
@@ -77,8 +76,11 @@ export default function SignIn()
     );
 
     let compradorView = (visibility : string ) => 
-    (
-        <fieldset className={`${visibility} md:grid md:grid-cols-2 md:gap-10 mt-8 border-t border-slate-600 pt-6`}>
+    {
+        
+        const style = `${visibility} md:grid md:grid-cols-2 md:gap-10 mt-8 border-t border-slate-600 pt-6`;
+        return (
+        <fieldset className={style}>
             <div className="mb-6 md:max-w-[300px]">
                 <p className="font-semibold">Datos bancarios y organizativos</p>
                 <p className="mt-1 text-sm text-slate-400">Como comprador debes registrar esta información</p>
@@ -102,10 +104,13 @@ export default function SignIn()
             </div>
         </fieldset>
     )
+    }
 
-    let vendedorView = (visibility : string) => 
-    (
-        <fieldset className={`${visibility} md:grid md:grid-cols-2 md:gap-10 mt-8 border-t border-slate-600 pt-6`}>
+    let vendedorView = (visibility : string) =>
+    { 
+        const style = `${visibility} md:grid md:grid-cols-2 md:gap-10 mt-8 border-t border-slate-600 pt-6`;
+        return (
+        <fieldset className={style}>
         <div className="mb-6 md:max-w-[300px]">
           <p className="font-semibold">Tu organización</p>
           <p className="mt-1 text-sm text-slate-400">Como vendedor debes registrar esta información</p>
@@ -117,6 +122,7 @@ export default function SignIn()
         </div>
       </fieldset>
     )
+    }
 
     let view = (
     <main className="bg-gray-900 h-fit w-full py-6 ">
@@ -170,7 +176,7 @@ export default function SignIn()
 
     </form>
     </div>
-    {showSnack ? <NotificationComponent key="SNACK" title={snackProps.current!.title} 
+    {showSnack ? <SnackBar key="SNACK" title={snackProps.current!.title} 
     body={snackProps.current!.body} type={snackProps.current!.type} options={snackProps.current!.options}/> : null}
     </main>
     )
@@ -207,7 +213,7 @@ function requestFormData(orgCallback : any, bankCallback : any, countryCallback 
     ]).then(
         (values : Response[]) => 
         {
-            if(values.every(res => res.status === RequestStatus.OK))
+            if(values.every(res => res.ok))
             {
                 values.forEach(async (it,index) => 
                 {
@@ -263,7 +269,7 @@ function handleFormResult(router : any, state : {title : string} | undefined, se
             break;
         case 'USER_CREATION_ERROR':
             showUsercreatedNoToken(setShowSnack,ref);    //Se creó el user pero fallo en obtener el token 
-            setTimeout(() => router.push('/'), NotificationType.NORMAL_TIME);
+            setTimeout(() => router.push('/'), SnackBarType.NORMAL_TIME);
             break;
         default:
             showServerError(setShowSnack,ref);
@@ -272,9 +278,9 @@ function handleFormResult(router : any, state : {title : string} | undefined, se
 }
 
 
-function showUsernameTakenMsg(setShowSnack : any, ref : any, time : number = NotificationType.NORMAL_TIME )
+function showUsernameTakenMsg(setShowSnack : any, ref : any, time : number = SnackBarType.NORMAL_TIME )
 {
-    ref.current = new NotificationProps(NotificationType.INFORMATIVE,"Problema con el nombre de usuario",
+    ref.current = new SnackBarProps(SnackBarType.INFORMATIVE,"Problema con el nombre de usuario",
     "Ese nombre de usuario ya está en uso. Por favor, elige otro.",[]);
 
     setShowSnack(true);
@@ -282,9 +288,9 @@ function showUsernameTakenMsg(setShowSnack : any, ref : any, time : number = Not
 
 }
 
-function showUsercreatedNoToken(setShowSnack : any, ref : any, time : number = NotificationType.NORMAL_TIME )
+function showUsercreatedNoToken(setShowSnack : any, ref : any, time : number = SnackBarType.NORMAL_TIME )
 {
-    ref.current = new NotificationProps(NotificationType.SUCCESSFUL,"Usuario creado",
+    ref.current = new SnackBarProps(SnackBarType.SUCCESSFUL,"Usuario creado",
     "Tu usuario ha sido creado. Te redirigiremos a la pantalla de inicio de sesión",[]);
 
     setShowSnack(true);
@@ -292,18 +298,18 @@ function showUsercreatedNoToken(setShowSnack : any, ref : any, time : number = N
 
 }
 
-function showMissingForms(setShowSnack : any, ref : any, time : number = NotificationType.NORMAL_TIME )
+function showMissingForms(setShowSnack : any, ref : any, time : number = SnackBarType.NORMAL_TIME )
 {
-    ref.current = new NotificationProps(NotificationType.INFORMATIVE,"Campos sin completar",
+    ref.current = new SnackBarProps(SnackBarType.INFORMATIVE,"Campos sin completar",
     "Te falta completar algunos campos obligatorios",[]);
 
     setShowSnack(true);
     setTimeout(() => setShowSnack(false),time)
 }
 
-function showServerError(setShowSnack : any, ref : any, time : number = NotificationType.NORMAL_TIME )
+function showServerError(setShowSnack : any, ref : any, time : number = SnackBarType.NORMAL_TIME )
 {
-    ref.current = new NotificationProps(NotificationType.ERROR,"Error de servidor",
+    ref.current = new SnackBarProps(SnackBarType.ERROR,"Error de servidor",
     "Ocurrió un error inesperado. Intentalo más tarde",[]);
 
     setShowSnack(true);
@@ -313,9 +319,9 @@ function showServerError(setShowSnack : any, ref : any, time : number = Notifica
 
 function showErrorGettingExternalData(setShowSnack : any, ref : any, retryCallback : any)
 {
-    ref.current = new NotificationProps(NotificationType.ERROR,"Error al recuperar datos",
+    ref.current = new SnackBarProps(SnackBarType.ERROR,"Error al recuperar datos",
     "Ocurrió un error al traer los datos necesarios para crearte una cuenta. Podés reintentar ahora o más tarde",
-    [new NotificationOptions("Reintentar",retryCallback)]);
+    [new SnackBarOption("Reintentar",retryCallback)]);
 
     setShowSnack(true);
 

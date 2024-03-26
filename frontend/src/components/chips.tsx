@@ -1,7 +1,6 @@
 'use client'
+import { BackgroundColors, SpecialFeature } from "@/private/utils/properties"
 import { useRef } from "react"
-import Colors from "../private/utils/Colors"
-import SpecialFeature from "../private/utils/specialfeatures"
 
 export default function SingleChip(props : {id : string, title : string, checked : boolean, 
     callback : ((event : React.MouseEvent<HTMLElement>) => void)})
@@ -19,7 +18,7 @@ export default function SingleChip(props : {id : string, title : string, checked
 
 
 export function ChipGroup(props : 
-    {data : ChipData[], singleSelection : boolean, selectionRequred : boolean, initialState : string[], setChecked : any})
+    {data : ChipData[], singleSelection : boolean, selectionRequired : boolean, initialState : string[], setChecked : any})
 {
     const checked = useRef<string[]>(props.initialState);
 
@@ -42,7 +41,7 @@ export function ChipGroup(props :
         let selectedIndex = checked.current.findIndex((it) => it === event.currentTarget.id);
         if(selectedIndex > -1) 
         {   //Si ya estaba en la lista (y no es el único) sacarlo (desclickearlo)
-            if(checked.current.length > 1 || !props.selectionRequred)
+            if(checked.current.length > 1 || !props.selectionRequired)
             {
                 checked.current = checked.current.filter((_,index) => index != selectedIndex);
                 props.setChecked(checked.current);
@@ -76,32 +75,33 @@ export function ChipFeature(props : {feature : number})
     switch(props.feature)
     {
         case SpecialFeature.ENVIO_GRATIS:
-            color = Colors.GREEN;
-            icon = "/shipping.svg";
+            color = BackgroundColors.GREEN;
+            //icon = "/shipping.svg";
             title = "Envío gratis";
             break;
         case SpecialFeature.AHORA_12:
-            color = Colors.GRAY;
-            icon = "/card.svg";
+            color = BackgroundColors.GRAY;
+            //icon = "/card.svg";
             title = "Ahora 12";
             break;
         case SpecialFeature.GARANTIA:
-            color = Colors.PURPLE;
-            icon = "/shield.svg";
+            color = BackgroundColors.PURPLE;
+            //icon = "/shield.svg";
             title = "Garantía";
             break;
         case SpecialFeature.SUSTENTABLE:
-            color = Colors.OLIVE;
-            icon = "/leaf.svg";
+            color = BackgroundColors.OLIVE;
+            //icon = "/leaf.svg";
             title = "Sustentable";
             break;
         default:
             return null;
     }
+    const style = `rounded-lg ${color} p-1 px-3 text-sm font-semibold text-slate-200 flex items-center`
     return(
-    <p className={`rounded-lg bg-[${color}] 
-    p-1 px-3 text-sm font-semibold text-slate-200 flex items-center`}>
-    <img className="me-1" src={icon}/>{title}</p>)
+    <div className={style}>
+        {title}
+    </div>)
 
 }
 

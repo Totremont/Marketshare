@@ -1,5 +1,5 @@
 
-export default class RequestStatus
+export class RequestStatus
 {
     static OK = 200;
     static NOT_FOUND = 404;

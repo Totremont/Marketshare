@@ -1,6 +1,6 @@
 
-export function NotificationComponent(props :
-    {type : number, title : string, body : string, options : Array<NotificationOptions>})
+export function SnackBar(props :
+    {type : number, title : string, body : string, options : Array<SnackBarOption>})
 {
 
     let informative = () => (
@@ -65,7 +65,7 @@ export function NotificationComponent(props :
     
 }
 
-export class NotificationType
+export class SnackBarType
 {
     static ERROR = 0
     static INFORMATIVE = 1
@@ -76,7 +76,7 @@ export class NotificationType
     static PERMANENT = -1;
 }
 
-export class NotificationOptions
+export class SnackBarOption
 {
     optionName : String;
     onClick : () => void;
@@ -89,14 +89,14 @@ export class NotificationOptions
 
 }
 
- export class NotificationProps
+ export class SnackBarProps
 {
   type : number;
   title : string;
   body : string;
-  options : Array<NotificationOptions>
+  options : Array<SnackBarOption>
 
-  constructor(type : number,title: string,body : string, options : Array<NotificationOptions>)
+  constructor(type : number,title: string,body : string, options : Array<SnackBarOption>)
   {
     this.type = type;
     this.title = title;

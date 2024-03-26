@@ -1,10 +1,10 @@
 'use client'
 import {useState, useRef, useEffect} from "react"
-import { ChipData, ChipGroup } from "@/components/chip";
-import ImagePreview from "@/components/createproduct/imagepreview"
-import { NotificationType,NotificationComponent, NotificationProps, NotificationOptions } from "@/components/notification";
-import Checkboxes, { CheckboxData } from "@/components/checkboxes";
-import FeatureRow from "@/components/createproduct/featurerow";
+import { ChipData, ChipGroup } from "@/components/chips";
+import ImagePreview from "@/components/product/create/imagepreview"
+import { SnackBarType,SnackBar, SnackBarProps, SnackBarOption } from "@/components/snackbar";
+import CheckBoxes, { CheckBoxData } from "@/components/checkboxes";
+import FeatureRow from "@/components/product/create/featurerow";
 import { createProductSSA } from "@/private/actions/product";
 import { useFormState } from "react-dom";
 import { SubmitButtonWithState } from "@/components/submitbutton";
@@ -15,17 +15,17 @@ import { useRouter } from "next/navigation";
 export default function CreateProduct() 
 {
 
-    const [stateProduct,setStateProduct] = useState(["nuevo"]);                         //States de ESTADO
+    const [stateProduct,setStateProduct] = useState(["nuevo"]);                         
     const [images,setImages] = useState<{file : File, url : string}[]>([]);
     const [colors,setColors] = useState(["rojo"]); 
-    const [featuresText, setFeaturesText] = useState('');                               //States de COLORES
+    const [featuresText, setFeaturesText] = useState('');                               
     const [addedRows, setAddedRows] = useState<{feature : string,value : string}[]>([]);
-    const [specialFeatures,setSpecialFeatures] = useState([]);                          //From chips
+    const [specialFeatures,setSpecialFeatures] = useState([]);                          
     const fileInput = useRef<HTMLInputElement>(null);
     const formRef = useRef<HTMLFormElement>(null);
 
     const [showSnack, setShowSnack] = useState(false);
-    const snackProps = useRef<NotificationProps>();
+    const snackProps = useRef<SnackBarProps>();
     const [rowLimitReached, setRowLimitReached] = useState(false);
     const [pending, setPending] = useState(false);
     const router = useRouter();
@@ -43,18 +43,18 @@ export default function CreateProduct()
     
     //Data
     const stateValues = [
-        new CheckboxData("nuevo","Nuevo"),
-        new CheckboxData("usado","Usado")
+        new CheckBoxData("nuevo","Nuevo"),
+        new CheckBoxData("usado","Usado")
     ]
 
     const colorsValues = [
-        new CheckboxData("rojo", "Rojo"),
-        new CheckboxData("azul", "Azul"),
-        new CheckboxData("verde", "Verde"),
-        new CheckboxData("amarillo","Amarillo"),
-        new CheckboxData("blanco","Blanco"),
-        new CheckboxData("negro","Negro"),
-        new CheckboxData("gris","Gris")
+        new CheckBoxData("rojo", "Rojo"),
+        new CheckBoxData("azul", "Azul"),
+        new CheckBoxData("verde", "Verde"),
+        new CheckBoxData("amarillo","Amarillo"),
+        new CheckBoxData("blanco","Blanco"),
+        new CheckBoxData("negro","Negro"),
+        new CheckBoxData("gris","Gris")
     ]
 
     const specialFeaturesValues = [
@@ -70,7 +70,7 @@ export default function CreateProduct()
         {value : "electronica" , text : "Electrónica" },
         {value : "audio" , text : "Audio y video" },
         {value : "informatica" , text : "Informática" },
-        {value : "pequenos_dispositivos" , text : "Pequeños dispositivos" },
+        {value : "pequenios_dispositivos" , text : "Pequeños dispositivos" },
         {value : "herramientas" , text : "Herramientas" },
         {value : "belleza" , text : "Belleza" },
         {value : "deporte_bienestar" , text : "Deporte y bienestar" },
@@ -164,7 +164,7 @@ export default function CreateProduct()
     },[state])
 
     let view = (
-    <div className="h-fit w-full py-[100px] px-3">
+    <div className="h-fit w-full px-3">
     <form action={formAction} ref={formRef} className="max-w-[800px] mx-auto">
         <p className="text-lg font-semibold">Agregar un producto</p>
         <p className="text-slate-400">Completá los siguientes campos para añadir un nuevo producto a tu tienda</p>
@@ -183,7 +183,7 @@ export default function CreateProduct()
 
         <label htmlFor="state" className="mt-8 mb-2 block font-semibold">Estado</label>
 
-        <Checkboxes initialState={stateProduct} setChecked={setStateProduct} data={stateValues} singleSelection/>
+        <CheckBoxes initialState={stateProduct} setChecked={setStateProduct} data={stateValues} singleSelection/>
 
         <label htmlFor="images" className="mt-8 inline-block font-semibold">Imágenes
         <span className="text-sm font-normal text-slate-400"> | {imagesCount}</span></label>
@@ -197,7 +197,7 @@ export default function CreateProduct()
 
         <label htmlFor="colors" className="mb-2 mt-8 block font-semibold">Colores</label>
         
-        <Checkboxes initialState={colors} setChecked={setColors} data={colorsValues} singleSelection={false}/>
+        <CheckBoxes initialState={colors} setChecked={setColors} data={colorsValues} singleSelection={false}/>
 
         <label htmlFor="price" className="mt-8 block font-semibold">Precio</label>
         <input required type="number" min={0} id="price" name="price" className="mt-2 w-[200px] rounded-md border border-slate-600 bg-gray-800 px-1 py-1" />
@@ -218,17 +218,17 @@ export default function CreateProduct()
 
         <label htmlFor="special_features" className="mt-8 block font-semibold">Otras características</label>
         <ChipGroup initialState={specialFeatures} setChecked={setSpecialFeatures} 
-        data={specialFeaturesValues} singleSelection={false} selectionRequred={false}/>
+        data={specialFeaturesValues} singleSelection={false} selectionRequired={false}/>
 
         <SubmitButtonWithState pending={pending} onClick={onSubmit} />
 
-        <input type="hidden" name="colors" value={colors} />
+        <input type="hidden" name="colors" value={JSON.stringify(colors)} />
         <input type="hidden" name="state" value={stateProduct} />
         <input type="hidden" name="features_text" value={featuresText} />
-        <input type="hidden" name="features_rows" value={addedRows.map(it => JSON.stringify(it))} />
-        <input type="hidden" name="special_features" value={specialFeatures} />
+        <input type="hidden" name="features_rows" value={JSON.stringify(addedRows)} />
+        <input type="hidden" name="special_features" value={JSON.stringify(specialFeatures)} />
     </form>
-    {showSnack ? <NotificationComponent title={snackProps.current!.title} key={"notification"}
+    {showSnack ? <SnackBar title={snackProps.current!.title} key={"notification"}
     body={snackProps.current!.body} type={snackProps.current!.type} options={snackProps.current!.options}/> : null}
     </div>
 
@@ -237,9 +237,9 @@ export default function CreateProduct()
 
 }
 
-function showMissingData(setShowSnack : any, ref : any, time : number = NotificationType.NORMAL_TIME )
+function showMissingData(setShowSnack : any, ref : any, time : number = SnackBarType.NORMAL_TIME )
 {
-    ref.current = new NotificationProps(NotificationType.INFORMATIVE,"Faltan datos",
+    ref.current = new SnackBarProps(SnackBarType.INFORMATIVE,"Faltan datos",
     "Hay campos obligatorios sin completar.",[]);
 
     setShowSnack(true);
@@ -249,39 +249,39 @@ function showMissingData(setShowSnack : any, ref : any, time : number = Notifica
 
 
 function showProductAdded(setShowSnack : any, ref : any, 
-    onProductPage : any, onBackHome : any, time : number = NotificationType.LONG_TIME )
+    onProductPage : any, onBackHome : any, time : number = SnackBarType.LONG_TIME )
 {
-    const productPage = new NotificationOptions("Ir a publicación",onProductPage);
-    const backHome = new NotificationOptions("Volver a inicio", onBackHome);
+    const productPage = new SnackBarOption("Ir a publicación",onProductPage);
+    const backHome = new SnackBarOption("Volver a inicio", onBackHome);
 
-    ref.current = new NotificationProps(NotificationType.SUCCESSFUL,"Producto agregado",
+    ref.current = new SnackBarProps(SnackBarType.SUCCESSFUL,"Producto agregado",
     "El producto ha sido añadido correctamente!",[productPage,backHome]);
 
     setShowSnack(true);
     setTimeout(() => setShowSnack(false),time)
 }
 
-function showServerError(setShowSnack : any, ref : any, time : number = NotificationType.NORMAL_TIME )
+function showServerError(setShowSnack : any, ref : any, time : number = SnackBarType.NORMAL_TIME )
 {
-    ref.current = new NotificationProps(NotificationType.ERROR,"Error de servidor",
+    ref.current = new SnackBarProps(SnackBarType.ERROR,"Error de servidor",
     "Ocurrió un error inesperado. Intentalo más tarde",[]);
 
     setShowSnack(true);
     setTimeout(() => setShowSnack(false),time)
 }
 
-function showImagesLimit(setShowSnack : any, ref : any, time : number = NotificationType.NORMAL_TIME )
+function showImagesLimit(setShowSnack : any, ref : any, time : number = SnackBarType.NORMAL_TIME )
 {
-    ref.current = new NotificationProps(NotificationType.INFORMATIVE,"Demasiadas imágenes",
+    ref.current = new SnackBarProps(SnackBarType.INFORMATIVE,"Demasiadas imágenes",
     "Solo podés agregar hasta un máximo de 4 imágenes",[]);
 
     setShowSnack(true);
     setTimeout(() => setShowSnack(false),time)
 }
 
-function showRowsLimit(setShowSnack : any, ref : any, time : number = NotificationType.NORMAL_TIME )
+function showRowsLimit(setShowSnack : any, ref : any, time : number = SnackBarType.NORMAL_TIME )
 {
-    ref.current = new NotificationProps(NotificationType.INFORMATIVE,"Demasiadas filas",
+    ref.current = new SnackBarProps(SnackBarType.INFORMATIVE,"Demasiadas filas",
     "Tu tabla de características no puede tener más de 15 filas. Considera utilizar otras opciones.",[]);
 
     setShowSnack(true);

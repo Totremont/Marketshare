@@ -1,6 +1,6 @@
 'use client'
 import {useState, useRef, useEffect} from "react"
-import { NotificationType,NotificationComponent, NotificationProps } from "../components/notification";
+import { SnackBarType,SnackBar, SnackBarProps } from "../components/snackbar";
 import Logo from "../components/logo";
 import { useFormState, useFormStatus } from "react-dom";
 import { requestTokenSSA } from "@/private/actions/session";
@@ -11,7 +11,7 @@ import SubmitButton from "@/components/submitbutton";
 export default function Login() 
 {
   let [showSnack,setShowSnack] = useState(false);
-  let snackProps = useRef<NotificationProps>();
+  let snackProps = useRef<SnackBarProps>();
 
   const initialState = {title : ''};
 
@@ -55,7 +55,7 @@ export default function Login()
       </div>
     </section>
   </div>
-    {showSnack ? <NotificationComponent title={snackProps.current!.title} 
+    {showSnack ? <SnackBar title={snackProps.current!.title} 
     body={snackProps.current!.body} type={snackProps.current!.type} options={snackProps.current!.options}/> : null}
   </main>
 
@@ -81,9 +81,9 @@ function handleFormResult(state : {title : string}, setShowSnack : any, ref : an
     }
 }
 
-function showServerError(setShowSnack : any, ref : any, time : number = NotificationType.NORMAL_TIME )
+function showServerError(setShowSnack : any, ref : any, time : number = SnackBarType.NORMAL_TIME )
 {
-    ref.current = new NotificationProps(NotificationType.ERROR,"Error de servidor",
+    ref.current = new SnackBarProps(SnackBarType.ERROR,"Error de servidor",
     "Ocurrió un error inesperado. Intentalo más tarde",[]);
 
     setShowSnack(true);
@@ -91,9 +91,9 @@ function showServerError(setShowSnack : any, ref : any, time : number = Notifica
 
 }
 
-function showInvalidData(setShowSnack : any, ref : any, time : number = NotificationType.NORMAL_TIME )
+function showInvalidData(setShowSnack : any, ref : any, time : number = SnackBarType.NORMAL_TIME )
 {
-    ref.current = new NotificationProps(NotificationType.ERROR,"Datos erroneos",
+    ref.current = new SnackBarProps(SnackBarType.ERROR,"Datos erroneos",
     "La combinación de usuario y contraseña es incorrecta.",[]);
 
     setShowSnack(true);
@@ -101,9 +101,9 @@ function showInvalidData(setShowSnack : any, ref : any, time : number = Notifica
 
 }
 
-function showMissingData(setShowSnack : any, ref : any, time : number = NotificationType.NORMAL_TIME )
+function showMissingData(setShowSnack : any, ref : any, time : number = SnackBarType.NORMAL_TIME )
 {
-    ref.current = new NotificationProps(NotificationType.INFORMATIVE,"Datos incompletos",
+    ref.current = new SnackBarProps(SnackBarType.INFORMATIVE,"Datos incompletos",
     "Complete todos los campos antes de continuar.",[]);
 
     setShowSnack(true);

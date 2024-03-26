@@ -1,5 +1,4 @@
-'use client'
-import SellerReputation from "../../private/utils/reputation";
+
 import {Skeleton} from "@nextui-org/skeleton";
 
 
@@ -7,7 +6,7 @@ export default function GetUserCards(props : {token : string, role : string})
 {
     
 }
-
+/*
 function UserCard(props : {name : string, 
     country : string, categories : string[], orgName : string, isClient : boolean, reputation : number
 })
@@ -94,3 +93,4 @@ export function UserCardSkeleton()
     )
     return view;
 }
+*/

@@ -1,5 +1,5 @@
 'use client'
-import ErrorComponent, { ERROR_MISSING_DATA } from "@/components/error"
+import { ERROR_MISSING_DATA, ErrorPage } from "@/components/fallback"
 
  // Error components must be Client Components
  
@@ -8,6 +8,6 @@ export default function Error({error,reset,}:
 {
   
   return (
-    <ErrorComponent errorType={ERROR_MISSING_DATA} onClick={() => {}}/>
+    <ErrorPage errorType={ERROR_MISSING_DATA} onClick={() => {}}/>
   )
 }

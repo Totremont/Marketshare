@@ -1,15 +1,14 @@
 import { cookies, headers } from "next/headers";
 import Headline, { HeadlineSkeleton, HeadlineType } from "../../../components/home/headline";
 import { ACCESS_TOKEN, USERNAME_HEADER, USER_ROLE_HEADER } from "@/middleware";
-import ErrorComponent, { ERROR_MISSING_DATA } from "@/components/error";
 import { redirect } from "next/navigation";
 import SearchBar from "@/components/home/searchbar";
 import { Suspense } from "react";
-import ErrorBoundary from "@/components/errorboundary";
 import { ProductCardSkeleton } from "@/components/home/clients/productcard";
 import ProductList from "@/components/home/productlist";
 import { UserCardSkeleton } from "@/components/home/usercard";
 import { OrderCardSkeleton } from "@/components/home/ordercard";
+import { ErrorBoundary } from "@/components/fallback";
 
 export default async function Home()
 { 
@@ -26,10 +25,9 @@ export default async function Home()
       redirect('/');
   }
 
-
   let view = 
   (       
-  <div className=" h-fit max-w-[1500px] mx-auto py-[100px] md:flex">
+  <div className=" h-fit max-w-[1500px] mx-auto md:flex">
 
     <aside className="md:max-w-[250px] mb-3 md:mb-0 bg-gray-800 p-3 rounded-lg">
 
@@ -75,8 +73,8 @@ export default async function Home()
 
       <section className="flex flex-wrap my-8">
       {
-          <Suspense fallback={<ProductCardSkeleton finished={false}/>}>
-            <ProductList token={token} />
+          <Suspense fallback={<ProductCardSkeleton />}>
+            <ProductList />
           </Suspense>
       }
       </section>

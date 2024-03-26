@@ -1,6 +1,6 @@
 'use client'
+import { OrderStatus } from "@/private/utils/properties";
 import {Skeleton} from "@nextui-org/skeleton";
-import OrderStatus from "../../private/utils/orderstatus";
 
 
 export default function GetOrderCards()

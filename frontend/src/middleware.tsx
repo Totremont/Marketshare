@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import validateToken from "./private/authorization";
-import RequestStatus from "./private/utils/requeststatus";
 import { InvalidUserToken } from "./private/exceptions";
 import { NextURL } from "next/dist/server/web/next-url";
 
@@ -57,6 +56,7 @@ export async function middleware(request: NextRequest)
         } 
         else return handleGuest(currentUrl,request);
     }
+    
     
     
 }
@@ -126,7 +126,7 @@ async function useRefreshToken(currentUrl : NextURL, token : string, request : N
             body: `grant_type=refresh_token&refresh_token=${token}`
         }
     )
-    if(req.status === RequestStatus.OK)
+    if(req.ok)
     {     
         console.log("Sección obtener tokens | Respuesta OK");
         let {access_token, refresh_token} = await req.json();

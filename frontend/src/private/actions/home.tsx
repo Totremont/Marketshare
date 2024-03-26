@@ -1,9 +1,6 @@
 'use server'
-
 import { ACCESS_TOKEN } from "@/middleware";
 import { cookies } from "next/headers";
-
-/* This must be client fetches */
 
 export async function findUser(username : string)
 {
@@ -30,15 +27,10 @@ export async function findUser(username : string)
 }
 
 //Si soy un vendedor, me interesa obtener los compradores y viceversa
-export async function findAllUsersByOppositeRole(role : string)
+export async function findAllUsersByRole(role : string)
 {
     const token = cookies().get(ACCESS_TOKEN)?.value;
-    let userRole;
-    if(role === 'ROLE_VENDEDOR') userRole = 'ROLE_COMPRADOR'
-    else userRole = 'ROLE_VENDEDOR';
-    //Wait 2 seconds
-    let wait = await new Promise((res,_) => {setTimeout(() => res(123),2000)});
-    return fetch(`${process.env.NEXT_PUBLIC_ms_usuarios_host}/api/users/list?role=${userRole}`,
+    return fetch(`${process.env.NEXT_PUBLIC_ms_usuarios_host}/api/users/list?role=${role}`,
     { 
         method : 'GET',
         mode : 'cors',

@@ -15,7 +15,7 @@ export default function MainLayout({children,}: {children: React.ReactNode})
 
         <main className="bg-gray-900 flex flex-col">
             <HeaderComponent username={username!}/>
-            <div className="flex-1">
+            <div className="flex-1 py-[100px]">
             {children}
             </div>
             <FooterComponent/>

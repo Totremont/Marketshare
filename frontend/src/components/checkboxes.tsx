@@ -1,7 +1,7 @@
 import { useRef } from "react";
 
-export default function Checkboxes(props : 
-    {initialState : string[], setChecked: any, data : CheckboxData[], singleSelection : boolean})
+export default function CheckBoxes(props : 
+    {initialState : string[], setChecked: any, data : CheckBoxData[], singleSelection : boolean})
 {
     const checked = useRef<string[]>(props.initialState);
 
@@ -51,7 +51,7 @@ export default function Checkboxes(props :
 
 }
 
-export class CheckboxData
+export class CheckBoxData
 {
     id : string
     label : string

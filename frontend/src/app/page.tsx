@@ -4,7 +4,7 @@ import { SnackBarType,SnackBar, SnackBarProps } from "../components/snackbar";
 import Logo from "../components/logo";
 import { useFormState, useFormStatus } from "react-dom";
 import { requestTokenSSA } from "@/private/actions/session";
-import SubmitButton from "@/components/submitbutton";
+import {SubmitButton} from "@/components/buttons";
 
 //Pestaña principal de inicio de sesión
 

@@ -1,6 +1,7 @@
 'use client'
 import { BackgroundColors, SpecialFeature } from "@/private/utils/properties"
 import { useRef } from "react"
+import { CardIcon, LeafIcon, ShieldIcon, ShippingIcon } from "./icons/miscellaneous"
 
 export default function SingleChip(props : {id : string, title : string, checked : boolean, 
     callback : ((event : React.MouseEvent<HTMLElement>) => void)})
@@ -76,30 +77,31 @@ export function ChipFeature(props : {feature : number})
     {
         case SpecialFeature.ENVIO_GRATIS:
             color = BackgroundColors.GREEN;
-            //icon = "/shipping.svg";
+            icon = <ShippingIcon/>;
             title = "Envío gratis";
             break;
         case SpecialFeature.AHORA_12:
             color = BackgroundColors.GRAY;
-            //icon = "/card.svg";
+            icon = <CardIcon/>;
             title = "Ahora 12";
             break;
         case SpecialFeature.GARANTIA:
             color = BackgroundColors.PURPLE;
-            //icon = "/shield.svg";
-            title = "Garantía";
+            icon = <ShieldIcon/>;
+            title = "Garantía 12";
             break;
         case SpecialFeature.SUSTENTABLE:
             color = BackgroundColors.OLIVE;
-            //icon = "/leaf.svg";
+            icon = <LeafIcon/>
             title = "Sustentable";
             break;
         default:
             return null;
     }
-    const style = `rounded-lg ${color} p-1 px-3 text-sm font-semibold text-slate-200 flex items-center`
+    const style = `rounded-lg ${color} p-1 px-3 text-sm font-semibold text-slate-200 flex items-center gap-x-1`
     return(
     <div className={style}>
+        {icon}
         {title}
     </div>)
 

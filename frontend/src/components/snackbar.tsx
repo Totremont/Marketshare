@@ -4,7 +4,7 @@ export function SnackBar(props :
 {
 
     let informative = () => (
-        <div className="fixed bottom-4 w-full ">
+        <div className="left-0 mx-auto fixed bottom-4 w-full ">
         <article className="text-[#FFFAFA] bg-[#A0522D] text-start 
         w-[400px] h-fit mx-auto p-3 rounded-lg shadow-sm shadow-slate-900">
         <p className="font-semibold">{props.title}</p>
@@ -20,7 +20,7 @@ export function SnackBar(props :
     )
 
     let error = () => (
-        <div className="fixed bottom-4 w-full ">
+        <div className="left-0 mx-auto fixed bottom-4 w-full ">
         <article className="text-[#ffdad7] bg-[#A52A2A] text-start 
         w-[400px] h-fit mx-auto p-3 rounded-lg shadow-sm shadow-slate-900">
         <p className="font-semibold">{props.title}</p>
@@ -36,7 +36,7 @@ export function SnackBar(props :
     )
 
     let success = () => (
-        <div className="fixed bottom-4 w-full ">
+        <div className="left-0 mx-auto fixed bottom-4 w-full ">
         <article className="text-[#d2e8d4] bg-[#2E8B57] text-start max-w-[70%] 
         md:w-[600px] h-fit mx-auto p-3 rounded-lg shadow-sm shadow-slate-900">
         <p className="font-semibold">{props.title}</p>

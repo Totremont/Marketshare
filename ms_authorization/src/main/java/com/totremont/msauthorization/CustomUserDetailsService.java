@@ -41,7 +41,7 @@ public class CustomUserDetailsService implements UserDetailsService
             UserDetails userDetails = User.builder()    //No codificamos la password porque ya está codificada en ms_usuarios
                     .username(username)
                     .password(userDTO.getPassword())
-                    .roles(userDTO.getType())           //Prefija con ROLE | ej: ROLE_vendedor
+                    .roles(userDTO.getType().substring(5))           //Prefija con ROLE | ej: ROLE_vendedor
                     .build();
             
             return userDetails;

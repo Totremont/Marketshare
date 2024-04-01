@@ -3,7 +3,7 @@ export default function EmptyComponent({missingElement} : {missingElement : stri
 {
     const view = 
     (
-      <article className="mt-2 flex h-[225px] min-w-[200px] md:w-[300px] flex-col rounded-lg bg-gray-800 p-3">
+      <article className="mt-2 flex h-[225px] min-w-[250px] md:w-[300px] flex-col rounded-lg bg-gray-800 p-3">
         <div className="justify-center text-center">       
           <h1 className="text-slate-200 text-2xl my-1 font-semibold">Oops!</h1>
           <h2 className="text-lg text-slate-300">Parece que no hay <span className="font-semibold">{missingElement}</span></h2>

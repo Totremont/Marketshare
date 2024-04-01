@@ -8,8 +8,10 @@ import com.github.totremont.msusuario.repository.database.enums.UsuarioType;
 import com.github.totremont.msusuario.repository.database.model.Usuario;
 import com.github.totremont.msusuario.repository.database.model.UsuarioComprador;
 import com.github.totremont.msusuario.repository.database.model.UsuarioVendedor;
+import com.github.totremont.msusuario.repository.database.utils.UsuarioUtils;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,7 +34,9 @@ public class UsuarioDTO {
     private BancoDTO bank;
     private PaisDTO country;
     private Float money;
-    private Long registerDate;
+    private String registerDate;
+    
+    private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss z");
 
     public UsuarioDTO(String userName, String password, String type) {
         this.name = userName;
@@ -59,7 +63,8 @@ public class UsuarioDTO {
         this.bank = bank;
         this.country = country;
         this.money = money;
-        this.registerDate = registerDate.toEpochSecond();
+        //YYYY-MM-DDTHH:mm:ss z (z = TimeZone)
+        this.registerDate = registerDate.format(formatter);
     }
     
 
@@ -74,24 +79,25 @@ public class UsuarioDTO {
         this.email = email;
         this.country = country;
         this.organization = organization;
-        this.registerDate = registerDate.toEpochSecond();
+        //YYYY-MM-DDTHH:mm:ss z (z = TimeZone)
+        this.registerDate = registerDate.format(formatter);
     }
     
   
     
     public static UsuarioDTO from(Usuario user)
     {
-        if(user.getType() == UsuarioType.VENDEDOR){
+        if(UsuarioUtils.getTypeName(user.getType()) == UsuarioType.VENDEDOR){
             UsuarioVendedor aux = ((UsuarioVendedor) user);
             return new UsuarioDTO(user.getId(), user.getName(),
-            user.getPassword(),user.getType().name(),user.getEmail(), PaisDTO.from(user.getCountry()),
+            user.getPassword(),user.getType(),user.getEmail(), PaisDTO.from(user.getCountry()),
                     EmpresaDTO.from(aux.getOrganization()),aux.getRegisterDate());
         }
         else
         {            
             UsuarioComprador aux = ((UsuarioComprador) user);
             return new UsuarioDTO(aux.getId(), aux.getName(),
-            aux.getPassword(),aux.getType().name(),aux.getEmail(),
+            aux.getPassword(),aux.getType(),aux.getEmail(),
                     EmpresaDTO.from(aux.getOrganization()),
                     BancoDTO.from(aux.getBank()),
                     PaisDTO.from(aux.getCountry()),

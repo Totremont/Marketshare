@@ -1,122 +1,174 @@
-import {PrismaClient, PedidoStatusHistory } from "@prisma/client";
+import {PrismaClient, PedidoStatusHistory, Pedido } from "@prisma/client";
 import PedidoStatus from "../PedidoStatus";
-import { toStatus } from "../mappers/StatusMapper";
-import RequestStatus from "../mappers/RequestStatus";
+import { rejectedStatus, toStatus } from "../mappers/StatusMapper";
 
 const repo = new PrismaClient()
 
-//No es necesario el async porque prisma.$transacion devuelve una promise
-export function savePedido(authToken : string, order : {clientId : number, productId : number, 
-    sellerId : number, amount : number, discount : number, status : string})
+const MAX_TIME_TO_PROGRESS = 120*1000  //120 Seg
+
+const randomTime = () => Math.random() * MAX_TIME_TO_PROGRESS;
+
+export async function savePedido(authToken : string, order : {clientId : number, productId : number, 
+    sellerId : number, amount : number, discount : number, finalPrice : number, product_extras : string})
 {
+    const [productForm,client] = await Promise.all(
+    [
+        requestProduct(order.productId,authToken).then(res => res.formData()),
+        requestUser(order.clientId,authToken).then(res => res.json())
+    ]);
     //La operacion debe ser transacional para garantizar que todo se haga atómicamente (o no se haga nada)
-    //Si la promesa falla, se revierte todo
-    return repo.$transaction(async() => 
+    const operation = repo.$transaction(async (prisma) => 
     {
-        let productRequest = await requestProduct(order.productId,authToken);
-        let clientRequest = await requestUser(order.clientId,authToken);
+        const productId = Number(productForm.getAll('id')[0]);
+        let productStock = Number(productForm.getAll('stock')[0]);
 
-        let product = productRequest.status === 200 ? await productRequest.json() : null;
-        let client = clientRequest.status === 200 ? await clientRequest.json() : null;
+        let currentStatus : string = PedidoStatus.RECIBIDO;
+        //Final price should be sent by the frontend
+        //let totalPrice = product.price * order.amount * (100-order.discount)/100;    //Discount : [0-100%]
+        
+        if(productStock < order.amount) //Hay stock suficiente?
+            currentStatus = PedidoStatus.SIN_STOCK
+        
+        if(client.money < order.finalPrice )  //Tiene el cliente el dinero?
+            currentStatus = PedidoStatus.RECHAZADO
 
-        if(product.hasOwnProperty("id") && client.hasOwnProperty("id"))
+        let statusObj : PedidoStatusHistory = {status : currentStatus, date : new Date()}
+
+        let document = await prisma.pedido.create(
         {
-
-            let currentStatus = order.status
-            let totalPrice = product.price * order.amount * (100-order.discount)/100;    //Discount : [0-100%]
-            
-            if(product.stock < order.amount || !product.available ) //Hay stock suficiente?
-                currentStatus = PedidoStatus.SIN_STOCK
-            
-            if(client.money < totalPrice )  //Tiene el cliente el dinero?
-                currentStatus = PedidoStatus.RECHAZADO
-
-            let statusObj : PedidoStatusHistory = {status : currentStatus, date : new Date()}
-
-            let document = await repo.pedido.create(
-                {
-                    data:
-                    {
-                        client_id : order.clientId,
-                        product_id : order.productId,
-                        seller_id : order.sellerId,
-                        amount : order.amount,
-                        discount : order.discount,
-                        price : totalPrice,
-                        status_history : [statusObj]
-                    }
-                })
-
-            if(currentStatus === PedidoStatus.RECIBIDO) //Actualizar stocks y dinero
+            data:
             {
-                client.money -= totalPrice;
-                product.stock -= order.amount;
-
-                await updateProduct(product,authToken);
-                await updateUser(client,authToken);
-
-                let resultProduct = await updateProduct(product,authToken);
-                let resultUser = await updateUser(client,authToken);
-
-                console.log(`Producto: ${JSON.stringify(product)}`)
-
-                if(resultProduct.status != RequestStatus.OK || resultUser.status != RequestStatus.OK)
-                    throw new Error("Couldn't update user or product");
-
+                client_id : Number(order.clientId),
+                product_id : Number(order.productId),
+                seller_id : Number(order.sellerId),
+                amount : Number(order.amount),
+                discount : Number(order.discount),
+                price : Number(order.finalPrice),
+                status_history : [statusObj],
+                product_extras : order.product_extras
             }
-
-            return document;
-        } else throw new Error("Product or Client doesn't exist in external database");
+        })
+        
+        if(currentStatus === PedidoStatus.RECIBIDO) //Actualizar stocks y dinero
+        {
+            client.money -= document.price;
+            productStock -= document.amount;
+            await Promise.all(
+            [
+                updateProduct(productStock,productId,authToken)
+                .then(
+                    res => {if(!res.ok) throw new Error('Updating product failed')},
+                    err => {throw err}
+                ),
+                updateUser(client,authToken).then(
+                    res => {if(!res.ok) throw new Error('Updating user failed')},
+                    err => {throw err}
+                )
+            ])
+        }
+        return document;
     })
+    .then
+    (      //If order could be created, artificially progress the order
+        res => 
+        {
+            setTimeout(() => 
+            {
+                progressPedido(res.id,PedidoStatus.EN_DISTRIBUCION);
+                setTimeout(() => progressPedido(res.id,PedidoStatus.ENTREGADO),randomTime())
+            },randomTime()); 
+
+            return res;
+        }
+    )
+
+    return operation;
     
 }
 
-//Para actualizar su estado [RECIBIDO,EN_DISTRIBUCION,ENTREGADO] o CANCELAR
-export function updatePedido(authToken : string, orderId : string, newStatus : string)
+//Para CANCELAR
+//Solo se puede actualizar una orden válida
+export async function cancelPedido(authToken : string, orderId : string)
 {
-    return repo.$transaction(async() => 
+    let order : Pedido;
+    const [productForm, client] = await repo.pedido.findUniqueOrThrow({where:{id : orderId}})
+    .then(
+        res =>  
+        {
+            order = res;
+            return Promise.all(
+            [
+                requestProduct(res.product_id,authToken).then(res => res.formData()),
+                requestUser(res.client_id,authToken).then(res => res.json())
+            ]);
+        }
+    );
+    return repo.$transaction(async (prisma) => 
     {
-        let order = await repo.pedido.findUniqueOrThrow({where:{id : orderId}});
-        //Si tira exception se burbujea hacia el controller
-
         let statusHistory = order.status_history;
         let currentStatus = toStatus(statusHistory[statusHistory.length - 1].status);
 
-        if(currentStatus != PedidoStatus.RECHAZADO && currentStatus != PedidoStatus.CANCELADO)
-        {
-            statusHistory = statusHistory.concat({status : newStatus, date : new Date()});
-            let updated = repo.pedido.update(
-                {
-                    where:{ id : orderId},
-                    data:
-                    {
-                        status_history : statusHistory
-                    }
-                })
-
-            if(newStatus === PedidoStatus.CANCELADO)    //Si se canceló el pedido se debe devolver el stock y el dinero
+        if(rejectedStatus.includes(currentStatus)) throw new Error("The order was already cancel");
+        
+        statusHistory = statusHistory.concat({status : PedidoStatus.CANCELADO, date : new Date()});
+        const updated = await prisma.pedido.update(
             {
-                let productRequest = await requestProduct(order.product_id,authToken);
-                let clientRequest = await requestUser(order.client_id,authToken);
-
-                let product = productRequest.status === 200 ? await productRequest.json() : null;
-                let client = clientRequest.status === 200 ? await clientRequest.json() : null;
-                
-                client.money += order.price;
-                product.stock += order.amount;
-
-                let resultProduct = await updateProduct(product,authToken);
-                let resultUser = await updateUser(client,authToken);
-
-                if(resultProduct.status != RequestStatus.OK || resultUser.status != RequestStatus.OK)
-                    throw new Error("Couldn't update user or product");
-
+                where:{ id : orderId},
+                data:
+                {
+                    status_history : statusHistory
+                }
             }
+        )
 
-            return updated;
-            
-        } else throw new Error("Invalid status operation");
-    })
+        const productId = Number(productForm.getAll('id')[0]);
+        let productStock = Number(productForm.getAll('stock')[0]);
+        
+        client.money += order.price;
+        productStock += order.amount;
+
+        await Promise.all(
+            [
+                updateProduct(productStock,productId,authToken)
+                .then(
+                    res => {if(!res.ok) throw new Error('Updating product failed')},
+                    err => {throw err}
+                ),
+                updateUser(client,authToken).then(
+                    res => {if(!res.ok) throw new Error('Updating user failed')},
+                    err => {throw err}
+                )
+            ]
+        )
+        return updated;
+    });
+}
+//Avanzar el pedido de RECIBIDO a EN DISTRIBUCION y ENTREGADO
+async function progressPedido(orderId : string, newStatus : string)
+{
+    const order = await repo.pedido.findUniqueOrThrow({where:{id : orderId}});
+
+    let statusHistory = order.status_history;
+    let currentStatus = toStatus(statusHistory[statusHistory.length - 1].status);
+
+    if(currentStatus != PedidoStatus.CANCELADO)
+    {
+        statusHistory = statusHistory.concat({status : newStatus, date : new Date()});
+        await repo.pedido.update(
+        {
+            where:{ id : orderId},
+            data:
+            {
+                status_history : statusHistory
+            }
+        })
+        
+    } else console.log("Tried to progress a cancel order");
+}
+
+export async function findAllPedido()
+{
+    return repo.pedido.findMany({include : {review : true}, orderBy : {created : 'desc'}});
 }
 
 export async function findAllPedidoFromClient(clientId : number)
@@ -142,7 +194,7 @@ export async function findAllPedidoFromProduct(productId : number)
 //Obtener un usuario por su id
 async function requestUser(userId : number, authToken : string)
 {
-    let result = await fetch(`${process.env.ms_usuarios_host}/api/users/${userId}`,
+    return fetch(`${process.env.ms_usuarios_host}/api/users/${userId}`,
     {   
         method : 'GET',
         headers:
@@ -151,15 +203,13 @@ async function requestUser(userId : number, authToken : string)
         },
         mode : 'cors'
     }
-    )
-
-    return result
+    );
 }
 
 //Obtener un producto por su id
 async function requestProduct(productId : number, authToken : string)
 {
-    let result = await fetch(`${process.env.ms_productos_host}/api/products/${productId}`,
+    return fetch(`${process.env.ms_productos_host}/api/products/${productId}?send_images=false`,
     {   
         method : 'GET',
         headers:
@@ -168,40 +218,37 @@ async function requestProduct(productId : number, authToken : string)
         },
         mode : 'cors'
     }
-    )
-
-    return result
+    );
 }
 
 async function updateUser(user : any, authToken : string)
 {
-    return await fetch(`${process.env.ms_usuarios_host}/api/users`,
-    {   
-        method : 'PUT',
-        mode : 'cors',
-        body : JSON.stringify(user),
-        headers: 
-        {
-            "Authorization":    `${authToken}`,
-            "Content-Type":     "application/json",
+    return fetch(`${process.env.ms_usuarios_host}/api/users`,
+        {   
+            method : 'PUT',
+            mode : 'cors',
+            body : JSON.stringify(user),
+            headers: 
+            {
+                "Authorization":    `${authToken}`,
+                "Content-Type":     "application/json",
+            }
         }
-    }
-    )
+    );
 }
 
-async function updateProduct(product : any, authToken : string)
+async function updateProduct(stock : number, id: number, authToken : string)
 {
-    return await fetch(`${process.env.ms_productos_host}/api/products/update`,
-    { 
-        method : 'PUT',
-        mode : 'cors',
-        body : JSON.stringify(product),
-        headers: 
-        {
-            "Authorization":    `${authToken}`,
-            "Content-Type":     "application/json",
+    return fetch(`${process.env.ms_productos_host}/api/products/update?stock=${stock}&id=${id}`,
+        { 
+            method : 'PUT',
+            mode : 'cors',
+            headers: 
+            {
+                "Authorization":    `${authToken}`,
+                "Content-Type":     "application/json",
+            }
         }
-    }
     )
 }
 

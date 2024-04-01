@@ -3,10 +3,10 @@ import { AuthServerInternalError, InvalidUserAuthorities, InvalidUserToken, NoTo
 export default async function validateToken(token : string | undefined)
 {
     let error;
-    let userData : {role : string, username : string} | void
+    let userData : Promise<any>; //{role : string, username : string} | void
     if(token)
     {
-        userData = await requestAuth(token).then(
+        userData = requestAuth(token).then(
             async (res) => 
             {
                 let body = await res.json();

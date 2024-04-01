@@ -3,7 +3,7 @@
 import { ACCESS_TOKEN } from "@/middleware";
 import { cookies } from "next/headers";
 
-export async function findUserById(id : string)
+export async function findUserByIdSSA(id : string)
 {
     const token = cookies().get(ACCESS_TOKEN)?.value;
     let req = await fetch(`${process.env.NEXT_PUBLIC_ms_usuarios_host}/api/users/${id}`,

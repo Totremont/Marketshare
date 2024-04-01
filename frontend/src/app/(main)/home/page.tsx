@@ -1,20 +1,21 @@
 import { cookies, headers } from "next/headers";
 import Headline, { HeadlineSkeleton, HeadlineType } from "../../../components/home/headline";
-import { ACCESS_TOKEN, USERNAME_HEADER, USER_ROLE_HEADER } from "@/middleware";
+import { ACCESS_TOKEN, ROLE_COMPRADOR, USERNAME_HEADER, USER_ROLE_HEADER } from "@/middleware";
 import { redirect } from "next/navigation";
 import SearchBar from "@/components/home/searchbar";
 import { Suspense } from "react";
-import { ProductCardSkeleton } from "@/components/home/clients/productcard";
+import { ProductCardSkeleton } from "@/components/home/clientside/productcard";
 import ProductList from "@/components/home/productlist";
-import { UserCardSkeleton } from "@/components/home/usercard";
+import { UserCardSkeleton } from "@/components/home/clientside/usercard";
 import { OrderCardSkeleton } from "@/components/home/ordercard";
-import { ErrorBoundary } from "@/components/fallback";
+import UserList from "@/components/home/userlist";
+import { findUserByUsernameSSA } from "@/private/actions/home";
 
 export default async function Home()
 { 
   
   //Home es un server component. Los componentes son clients (y en ellos se encuentra la interactividad)
-  let username = headers().get(USERNAME_HEADER);
+  let username = headers().get(USERNAME_HEADER)!;
   let userRole = headers().get(USER_ROLE_HEADER);
   let token = cookies().get(ACCESS_TOKEN)?.value;
 
@@ -44,7 +45,7 @@ export default async function Home()
       <section>
         <header className="mt-4 md:mt-10 pb-3 border-b flex border-slate-600 items-center">
           <h1 className="text-lg font-semibold">Últimos avisos</h1>
-          <button className="mx-4 bg-[#A0522D] rounded-xl px-2 py-1 
+          <button className="mx-4 bg-[#A0522D] rounded-lg px-2 py-1 
             text-sm font-semibold hover:bg-[#b55d33]">+ Aviso</button>
         </header>
 
@@ -81,7 +82,7 @@ export default async function Home()
 
       <header className="pb-3 border-slate-600">
         <section className="flex">
-          <h1 className="text-lg font-semibold">Clientes</h1>
+          <h1 className="text-lg font-semibold">{userRole === ROLE_COMPRADOR ? 'Vendedores' : 'Clientes'}</h1>
         </section>
         <section>
         <SearchBar setTextWritten={null}/>
@@ -92,7 +93,9 @@ export default async function Home()
 
       <section className="flex flex-wrap mb-8 mt-6 items-start">
       {
-        <UserCardSkeleton/>
+        <Suspense fallback={<UserCardSkeleton/>}>
+          <UserList/>
+        </Suspense>
       }
       </section>
 

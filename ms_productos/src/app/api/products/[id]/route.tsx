@@ -1,7 +1,7 @@
 import ProductoService from '@/private/services/ProductoService';
 import RequestStatus from '@/private/mappers/RequestStatus';
 import { PrismaClient } from '@prisma/client'
-import validate from "@/private/securityaspect" 
+import validate from "@/private/security" 
 import { NotFoundError } from '@/private/exceptions';
 import ProductoMapper from '@/private/mappers/ProductoMapper';
 

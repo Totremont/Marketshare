@@ -20,3 +20,5 @@ export function toStatus(status : string)
             return PedidoStatus.RECHAZADO;
     }
 }
+
+export const rejectedStatus = [PedidoStatus.RECHAZADO,PedidoStatus.CANCELADO,PedidoStatus.SIN_STOCK];

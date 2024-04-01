@@ -52,7 +52,7 @@ export default class ProductoMapper
             }      
             return product;
 
-        } catch(e){throw new Error('Form data could not be converted to json');}
+        } catch(e){console.log(e); throw new Error('Form data could not be converted to json');}
     }
 
     jsonToForm(products : Producto[]) : FormData
@@ -71,7 +71,7 @@ export default class ProductoMapper
                     formData.append('category',it.category.name);
                     formData.append('state',it.state);
                     //Imágenes
-                    let images : File[] = (it.blobImages ?? []);
+                    let images : File[] = (it.files ?? []);
                     formData.append('files_count',images.length)
                     images.forEach(img => formData.append('files',img));
                     //Colores

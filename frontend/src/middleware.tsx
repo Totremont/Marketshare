@@ -6,21 +6,33 @@ import { NextURL } from "next/dist/server/web/next-url";
 export const ACCESS_TOKEN = "marketshare.user.access-token"
 export const REFRESH_TOKEN = "marketshare.user.refresh-token"
 export const USER_ROLE = "marketshare.user.user-role"
-export const USER_ROLE_MAX_AGE = 31;    //Days
-export const ACCESS_TOKEN_MAX_AGE = 7;
-export const REFRESH_TOKEN_MAX_AGE = 31;
+
+const ACCESS_TOKEN_MAX_AGE = 7;     //In days
+const REFRESH_TOKEN_MAX_AGE = 31;
 
 export const USERNAME_HEADER = "X-USER-NAME";
 export const USER_ROLE_HEADER = "X-USER-ROLE";
 
-//¿Quién puede acceder a cada endpoint?
-const auth_endpoints = 
+export const ROLE_COMPRADOR = 'ROLE_COMPRADOR';
+export const ROLE_VENDEDOR = 'ROLE_VENDEDOR';
+export const ROLE_VISITANTE = 'ROLE_VISITANTE'
+
+//¿Quién puede acceder a cada endpoint? | Expresiones regulares
+const obj_endpoints = 
 {
-    '/'                     : ['VISITANTE'],
-    '/register'             : ['VISITANTE'],
-    '/home'                 : ['ROLE_COMPRADOR','ROLE_VENDEDOR'],
-    '/product/create'       : ['ROLE_VENDEDOR']
+    '/$'                     : [ROLE_VISITANTE],
+    '/register$'             : [ROLE_VISITANTE],
+    '/home$'                 : [ROLE_COMPRADOR, ROLE_VENDEDOR],
+    '/product/create$'       : [ROLE_VENDEDOR],
+    '/product/\\d+$'         : [ROLE_COMPRADOR, ROLE_VENDEDOR, ROLE_VISITANTE],
+
 }
+
+const list_endpoints = Object.getOwnPropertyNames(obj_endpoints).map(it => 
+    {
+        return {regex : new RegExp(it), auths : obj_endpoints[it as keyof typeof obj_endpoints]}
+    }
+);
 
 
 export async function middleware(request: NextRequest) 
@@ -70,11 +82,13 @@ async function handleSession(currentUrl : NextURL, tokens : {access : string, re
     let {username, role} = await validateToken(tokens.access);
     currentUrl.searchParams.forEach(value => currentUrl.searchParams.delete(value));
     //Los valores van en headers -- para ocultar los path queries
-    //Si quiere entrar a una pantalla en la que no tiene permiso, ir a home
     let res : NextResponse;
+
+    let authKey = {endpointFound : false, roleFound : false};
+    testEndpoint(authKey,endpoint,role);
     //Si la página no existe
-    if(!auth_endpoints[endpoint as keyof typeof auth_endpoints]) return NextResponse.next();
-    if(!auth_endpoints[endpoint as keyof typeof auth_endpoints].includes(role))
+    if(!authKey.endpointFound) return NextResponse.next();
+    if(authKey.endpointFound && !authKey.roleFound)
     {
         console.log("Sección access-token | Redireccionar a /home");
         currentUrl.pathname = '/home';
@@ -86,9 +100,9 @@ async function handleSession(currentUrl : NextURL, tokens : {access : string, re
     }
     res.headers.set(USERNAME_HEADER,username);
     res.headers.set(USER_ROLE_HEADER,role);
-    addCookie(request,res,ACCESS_TOKEN,tokens.access,ACCESS_TOKEN_MAX_AGE);
-    addCookie(request,res,USER_ROLE,role,USER_ROLE_MAX_AGE);
-    addCookie(request,res,REFRESH_TOKEN,tokens.refresh,REFRESH_TOKEN_MAX_AGE);
+    addCookie(res,ACCESS_TOKEN,tokens.access,ACCESS_TOKEN_MAX_AGE);
+    //addCookie(request,res,USER_ROLE,role,USER_ROLE_MAX_AGE);
+    addCookie(res,REFRESH_TOKEN,tokens.refresh,REFRESH_TOKEN_MAX_AGE);
     return res;
 }
 
@@ -97,9 +111,12 @@ function handleGuest(currentUrl : NextURL,request : NextRequest)
     console.log("Es un guest");
     const endpoint = currentUrl.pathname;
     let res;
-    //Si la página no existe
-    if(!auth_endpoints[endpoint as keyof typeof auth_endpoints]) return NextResponse.next();
-    if(!auth_endpoints[endpoint as keyof typeof auth_endpoints]?.includes('VISITANTE'))
+
+    let authKey = {endpointFound : false, roleFound : false};
+    testEndpoint(authKey,endpoint,ROLE_VISITANTE);
+
+    if(!authKey.endpointFound) return NextResponse.next();
+    if(authKey.endpointFound && !authKey.roleFound)
     {
         currentUrl.pathname = '/';
         res = NextResponse.redirect(currentUrl);
@@ -134,7 +151,6 @@ async function useRefreshToken(currentUrl : NextURL, token : string, request : N
     } 
     else
     {
-        //Borrar cookies
         return handleGuest(currentUrl,request);
     }
     }
@@ -150,7 +166,7 @@ const deleteAllCookie = (request: NextRequest, response: NextResponse) =>
     });
 };
 //maxAge in days
-const addCookie = (request: NextRequest, response: NextResponse, cookieName: string, cookieValue : string, maxAge : number) => 
+const addCookie = (response: NextResponse, cookieName: string, cookieValue : string, maxAge : number) => 
 {  
     const exps = new Date();
     exps.setDate(exps.getDate() + maxAge);
@@ -163,6 +179,19 @@ const addCookie = (request: NextRequest, response: NextResponse, cookieName: str
         expires: exps
     })
 };
+
+const testEndpoint = (authKey : any, endpoint : string, role : string) => 
+{
+    list_endpoints.findIndex(it => 
+    {
+        if(it.regex.test(endpoint))
+        {
+            authKey.endpointFound = true;   //Si la página existe
+            if(it.auths.includes(role)){ authKey.roleFound = true; return true;}    //Si tiene autorizacion en ella
+        }
+
+    });
+}
 
 //Solo ejecutar en endpoints
 

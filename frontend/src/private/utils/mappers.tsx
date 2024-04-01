@@ -1,3 +1,4 @@
+import { AudioIcon, BeautyIcon, ClothesIcon, ComputingIcon, DevicesIcon, ElectronicsIcon, IndustryIcon, OfficesIcon, OtherIcon, SportsIcon, ToolsIcon } from "@/components/icons/categories";
 import { BackgroundColors, Categories, SpecialFeature } from "./properties";
 
 export function formToProduct(formData : FormData)
@@ -50,12 +51,11 @@ export function formToProduct(formData : FormData)
 function getOwnValues(data : [number[], any[]], index : number)
 {
     //My own amount of data from this collection
-    let ownAmount = data[0][index];
+    let ownAmount : number = Number(data[0][index]);
     if(!ownAmount) return [];
-    let start = 0;
+    let start : number = 0;
     //Sum previous amounts and shift
-    if(index != 0) data[0].slice(index).forEach(sum => start += sum);
-
+    if(index != 0) data[0].slice(0,index).forEach(sum => start += Number(sum));
     return data[1].slice(start,start + ownAmount);
 }
 
@@ -106,7 +106,7 @@ export function toCategory(category : string)
         return Categories.CONSTRUCCION;
         case 'oficinas':
         return Categories.OFICINAS;
-        case 'otra':
+        default:
         return Categories.OTRAS; 
     }
 }
@@ -158,14 +158,13 @@ export function formatDate(date : string)
         break;
     }
 
-    return `${day} ${monthName} ${year}`;
+    return `${day} de ${monthName} ${year}`;
 }
 
 export function formatPrice(price : number | string)
 {
     const priceText = price.toString().split('.')[0];   //Para sacar posibles decimales
     const last = priceText.length - 1;
-    console.log("Price text:" + priceText);
     if(last < 0) return "";
 
     let text = new Array<string>((last + 1) + Math.floor(last / 3));
@@ -207,9 +206,44 @@ export function toBackgroundColor(color : string)
     }
 }
 
+export function getCategoryIcon(category : string)
+{
+    switch(category)
+    {
+        case Categories.ELECTRONICA:
+            return <ElectronicsIcon/>
+        case Categories.AUDIO:
+            return <AudioIcon/>
+        case Categories.BELLEZA:
+            return <BeautyIcon/>
+        case Categories.DEPORTE_BIENESTAR:
+            return <SportsIcon/>
+        case Categories.HERRAMIENTAS:
+            return <ToolsIcon/>
+        case Categories.INDUSTRIAS:
+            return <IndustryIcon/>
+        case Categories.INFORMATICA:
+            return <ComputingIcon/>
+        case Categories.PEQUENIOS_DISPOSITIVOS:
+            return <DevicesIcon/>
+        case Categories.OFICINAS:
+            return <OfficesIcon/>
+        case Categories.PRENDAS_MODA:
+            return <ClothesIcon/>
+        default:
+            return <OtherIcon/>
+        
+    }
+}
+
 export function getAverageRating(ratings : number[])
 {
     let sum = 0;
     ratings.forEach(it => sum += it);
     return sum / (ratings.length ? ratings.length : 1) ;
+}
+
+export function lastOrderStatus(order : any)
+{
+    return order.status_history[order.status_history.length - 1];
 }

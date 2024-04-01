@@ -7,7 +7,7 @@ import CheckBoxes, { CheckBoxData } from "@/components/checkboxes";
 import FeatureRow from "@/components/product/create/featurerow";
 import { createProductSSA } from "@/private/actions/product";
 import { useFormState } from "react-dom";
-import { SubmitButtonWithState } from "@/components/submitbutton";
+import { SubmitButtonWithState } from "@/components/buttons";
 import { useRouter } from "next/navigation";
 
 //Pestaña principal

@@ -5,7 +5,8 @@ import { cookies } from "next/headers";
 import { RequestStatus } from "../utils/requests";
 
 //api/orders?seller_id=xxx
-export async function findOrdersFromSeller(sellerId : string, countOnly : boolean)
+//Includes reviews
+export async function findOrdersFromSellerSSA(sellerId : string)
 {
     const token = cookies().get(ACCESS_TOKEN)?.value;
     return fetch(`${process.env.NEXT_PUBLIC_ms_pedidos_host}/api/orders?seller_id=${sellerId}`,
@@ -29,11 +30,12 @@ export async function findOrdersFromSeller(sellerId : string, countOnly : boolea
 
 }
 
+
 //api/reviews?seller_id=xxx
-export async function findReviewsFromSeller(sellerId : string)
+export async function findReviewsFromClientSSA(sellerId : string)
 {
     const token = cookies().get(ACCESS_TOKEN)?.value;
-    return fetch(`${process.env.NEXT_PUBLIC_ms_pedidos_host}/api/reviews?seller_id=${sellerId}`,
+    return fetch(`${process.env.NEXT_PUBLIC_ms_pedidos_host}/api/reviews?client_id=${sellerId}`,
         { 
             method : 'GET',
             mode : 'cors',
@@ -52,4 +54,38 @@ export async function findReviewsFromSeller(sellerId : string)
         err => {throw err}
     )
 
+}
+
+export async function createOrderSSA(data : 
+    {clientId : number, sellerId : number, productId : number, 
+        amount : number, discount : number, finalPrice : number, extras : string})
+{
+    const token = cookies().get(ACCESS_TOKEN)?.value;
+    const order = {
+        clientId : data.clientId,
+        sellerId : data.sellerId,
+        productId : data.productId,
+        amount : data.amount,
+        discount : data.discount,  
+        finalPrice : data.finalPrice,
+        product_extras : data.extras
+    }
+    return fetch(`${process.env.NEXT_PUBLIC_ms_pedidos_host}/api/orders`,
+        { 
+            method : 'POST',
+            mode : 'cors',
+            headers: 
+            {
+                "Authorization":    `Bearer ${token}`,
+            },
+            body: JSON.stringify(order)
+        }
+    )
+    .then
+    (
+        res => {
+            if(res.ok) return res.json() 
+            else throw new Error(`Request to create order resolved to ${res.status}`)  },
+        err => {throw err}
+    )
 }

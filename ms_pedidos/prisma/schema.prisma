@@ -8,12 +8,13 @@ datasource db {
 }
 
 type PedidoStatusHistory {
+  /// Multiple data types found: DateTime (Date): 75%, DateTime (Timestamp): 25% out of 4 sampled entries
   date   DateTime
   status String
 }
 
 model Opinion {
-  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
   order    Pedido  @relation(fields: [order_id], references: [id])
   order_id String  @unique @db.ObjectId
   rating   Int
@@ -25,9 +26,10 @@ model Pedido {
   id             String                @id @default(auto()) @map("_id") @db.ObjectId
   amount         Int
   client_id      Int
-  created        DateTime              @default(now())
+  created        DateTime             @default(now())
   discount       Int
   price          Float
+  product_extras String?             
   product_id     Int
   seller_id      Int
   status_history PedidoStatusHistory[]

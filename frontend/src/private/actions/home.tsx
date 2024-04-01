@@ -2,7 +2,7 @@
 import { ACCESS_TOKEN } from "@/middleware";
 import { cookies } from "next/headers";
 
-export async function findUser(username : string)
+export async function findUserByUsernameSSA(username : string)
 {
     const token = cookies().get(ACCESS_TOKEN)?.value;
     return fetch(`${process.env.NEXT_PUBLIC_ms_usuarios_host}/api/users?username=${username}`,
@@ -27,7 +27,7 @@ export async function findUser(username : string)
 }
 
 //Si soy un vendedor, me interesa obtener los compradores y viceversa
-export async function findAllUsersByRole(role : string)
+export async function findAllUsersByRoleSSA(role : string)
 {
     const token = cookies().get(ACCESS_TOKEN)?.value;
     return fetch(`${process.env.NEXT_PUBLIC_ms_usuarios_host}/api/users/list?role=${role}`,
@@ -50,7 +50,7 @@ export async function findAllUsersByRole(role : string)
 }
 
 //Mis productos si soy vendedor | Todos si soy comprador || Primeros 6
-export async function findAllProducts()
+export async function findAllProductsSSA()
 {
     const token = cookies().get(ACCESS_TOKEN)?.value;
     return fetch(`${process.env.NEXT_PUBLIC_ms_productos_host}/api/products/list?send_images=true`,
@@ -73,8 +73,8 @@ export async function findAllProducts()
 
 }
 
-//Mis ordenes (comprador o vendedor)
-export async function findAllOrdersByRole(role : string, id : string)
+//Client id or Seller id
+export async function findAllOrdersByRoleSSA(role : string, id : string)
 {
     const token = cookies().get(ACCESS_TOKEN)?.value;
     let request = (pathQuery : string, additionalQuery = '') => 
@@ -111,4 +111,25 @@ export async function findAllOrdersByRole(role : string, id : string)
         }
     } catch(e){throw e};
 
+}
+
+export async function findAllOrdersSSA()
+{
+    const token = cookies().get(ACCESS_TOKEN)?.value;
+    return fetch(`${process.env.NEXT_PUBLIC_ms_pedidos_host}/api/orders/list`,
+        { 
+            method : 'GET',
+            mode : 'cors',
+            headers: 
+            {
+            "Authorization":    `Bearer ${token}`,
+            //"Content-Type":     "application/x-www-form-urlencoded",
+            "Accept":           "application/json",
+            },
+        }
+    ).then
+    (
+        res => {if(res.ok) return res.json(); else throw new Error(`Request for orders list resolved to ${res.status}`)},
+        err => {throw err}
+    )
 }

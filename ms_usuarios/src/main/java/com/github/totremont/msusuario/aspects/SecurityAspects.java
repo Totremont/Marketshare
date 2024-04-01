@@ -57,12 +57,13 @@ public class SecurityAspects {
     {
         String token;
         String trailingText = "Bearer ";
-        String clientText = "Basic ";       
+        String clientText = "Basic "; 
+        Boolean allowed = false;
         Object[] args = jp.getArgs();
         token = ((String) args[0]);
         
         if(token != null)
-        {                   //Si es una consulta por usuario, solo auth puede hacerla
+        {                   //Si es una consulta especial a la que se puede acceder con clientkey o authkey
             if  (
                         jp.getSignature().getName().equals("findByUsername") 
                     ||  jp.getTarget().getClass() == PaisController.class
@@ -72,14 +73,16 @@ public class SecurityAspects {
                 )
             {
                 token = token.substring(clientText.length());
-                if(!token.equals(clientKey) && !token.equals(authKey)) return ResponseEntity.status(401).build();
+                if(token.equals(clientKey) || token.equals(authKey)) allowed = true;
             }
-            else
+            
+            if(!allowed)    //If was not allowed above
             {
                 token = token.substring(trailingText.length());
                 TokenDTO result = request(token).block();
                 if(result == null || !result.getActive()) return ResponseEntity.status(401).build();
             }
+            
         } else return ResponseEntity.badRequest().body("No token found");
         
         //Ejecutar el método
@@ -93,11 +96,10 @@ public class SecurityAspects {
                     if(List.class.isInstance(response.getBody()))   //If body is instance of list
                     {   
                         List<UsuarioDTO> dtos = (List<UsuarioDTO>) response.getBody();
-                        dtos.stream().forEach(it -> it.setPassword(""));
+                        dtos.stream().forEach(it -> {it.setPassword("");});
                     }
                     else
                     {
-                        System.out.println("Es lista pero entró acá");
                         UsuarioDTO dto = (UsuarioDTO) response.getBody();
                         dto.setPassword("");
                     }

@@ -1,4 +1,3 @@
-
 export class SpecialFeature
 {
     static ENVIO_GRATIS = 0;
@@ -49,7 +48,7 @@ export class Categories
     static ELECTRONICA = 'Electrónica';
     static AUDIO = 'Audio';
     static INFORMATICA = 'Informática';
-    static PEQUENIOS_DISPOSITIVOS = 'Pequeños dispositivos';
+    static PEQUENIOS_DISPOSITIVOS = 'Dispositivos';
     static HERRAMIENTAS = 'Herramientas';
     static BELLEZA = 'Belleza';
     static DEPORTE_BIENESTAR = 'Deporte y bienestar';

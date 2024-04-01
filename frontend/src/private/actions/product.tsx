@@ -40,7 +40,7 @@ export async function createProductSSA(initialState : any,
 }  
 
 //api/products/{id}
-export async function findProductById(id : string)
+export async function findProductByIdSSA(id : string)
 {
     const token = cookies().get(ACCESS_TOKEN)?.value;
     return fetch(`${process.env.NEXT_PUBLIC_ms_productos_host}/api/products/${id}?send_images=true`,

@@ -63,43 +63,10 @@ public class AuthServerConfigurer extends WebSecurityConfigurerAdapter
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-    
-    
-    
-    
+    }   
     
 }
         
-        
-        /*
-        
-        AuthorizationServerConfigurerAdapter {
-
-    @Autowired
-    private TokenStore tokenStore;
-
-    AuthenticationManager authenticationManager;
-
-    @Autowired
-    private UserDetailsService userDetailsService;
-    
-    public AuthServerConfigurer(AuthenticationConfiguration authenticationConfiguration) throws Exception 
-    {
-        this.authenticationManager = authenticationConfiguration.getAuthenticationManager();
-    }
-    
-    @Override
-    public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception 
-    {
-        endpoints.tokenStore(tokenStore);
-        endpoints.userDetailsService(userDetailsService);
-        endpoints.authenticationManager(authenticationManager)
-                    .approvalStoreDisabled();
-    }
-    
-}
-*/
 
 
 

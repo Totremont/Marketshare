@@ -92,7 +92,7 @@ export default class ProductoService
             
             //Esconder paths del filesystem y solo devolver los blobs
             newProduct.images = [];
-            if(returnImages) newProduct.blobImages = product.images;
+            if(returnImages) newProduct.files = product.images;
             return newProduct;    
             //else throw Error("An user of type 'COMPRADOR' can't create a product");
         })
@@ -121,7 +121,7 @@ export default class ProductoService
                 images = await readImages(entity.images);
 
             } catch(e){};
-            entity.blobImages = images;
+            entity.files = images;
         }
         entity.images = [];
         return entity;      
@@ -155,7 +155,7 @@ export default class ProductoService
                     blobs = await readImages(it.images);
 
                 } catch(e){}
-                it.blobImages = blobs;
+                it.files = blobs;
             } 
             it.images = [];
             return it;
@@ -193,7 +193,7 @@ export default class ProductoService
                     blobs = await readImages(it.images);
 
                 } catch(e){}
-                it.blobImages = blobs;
+                it.files = blobs;
             } 
             it.images = [];
             return it;
@@ -223,7 +223,7 @@ export default class ProductoService
 
         const newPaths = await updateImages(currentPaths.images,product.images,product.id);
 
-        const entity = this.repo.producto.update({
+        const entity = await this.repo.producto.update({
             where: { id : product.id},
             data:
             {
@@ -258,7 +258,27 @@ export default class ProductoService
         })
 
         entity.images = [];
-        if(returnImages) entity.blobImages = product.images;
+        if(returnImages) entity.files = product.images;
+        return entity;
+    }
+
+    //Update only specific data
+    async subUpdate({stock, id} : {stock : number, id : number})
+    {
+        const entity = await this.repo.producto.update({
+            where: { id : id},
+            data:
+            {   
+                stock : stock
+            },
+            include:
+            {
+                category:{
+                    select:{name:true}  //Devuelve solo el nombre
+                }
+            }
+        });
+        entity.images = [];
         return entity;
     }
 

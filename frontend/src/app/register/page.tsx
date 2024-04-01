@@ -6,7 +6,7 @@ import { SnackBar, SnackBarOption, SnackBarProps, SnackBarType } from "@/compone
 import { createUserSSA } from "@/private/actions/session";
 import { useFormState, useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
-import SubmitButton from "@/components/submitbutton";
+import {SubmitButton} from "@/components/buttons";
 import { ViewVisibility } from "@/private/utils/properties";
 
 //Pestaña para registrarse

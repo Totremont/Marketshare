@@ -43,7 +43,7 @@ export async function findAllOpinionFromProduct(productId : number)
     })
 }
 
-export function findAllOpinionFromSeller(sellerId : number)
+export async function findAllOpinionFromSeller(sellerId : number)
 {
     return repo.$transaction(async () => 
     {
@@ -52,4 +52,12 @@ export function findAllOpinionFromSeller(sellerId : number)
         return pedidos.map(it => it.review);
         
     })
+}
+
+export async function findAllOpinionFromClient(clientId : number)
+{
+    return repo.opinion.findMany(
+        {
+            where : {order : {client_id : clientId}}
+        })
 }

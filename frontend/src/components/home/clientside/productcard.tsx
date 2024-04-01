@@ -1,21 +1,26 @@
 'use client'
 import { ChipFeature } from "@/components/chips";
-import { toSpecialFeature } from "@/private/utils/mappers";
+import { getCategoryIcon, toSpecialFeature } from "@/private/utils/mappers";
 import { SpecialFeature } from "@/private/utils/properties";
 import { Skeleton, image } from "@nextui-org/react";
 import Image from 'next/image'
+import { useRouter } from "next/navigation";
 
 export default function ProductCard({id,imageFile,published,category,
     name,description,price, withUser, orgName, feature})
 {
+    const router = useRouter();
     let view = (
-        <article key={`product_${id}`} className="h-fit max-w-[300px] min-w-[250px] rounded-lg 
+        <article onClick={() => router.push(`/product/${id}`)}key={`product_${id}`} className="h-fit max-w-[300px] min-w-[250px] rounded-lg 
         p-3 border border-slate-600 me-3 mb-3 md:mb-0 
         hover:text-orange-200 text-slate-200 cursor-pointer bg-gray-800">
 
         <section className="overflow-hidden flex items-center border-b pb-2 border-slate-600 text-slate-200">
             <p className="text-gray-300 text-sm flex-shrink-0">{published}</p>
-            <p className="text-end flex-1 text-sm">{category}</p>
+            <div className="flex items-center justify-end gap-x-2 flex-1 text-sm">
+                <p>{category}</p>
+                {getCategoryIcon(category)}
+            </div>
         </section>
 
         <h1 className="my-3 font-semibold text-2xl h-8 overflow-hidden">{name}</h1>

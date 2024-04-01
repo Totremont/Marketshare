@@ -62,10 +62,10 @@ public abstract class Usuario implements Serializable {
     protected ZonedDateTime registerDate = ZonedDateTime.now(ZoneId.of("America/Argentina/Buenos_Aires"));
     
     @Transient
-    public UsuarioType getType() 
+    public String getType() 
     {
         String rawType = this.getClass().getAnnotation(DiscriminatorValue.class).value();
-        return UsuarioUtils.getTypeName(rawType);
+        return rawType;//UsuarioUtils.getTypeName(rawType);
     }
 
     protected Usuario(String name, String password, String email, Pais country) {

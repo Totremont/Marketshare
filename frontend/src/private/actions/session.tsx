@@ -10,7 +10,7 @@ export async function requestTokenSSA(initialState : {title : string}, formData 
     let successful = false;
     const username = formData.get('user')?.toString();
     const password = formData.get('pass')?.toString();
-    let userRole = formData.get('role')?.toString();
+    //let userRole = formData.get('role')?.toString();
     try
     {
         const req = await fetch(`${process.env.NEXT_PUBLIC_ms_auth_host}/oauth/token`,
@@ -43,8 +43,8 @@ export async function requestTokenSSA(initialState : {title : string}, formData 
                 sameSite: "strict",
                 secure: true,
             })
-            if(!userRole) userRole = await (await validateToken(access_token)).role;
-
+            //if(!userRole) userRole = await validateToken(access_token).role;
+            /*
             cookies().set({
                 name: USER_ROLE,
                 value: userRole,
@@ -52,6 +52,7 @@ export async function requestTokenSSA(initialState : {title : string}, formData 
                 sameSite: "strict",
                 secure: true,
             })
+            */
             successful = true;
             return {title : 'SUCCESS'}
         }
@@ -110,7 +111,7 @@ export async function createUserSSA(initialState : any, formData : FormData)
     }
     finally //Hay que sacar el redirect del try-catch
     {
-        if(requestToken) return await requestTokenSSA(null,formData);
+        if(requestToken) return await requestTokenSSA({title:''},formData);
     }
 }
 

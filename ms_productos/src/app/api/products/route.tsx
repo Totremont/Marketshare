@@ -1,7 +1,7 @@
 import ProductoService from '@/private/services/ProductoService';
 import RequestStatus from '@/private/mappers/RequestStatus';
 import { PrismaClient } from '@prisma/client'
-import validate from '@/private/securityaspect';
+import validate from '@/private/security';
 import ProductoMapper from '@/private/mappers/ProductoMapper';
 import { NotFoundError } from '@/private/exceptions';
 
@@ -43,6 +43,7 @@ export async function POST(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const sendImages = searchParams.get('send_images');
+    const token = request.headers.get("Authorization");
 
     //Body es un formdata | Los arreglos se convierten en string al enviarse y deben ser parseados
     let form = await request.formData();
@@ -53,7 +54,7 @@ export async function POST(request: Request) {
         return service.save(token!,product,sendImages === 'true').then
         (
             (response) => new Response(mapper.jsonToForm([response])),
-            (err) => new Response('',{status : RequestStatus.BAD_REQUEST})        
+            (err) => {console.log(err); return new Response('',{status : RequestStatus.BAD_REQUEST})}        
         )
     } catch(e){return new Response('', {status: RequestStatus.BAD_REQUEST})}
     

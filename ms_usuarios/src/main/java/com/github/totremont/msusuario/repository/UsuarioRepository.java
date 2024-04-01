@@ -9,6 +9,7 @@ import com.github.totremont.msusuario.repository.database.exceptions.InvalidUser
 import com.github.totremont.msusuario.repository.database.model.Usuario;
 import com.github.totremont.msusuario.repository.database.model.UsuarioComprador;
 import com.github.totremont.msusuario.repository.database.model.UsuarioVendedor;
+import com.github.totremont.msusuario.repository.database.utils.UsuarioUtils;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -37,7 +38,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long>  {
         Optional<Usuario> entity = findById(user.getId());
         if(entity.isPresent())
         {
-            switch(entity.get().getType())
+            switch(UsuarioUtils.getTypeName(entity.get().getType()))
             {
                 case COMPRADOR:
                 {

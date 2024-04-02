@@ -37,6 +37,15 @@ export class BackgroundColors
     static BLACK = "bg-[#000000]"
 }
 
+export class BorderColors
+{
+    static RED = 'border-red-200';
+    static YELLOW = 'border-orange-200';
+    static BLUE = 'border-blue-300';
+    static GREEN = 'border-teal-200';
+    static GRAY = 'border-slate-400'
+}
+
 export class UserTypes
 {
     static COMPRADOR = 'ROLE_COMPRADOR';

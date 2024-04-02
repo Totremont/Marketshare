@@ -111,12 +111,13 @@ export function toCategory(category : string)
     }
 }
 //From YYYY-MM-DDTHH:mm:ss.sssZ to DD-MM-YYYY
-export function formatDate(date : string)
+export function formatDate(date : string, getTime = false)
 {
     const splits = date.split('-');
     const day = splits[2].slice(0,2);
     const month = splits[1];
     const year = splits[0];
+    const time = getTime ? splits[2].slice(3,11) : null;
     let monthName;
     switch(month)
     {
@@ -158,7 +159,7 @@ export function formatDate(date : string)
         break;
     }
 
-    return `${day} de ${monthName} ${year}`;
+    return `${day} de ${monthName} ${year} ${time ? '| ' + time : '' }`;
 }
 
 export function formatPrice(price : number | string)

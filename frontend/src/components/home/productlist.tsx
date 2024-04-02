@@ -34,6 +34,6 @@ export default async function ProductList()
       category={toCategory(it.category.name)} name={it.name} description={it.description} price={price}
       withUser={!!user} orgName={user?.organization.name} feature={feature}/>
     })
-  return await Promise.all(promises);
+  return Promise.all(promises);
 
 }

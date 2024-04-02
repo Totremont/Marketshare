@@ -12,7 +12,7 @@ export default function ProductCard({id,imageFile,published,category,
     const router = useRouter();
     let view = (
         <article onClick={() => router.push(`/product/${id}`)}key={`product_${id}`} className="h-fit max-w-[300px] min-w-[250px] rounded-lg 
-        p-3 border border-slate-600 me-3 mb-3 md:mb-0 
+        p-3 border border-slate-600 
         hover:text-orange-200 text-slate-200 cursor-pointer bg-gray-800">
 
         <section className="overflow-hidden flex items-center border-b pb-2 border-slate-600 text-slate-200">

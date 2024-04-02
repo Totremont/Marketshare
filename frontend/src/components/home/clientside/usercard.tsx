@@ -1,7 +1,7 @@
 
 import { ROLE_COMPRADOR } from "@/middleware";
 import { getCategoryIcon } from "@/private/utils/mappers";
-import { BackgroundColors } from "@/private/utils/properties";
+import { BackgroundColors, BorderColors } from "@/private/utils/properties";
 import { Skeleton } from "@nextui-org/react";
 
 
@@ -10,13 +10,13 @@ export default function UserCard(props : {
     role : string, amIClient : boolean, isClient : boolean, ordersCompleted : any })
 {
 
-    const borderColor =  props.amIClient ? 'border-[#556B2F]' : props.isClient ? 'border-[#A0522D]' : 'border-slate-600'
+    const borderColor =  props.amIClient ? BorderColors.BLUE : props.isClient ? BorderColors.YELLOW : BorderColors.GRAY
     const background = props.amIClient ? BackgroundColors.OLIVE : props.isClient ? BackgroundColors.SIENNA_BROWN : '';
     
     const view = 
     (
-    <article className={`me-3 max-w-[300px] min-w-[250px]
-    rounded-lg p-3 border ${borderColor}`}>
+    <article className={`w-[300px] h-[325px]
+    rounded-lg p-3 border ${borderColor} bg-gray-800`}>
         <div className="flex items-center flex-nowrap">
             <p className="text-lg font-semibold overflow-hidden flex-1">{props.user.name}</p>
             <p className="text-sm font-semibold shrink-0 p-1 

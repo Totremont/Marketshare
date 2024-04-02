@@ -13,7 +13,7 @@ export default function MainLayout({children,}: {children: React.ReactNode})
     const view = 
     (
 
-        <main className="bg-gray-900 flex flex-col">
+        <main className="bg-gray-900 flex flex-col h-fit w-screen">
             <HeaderComponent username={username!}/>
             <div className="flex-1 py-[100px]">
             {children}

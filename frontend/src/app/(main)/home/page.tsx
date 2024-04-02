@@ -7,9 +7,9 @@ import { Suspense } from "react";
 import { ProductCardSkeleton } from "@/components/home/clientside/productcard";
 import ProductList from "@/components/home/productlist";
 import { UserCardSkeleton } from "@/components/home/clientside/usercard";
-import { OrderCardSkeleton } from "@/components/home/ordercard";
+import { OrderCardSkeleton } from "@/components/home/clientside/ordercard";
 import UserList from "@/components/home/userlist";
-import { findUserByUsernameSSA } from "@/private/actions/home";
+import OrderList from "@/components/home/orderlist";
 
 export default async function Home()
 { 
@@ -28,7 +28,7 @@ export default async function Home()
 
   let view = 
   (       
-  <div className=" h-fit max-w-[1500px] mx-auto md:flex">
+  <div className=" h-fit max-w-[1600px] mx-auto md:flex px-6">
 
     <aside className="md:max-w-[250px] mb-3 md:mb-0 bg-gray-800 p-3 rounded-lg">
 
@@ -72,7 +72,7 @@ export default async function Home()
         </section>
       </header>
 
-      <section className="flex flex-wrap my-8">
+      <section className="flex flex-wrap gap-3 my-8">
       {
           <Suspense fallback={<ProductCardSkeleton />}>
             <ProductList />
@@ -91,7 +91,7 @@ export default async function Home()
         </section>
       </header>
 
-      <section className="flex flex-wrap mb-8 mt-6 items-start">
+      <section className="flex flex-wrap gap-3 mb-8 mt-6 items-start">
       {
         <Suspense fallback={<UserCardSkeleton/>}>
           <UserList/>
@@ -111,9 +111,11 @@ export default async function Home()
         </section>
       </header>
 
-      <section className="flex flex-wrap my-6 items-start">
+      <section className="flex flex-wrap gap-3 my-6 items-start">
       {
-        <OrderCardSkeleton/>
+        <Suspense fallback={<OrderCardSkeleton/>}>
+          <OrderList/>
+        </Suspense>
       }
       </section>
 

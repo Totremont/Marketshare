@@ -3,21 +3,22 @@ import Headline, { HeadlineSkeleton, HeadlineType } from "../../../components/ho
 import { ACCESS_TOKEN, ROLE_COMPRADOR, USERNAME_HEADER, USER_ROLE_HEADER } from "@/middleware";
 import { redirect } from "next/navigation";
 import SearchBar from "@/components/home/searchbar";
-import { Suspense } from "react";
+import { Suspense, useRef, useState } from "react";
 import { ProductCardSkeleton } from "@/components/home/clientside/productcard";
 import ProductList from "@/components/home/productlist";
 import { UserCardSkeleton } from "@/components/home/clientside/usercard";
 import { OrderCardSkeleton } from "@/components/home/clientside/ordercard";
 import UserList from "@/components/home/userlist";
 import OrderList from "@/components/home/orderlist";
+import { CreateReview } from "@/components/product/page/reviews";
 
 export default async function Home()
 { 
   
   //Home es un server component. Los componentes son clients (y en ellos se encuentra la interactividad)
-  let username = headers().get(USERNAME_HEADER)!;
+  //let username = headers().get(USERNAME_HEADER)!;
   let userRole = headers().get(USER_ROLE_HEADER);
-  let token = cookies().get(ACCESS_TOKEN)?.value;
+  //let token = cookies().get(ACCESS_TOKEN)?.value;
 
   //Eliminar cookies y otros datos
   const onRefresh = () => 
@@ -118,7 +119,6 @@ export default async function Home()
         </Suspense>
       }
       </section>
-
     </section>
   </div>
 )

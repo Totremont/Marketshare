@@ -14,8 +14,8 @@ export default function HeaderComponent(props :
     }
 
     let view = (
-    <nav className="z-10 text-slate-200 flex md:grid md:grid-cols-[20%_60%_20%] items-center border-b p-3
-        border-slate-600 fixed top-0 w-full bg-gray-900">
+    <nav className="bg-gray-950 z-10 text-slate-200 flex md:grid md:grid-cols-[20%_60%_20%] items-center border-b p-3
+        border-slate-600 fixed top-0 w-full ">
 
         <section className="items-center px-2 hidden md:block">
             <Logo style='' inverted={false}/>

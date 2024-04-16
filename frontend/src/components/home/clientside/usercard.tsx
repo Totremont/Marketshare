@@ -15,7 +15,7 @@ export default function UserCard(props : {
     
     const view = 
     (
-    <article className={`w-[300px] h-[325px]
+    <article className={`w-[300px] h-[350px]
     rounded-lg p-3 border ${borderColor} bg-gray-800`}>
         <div className="flex items-center flex-nowrap">
             <p className="text-lg font-semibold overflow-hidden flex-1">{props.user.name}</p>
@@ -43,7 +43,8 @@ export default function UserCard(props : {
             <div className="flex items-center justify-center col-span-3 gap-x-3">
                 {
                     props.categories.length > 0 ? 
-                    props.categories.map(it => getCategoryIcon(it.category)) 
+                    props.categories.map((it,index) =>
+                     getCategoryIcon(it.category,`icon_category_${index}_from_user_${props.user.id}`)) 
                     : <p className="font-semibold">No hay suficiente información</p>
                 }
             </div>

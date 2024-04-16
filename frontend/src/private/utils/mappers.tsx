@@ -1,5 +1,5 @@
 import { AudioIcon, BeautyIcon, ClothesIcon, ComputingIcon, DevicesIcon, ElectronicsIcon, IndustryIcon, OfficesIcon, OtherIcon, SportsIcon, ToolsIcon } from "@/components/icons/categories";
-import { BackgroundColors, Categories, SpecialFeature } from "./properties";
+import { BackgroundColors, Categories, ContrastTextColors, FillColors, OrderStatus, RatingType, SpecialFeature } from "./properties";
 
 export function formToProduct(formData : FormData)
 {
@@ -207,32 +207,32 @@ export function toBackgroundColor(color : string)
     }
 }
 
-export function getCategoryIcon(category : string)
+export function getCategoryIcon(category : string, key : string)
 {
     switch(category)
     {
         case Categories.ELECTRONICA:
-            return <ElectronicsIcon/>
+            return <ElectronicsIcon key={key}/>
         case Categories.AUDIO:
-            return <AudioIcon/>
+            return <AudioIcon key={key}/>
         case Categories.BELLEZA:
-            return <BeautyIcon/>
+            return <BeautyIcon key={key}/>
         case Categories.DEPORTE_BIENESTAR:
-            return <SportsIcon/>
+            return <SportsIcon key={key}/>
         case Categories.HERRAMIENTAS:
-            return <ToolsIcon/>
+            return <ToolsIcon key={key}/>
         case Categories.INDUSTRIAS:
-            return <IndustryIcon/>
+            return <IndustryIcon key={key}/>
         case Categories.INFORMATICA:
-            return <ComputingIcon/>
+            return <ComputingIcon key={key}/>
         case Categories.PEQUENIOS_DISPOSITIVOS:
-            return <DevicesIcon/>
+            return <DevicesIcon key={key}/>
         case Categories.OFICINAS:
-            return <OfficesIcon/>
+            return <OfficesIcon key={key}/>
         case Categories.PRENDAS_MODA:
-            return <ClothesIcon/>
+            return <ClothesIcon key={key}/>
         default:
-            return <OtherIcon/>
+            return <OtherIcon key={key}/>
         
     }
 }
@@ -244,7 +244,69 @@ export function getAverageRating(ratings : number[])
     return sum / (ratings.length ? ratings.length : 1) ;
 }
 
-export function lastOrderStatus(order : any)
+export function getOrderStatus(order : any) : {status : string, date : string}
 {
-    return order.status_history[order.status_history.length - 1];
+    const data = order.status_history[order.status_history.length - 1];
+    return {status : toOrderStatus(data.status), date : data.date};
+}
+
+export function toOrderStatus(status : string)
+{
+    switch(status)
+    {
+        case 'RECIBIDO':
+            return OrderStatus.RECIBIDO;
+        case 'EN_DISTRIBUCION':
+            return OrderStatus.EN_DISTRIBUCION;
+        case 'ENTREGADO':
+            return OrderStatus.ENTREGADO;
+        case 'RECHAZADO':
+            return OrderStatus.RECHAZADO;
+        case 'SIN_STOCK':
+            return OrderStatus.SIN_STOCK;
+        case 'CANCELADO':
+            return OrderStatus.CANCELADO;
+        default:
+            return '';
+    }
+}
+
+export function isOrderTerminated(status : string)
+{
+    return status === OrderStatus.CANCELADO || status === OrderStatus.RECHAZADO || status === OrderStatus.SIN_STOCK;
+}
+
+export function getRatingStyle(rating : number)
+{
+    switch(rating)
+    {
+        case 5:
+            return {title : RatingType.EXCELLENT, bgColor : BackgroundColors.YELLOW, 
+                textColor : ContrastTextColors.YELLOW, fillColor : FillColors.DARK_YELLOW };
+        case 4.5:
+            return {title : RatingType.GREAT, bgColor : BackgroundColors.PURPLE, 
+                textColor : ContrastTextColors.GREEN, fillColor : FillColors.DARK_GREEN };
+        case 4:
+            return {title : RatingType.VERY_GOOD, bgColor : BackgroundColors.PURPLE, 
+                textColor : ContrastTextColors.GREEN, fillColor : FillColors.DARK_GREEN };
+        case 3.5:
+        case 3:
+            return {title : RatingType.GOOD, bgColor : BackgroundColors.BEIGE, 
+                textColor : ContrastTextColors.BEIGE, fillColor : FillColors.DARK_BEIGE };
+        case 2.5:
+            return {title : RatingType.REGULAR, bgColor : BackgroundColors.SALMON, 
+                textColor : ContrastTextColors.GRAY, fillColor : FillColors.DARK_GRAY };
+        case 2:
+        case 1.5:
+            return {title : RatingType.BAD, bgColor : BackgroundColors.RED, 
+                textColor : ContrastTextColors.RED, fillColor : FillColors.DARK_RED };
+        case 1:
+        case 0.5:
+        case 0:
+            return {title : RatingType.HORRIBLE, bgColor : BackgroundColors.RED, 
+                textColor : ContrastTextColors.RED, fillColor : FillColors.DARK_RED };
+        default:
+            return {title : RatingType.UNKNOWN, bgColor : 'bg-slate-600', 
+            textColor : 'text-slate-800', fillColor : 'fill-gray-800' };
+    }
 }

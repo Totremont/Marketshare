@@ -1,7 +1,7 @@
 import RequestStatus from "@/private/mappers/RequestStatus"
 import { cancelPedido } from "@/private/services/PedidoService"
 
-//localhost/api/order/update?id=xxx&new_status=xxx
+//localhost/api/order/update?id=xxx
 export async function PUT(request: Request) 
 {
     //Si devolvió una respuesta es porque no tenia permisos
@@ -9,11 +9,10 @@ export async function PUT(request: Request)
     
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
-    const newStatus = searchParams.get('new_status')
 
-    if(id && newStatus)
+    if(id)
     {
-        return cancelPedido(token!,id,newStatus).then(
+        return cancelPedido(token!,id).then(
             (response) => Response.json(response),
             (error) => new Response('', {status: RequestStatus.NOT_FOUND})
         )

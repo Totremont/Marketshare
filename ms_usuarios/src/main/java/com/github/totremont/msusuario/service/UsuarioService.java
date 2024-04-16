@@ -68,6 +68,8 @@ public class UsuarioService {
         Pais pais;
         UsuarioComprador user;
         
+        System.out.printf("La contraseña indicada fue: %s", password);
+        
         Optional<Empresa> empresaQuery = empresaService.findByName(organization);
         Optional<Banco> bancoQuery = bancoService.findByName(bank);
         Optional<Pais> paisQuery = paisService.findByName(country); //DEBE ESTAR CARGADO

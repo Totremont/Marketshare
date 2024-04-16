@@ -5,7 +5,7 @@ import { findOrdersFromSellerSSA} from "@/private/actions/order";
 import { findProductByIdSSA } from "@/private/actions/product";
 import { findUserByIdSSA } from "@/private/actions/user";
 import { saveFiles } from "@/private/utils/files";
-import { formToProduct, formatDate, formatPrice, lastOrderStatus, toCategory } from "@/private/utils/mappers";
+import { formToProduct, formatDate, formatPrice, getOrderStatus, toCategory } from "@/private/utils/mappers";
 import { headers } from "next/headers";
 
 
@@ -30,7 +30,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
     const sellerRegisterDate = formatDate(seller.registerDate);
 
     //Ordenes completadas
-    const completedOrders = orders.filter(it => lastOrderStatus(it).status === 'ENTREGADO');
+    const completedOrders = orders.filter(it => getOrderStatus(it).status === 'ENTREGADO');
     const reviews = completedOrders.filter(it => it.review).map(it => it.review);
     const productOrders = completedOrders.filter(it => it.product_id === product.id);
     const productReviews = productOrders.filter(it => it.review).map(it => 

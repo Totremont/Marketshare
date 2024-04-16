@@ -19,7 +19,7 @@ export default function ProductCard({id,imageFile,published,category,
             <p className="text-gray-300 text-sm flex-shrink-0">{published}</p>
             <div className="flex items-center justify-end gap-x-2 flex-1 text-sm">
                 <p>{category}</p>
-                {getCategoryIcon(category)}
+                {getCategoryIcon(category,`category_icon_from_product_${id}`)}
             </div>
         </section>
 

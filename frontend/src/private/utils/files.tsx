@@ -29,7 +29,7 @@ export async function removeFiles(filenames : string[])
 {
     const promises = filenames.map(async file => 
         {
-            const filepath = `${process.cwd()}/public/external/${file}`
+            const filepath = `${process.cwd()}/public/${file}`
             return unlink(filepath).catch(err => 
                 console.log(`Unable to remove file at ${file} because: ${err} `));
 

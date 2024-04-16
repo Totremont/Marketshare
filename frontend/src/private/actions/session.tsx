@@ -1,8 +1,8 @@
 'use server'
-import { ACCESS_TOKEN, REFRESH_TOKEN, USER_ROLE } from "@/middleware";
+import { ACCESS_TOKEN, ACCESS_TOKEN_MAX_AGE, REFRESH_TOKEN, REFRESH_TOKEN_MAX_AGE} from "@/middleware";
 import { cookies } from 'next/headers'
 import { RedirectType, redirect } from 'next/navigation'
-import validateToken from "../authorization";
+import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
 //SSA = Server side action
 export async function requestTokenSSA(initialState : {title : string}, formData : FormData)
@@ -10,7 +10,6 @@ export async function requestTokenSSA(initialState : {title : string}, formData 
     let successful = false;
     const username = formData.get('user')?.toString();
     const password = formData.get('pass')?.toString();
-    //let userRole = formData.get('role')?.toString();
     try
     {
         const req = await fetch(`${process.env.NEXT_PUBLIC_ms_auth_host}/oauth/token`,
@@ -29,30 +28,8 @@ export async function requestTokenSSA(initialState : {title : string}, formData 
         if(req.ok)
         {
             let {access_token, refresh_token} = await req.json();
-            cookies().set({
-                name: ACCESS_TOKEN,
-                value: access_token,
-                httpOnly: true,
-                sameSite: "strict",
-                secure: true,
-            })
-            cookies().set({
-                name: REFRESH_TOKEN,
-                value: refresh_token,
-                httpOnly: true,
-                sameSite: "strict",
-                secure: true,
-            })
-            //if(!userRole) userRole = await validateToken(access_token).role;
-            /*
-            cookies().set({
-                name: USER_ROLE,
-                value: userRole,
-                httpOnly: true,
-                sameSite: "strict",
-                secure: true,
-            })
-            */
+            addCookie(cookies(),ACCESS_TOKEN,access_token,ACCESS_TOKEN_MAX_AGE);
+            addCookie(cookies(),REFRESH_TOKEN,refresh_token,REFRESH_TOKEN_MAX_AGE);
             successful = true;
             return {title : 'SUCCESS'}
         }
@@ -70,6 +47,20 @@ export async function requestTokenSSA(initialState : {title : string}, formData 
         if(successful) redirect('/home',RedirectType.replace);
     }
 }
+//maxAge in days
+const addCookie = (cookieStore : ReadonlyRequestCookies, cookieName: string, cookieValue : string, maxAge : number) => 
+{  
+    const exps = new Date();
+    exps.setDate(exps.getDate() + maxAge);
+    cookieStore.set({
+        name: cookieName,
+        value: cookieValue,
+        httpOnly: true,
+        sameSite: "strict",
+        secure: true,
+        expires: exps
+    })
+};
 
 export async function createUserSSA(initialState : any, formData : FormData)
 {
@@ -106,12 +97,11 @@ export async function createUserSSA(initialState : any, formData : FormData)
     } 
     catch(e)
     {
-        console.log(e);
         return {title : 'REQUEST_ERROR'};
     }
     finally //Hay que sacar el redirect del try-catch
     {
-        if(requestToken) return await requestTokenSSA({title:''},formData);
+        if(requestToken) return requestTokenSSA({title:''},formData);
     }
 }
 

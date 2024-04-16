@@ -1,8 +1,9 @@
+import { BackgroundColors } from "@/private/utils/properties";
 import { useFormStatus } from "react-dom";
 
 export function SubmitButton(props: {title : string})
 {
-    let pendingForm = useFormStatus();
+    const pendingForm = useFormStatus();
     return (
     pendingForm.pending ? 
     <input key="submit_button_disabled" className="mt-6 block rounded-xl bg-gray-800 px-6 
@@ -28,9 +29,12 @@ export function SubmitButtonWithState(props : {pending : boolean, onClick : any}
 export function GeneralButton(props : {title : string, onClick : any, main : boolean})  //Main or secondary
 {
     const view = (
-        <button onClick={props.onClick} className={`mx-4 ${props.main ? 'bg-[#A0522D]' : 'bg-[#696969]'} rounded-lg px-2 py-2 
-            text-sm font-semibold 
-            hover:${props.main ? 'bg-[#b6582c]' : 'bg-[#7e7d7d]' }`}>{props.title}</button>
+        <button onClick={props.onClick} className={`mx-4 
+        ${props.main ? 'bg-[#F4A460]' : BackgroundColors.GRAY} 
+            rounded-lg px-2 py-2 text-sm font-semibold text-slate-800 cursor-pointer
+            ${props.main ? 'hover:bg-[#DEB887]' : 'hover:bg-[#787878]' }`}>
+        {props.title}
+        </button>
     )
     return view;
 }

@@ -1,6 +1,6 @@
 import { useRef } from "react";
 
-export default function ColorsPreview(props : {data : ColorData[], setSelected : any, initialState : string})
+export default function CircleColors(props : {data : CircleColorData[], setSelected : any, initialState : string})
 {
     const selected = useRef<string>(props.initialState);
 
@@ -23,7 +23,7 @@ export default function ColorsPreview(props : {data : ColorData[], setSelected :
     return props.data.map(it => color(it.id,it.color));
 }
 
-export class ColorData
+export class CircleColorData
 {
     id : string;
     color : string;   //Background color

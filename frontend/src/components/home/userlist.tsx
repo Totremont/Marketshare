@@ -1,6 +1,6 @@
 import { ROLE_COMPRADOR, ROLE_VENDEDOR, USERNAME_HEADER, USER_ROLE_HEADER } from "@/middleware";
 import { findAllOrdersByRoleSSA, findAllOrdersSSA, findAllProductsSSA, findAllUsersByRoleSSA, findUserByUsernameSSA } from "@/private/actions/home";
-import { formToProduct, lastOrderStatus, toCategory } from "@/private/utils/mappers";
+import { formToProduct, getOrderStatus, toCategory } from "@/private/utils/mappers";
 import { headers } from "next/headers";
 import UserCard from "./clientside/usercard";
 import { M_PLUS_1 } from "next/font/google";
@@ -22,7 +22,7 @@ export default async function UserList()
         const [users, orders] : any[][] = await Promise.all([findAllUsersByRoleSSA(ROLE_VENDEDOR), findAllOrdersSSA()]);
         const views = users.map(user => 
             {
-                const completedOrders = orders.filter(it => it.seller_id === user.id && lastOrderStatus(it).status === 'ENTREGADO');
+                const completedOrders = orders.filter(it => it.seller_id === user.id && getOrderStatus(it).status === 'ENTREGADO');
                 const userProducts = products.filter(it => Number(it.owner_id) === user.id);
                 //Encontrar categorias más frecuentes --
                 const categories = findMainCategories(userProducts);
@@ -40,7 +40,7 @@ export default async function UserList()
         const views = users.map(user => 
             {   
                 const userOrders = orders.filter(it => it.client_id === user.id );
-                const completedOrders = userOrders.filter(it => lastOrderStatus(it).status === 'ENTREGADO')
+                const completedOrders = userOrders.filter(it => getOrderStatus(it).status === 'ENTREGADO')
                 const productsIds = userOrders.map(it => it.product_id);
                 const userProducts = products.filter(it => productsIds.includes(Number(it.id)));
                 //Encontrar categorias más frecuentes --
@@ -55,7 +55,7 @@ export default async function UserList()
 
 }
 
-function findMainCategories(products : any[])   //Encontrar categorias más frecuentes --
+export function findMainCategories(products : any[])   //Encontrar categorias más frecuentes --
 {
     let data : {category : string, ocurrency : number}[] = [];
     

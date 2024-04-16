@@ -2,14 +2,14 @@
 import Alert from "@/components/alert";
 import { ChipFeature } from "@/components/chips";
 import { CashIcon, CheckbookIcon, CreditCardIcon, MarkIcon } from "@/components/icons/miscellaneous";
-import ColorsPreview, { ColorData } from "@/components/product/page/colors";
+import CircleColors, { CircleColorData } from "@/components/product/page/colors";
 import SellerReputation from "@/components/product/page/reputation";
-import Review, { RatingStars } from "@/components/product/page/review";
+import Review, { RatingStars } from "@/components/product/page/reviews";
 import { SnackBar, SnackBarOption, SnackBarProps, SnackBarType } from "@/components/snackbar";
 import { ROLE_VENDEDOR, ROLE_VISITANTE } from "@/middleware";
 import { createOrderSSA, findReviewsFromClientSSA } from "@/private/actions/order";
 import { findUserByIdSSA } from "@/private/actions/user";
-import { formatPrice, getAverageRating, getCategoryIcon, lastOrderStatus, toBackgroundColor, toSpecialFeature } from "@/private/utils/mappers";
+import { formatPrice, getAverageRating, getCategoryIcon, getOrderStatus, toBackgroundColor, toSpecialFeature } from "@/private/utils/mappers";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -48,7 +48,7 @@ export default function ProductInfo(props : {
     const colorData = props.colors.map(it => 
     {
         const color = toBackgroundColor(it);
-        return new ColorData(color,it);
+        return new CircleColorData(color,it);
     })
 
     const specialFeatures = props.specialFeatures.map(it => toSpecialFeature(it));
@@ -98,7 +98,7 @@ export default function ProductInfo(props : {
         (
             res => 
             {
-                const status : {status : string, date : Date} = lastOrderStatus(res.status_history);
+                const status : {status : string, date : Date} = getOrderStatus(res);
                 switch(status.status)
                 {
                     case 'RECIBIDO':
@@ -163,7 +163,7 @@ export default function ProductInfo(props : {
     (    
     <div className="h-fit max-w-[1500px] mx-auto">
         <div className="flex items-center gap-x-2">
-            {getCategoryIcon(props.category)}
+            {getCategoryIcon(props.category,`icon_category_from_product_${props.id}`)}
             <p className="text-gray-300 text-sm flex-1">Categoría |
             <span className="text-blue-400 font-semibold mx-1">{props.category}</span> 
             </p>
@@ -231,7 +231,7 @@ export default function ProductInfo(props : {
                     <div>
                         <div>
                             <h4 className="mb-2 font-semibold">Colores disponibles</h4>
-                            <ColorsPreview data={colorData} setSelected={setColor} initialState={props.colors[0]}/>
+                            <CircleColors data={colorData} setSelected={setColor} initialState={props.colors[0]}/>
                         </div>
                         <div className="my-3">
                             <h4 className="font-semibold">Publicado</h4>

@@ -8,10 +8,12 @@ export class SpecialFeature
 
 export class OrderStatus
 {
-    static CONFIRMED = 0;
-    static ON_DELIVERY = 1;
-    static CANCELLED = 2;
-    static DELIVERED = 3;
+    static RECIBIDO = 'Recibido';
+    static EN_DISTRIBUCION = 'En distribución';
+    static ENTREGADO = 'Entregado';
+    static CANCELADO = 'Cancelado';
+    static RECHAZADO = 'Rechazado';
+    static SIN_STOCK = 'Sin stock';
 }
 
 export class ViewVisibility
@@ -28,9 +30,11 @@ export class BackgroundColors
     static PURPLE = "bg-[#7B68EE]";
     static GRAY = "bg-[#696969]";
     static OLIVE = "bg-[#556B2F]"
+    static BEIGE = 'bg-[#DEB887]'
+    static SALMON = 'bg-[#E9967A]'
 
     //Product colors
-    static RED = "bg-[#A52A2A]"
+    static RED = "bg-red-500"
     static BLUE = "bg-[#6495ED]"
     static YELLOW = "bg-[#DAA520]"
     static WHITE = "bg-[#DCDCDC]"
@@ -44,6 +48,25 @@ export class BorderColors
     static BLUE = 'border-blue-300';
     static GREEN = 'border-teal-200';
     static GRAY = 'border-slate-400'
+}
+
+export class FillColors
+{
+    static YELLOW = 'fill-[#DAA520]';
+    static DARK_YELLOW = 'fill-yellow-950';
+    static DARK_GREEN = 'fill-slate-900'
+    static DARK_GRAY = 'fill-slate-900'
+    static DARK_BEIGE = 'fill-slate-800'
+    static DARK_RED = 'fill-red-950'
+}
+
+export class ContrastTextColors 
+{
+    static YELLOW = 'text-yellow-950' 
+    static GREEN = 'text-slate-900'
+    static GRAY = 'text-gray-900'
+    static RED = 'text-red-950'
+    static BEIGE = 'text-slate-800'
 }
 
 export class UserTypes
@@ -67,4 +90,16 @@ export class Categories
     static CONSTRUCCION = 'Construcción';
     static OFICINAS = 'Oficinas';
     static OTRAS = 'Otras';
+}
+
+export class RatingType
+{
+    static EXCELLENT = "Excelente";      //5
+    static GREAT = "Sobresaliente";     //4.5
+    static VERY_GOOD = "Muy bueno";     //4
+    static GOOD = "Bueno";              //3.5
+    static REGULAR = "Regular"          //3 - 2.5
+    static BAD = "Malo"                 //2 - 1.5
+    static HORRIBLE = "Pésimo"          //1 - 0
+    static UNKNOWN = "Sin calificación"          //1 - 0
 }

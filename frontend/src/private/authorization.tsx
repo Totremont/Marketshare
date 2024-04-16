@@ -3,25 +3,30 @@ import { AuthServerInternalError, InvalidUserAuthorities, InvalidUserToken, NoTo
 export default async function validateToken(token : string | undefined)
 {
     let error;
-    let userData : Promise<any>; //{role : string, username : string} | void
+    let tokenData : {role : string, username : string};
     if(token)
     {
-        userData = requestAuth(token).then(
-            async (res) => 
-            {
-                let body = await res.json();
-                if(body.hasOwnProperty("active") && body.active)
-                    if(body.hasOwnProperty("authorities") && body.hasOwnProperty("user_name"))
-                        return {role : body.authorities[0], username : body.user_name}
-                    else error = new InvalidUserAuthorities();
-                else error = new InvalidUserToken();
-            },
-            (err) => {err = new AuthServerInternalError()}
+        await requestAuth(token).then
+        (
+            res => 
+                res.json().then
+                (
+                    body => 
+                    {
+                        if(body.hasOwnProperty("active") && body.active)
+                            if(body.hasOwnProperty("authorities") && body.hasOwnProperty("user_name"))
+                                tokenData = {role : body.authorities[0], username : body.user_name}
+                            else error = new InvalidUserAuthorities();
+                        else error = new InvalidUserToken();
+                    },
+                    err => {error = new AuthServerInternalError()}
+                ),
+            err => {error = new AuthServerInternalError()}
         )
     } else error = new NoTokenFoundError();
 
     if(error) throw error;
-    else return userData!;
+    else return tokenData!;
 }
 
 async function requestAuth(token : string)

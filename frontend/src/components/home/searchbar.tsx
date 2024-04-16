@@ -26,6 +26,7 @@ export default function SearchBar(props : {setTextWritten : any})
         setIsWriting(!!textWritten);
         setIsFocused(false);
     }
+    
     const view = 
     <div onClick={onClick} className={`border min-w-[200px] md:w-[300px] rounded-md border-slate-600 p-2 my-4 ${isFocused ? 'border-slate-400' : ''}`}>
     <div className="flex items-center static">

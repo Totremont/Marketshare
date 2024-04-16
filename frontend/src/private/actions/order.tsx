@@ -89,3 +89,25 @@ export async function createOrderSSA(data :
         err => {throw err}
     )
 }
+
+export async function cancelOrder(orderId : number)
+{
+    const token = cookies().get(ACCESS_TOKEN)?.value;
+    return fetch(`${process.env.NEXT_PUBLIC_ms_pedidos_host}/api/orders/update?id=${orderId}`,
+        { 
+            method : 'PUT',
+            mode : 'cors',
+            headers: 
+            {
+                "Authorization":    `Bearer ${token}`,
+            }
+        }
+    )
+    .then
+    (
+        res => {
+            if(res.ok) return res.json() 
+            else throw new Error(`Request to cancel order resolved to ${res.status}`)  },
+        err => {throw err}
+    )
+}

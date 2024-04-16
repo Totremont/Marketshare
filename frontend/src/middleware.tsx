@@ -7,8 +7,8 @@ export const ACCESS_TOKEN = "marketshare.user.access-token"
 export const REFRESH_TOKEN = "marketshare.user.refresh-token"
 export const USER_ROLE = "marketshare.user.user-role"
 
-const ACCESS_TOKEN_MAX_AGE = 7;     //In days
-const REFRESH_TOKEN_MAX_AGE = 31;
+export const ACCESS_TOKEN_MAX_AGE = 7;     //In days
+export const REFRESH_TOKEN_MAX_AGE = 31;
 
 export const USERNAME_HEADER = "X-USER-NAME";
 export const USER_ROLE_HEADER = "X-USER-ROLE";
@@ -25,6 +25,7 @@ const obj_endpoints =
     '/home$'                 : [ROLE_COMPRADOR, ROLE_VENDEDOR],
     '/product/create$'       : [ROLE_VENDEDOR],
     '/product/\\d+$'         : [ROLE_COMPRADOR, ROLE_VENDEDOR, ROLE_VISITANTE],
+    '/profile/\\d+$'         : [ROLE_COMPRADOR, ROLE_VENDEDOR],
 
 }
 

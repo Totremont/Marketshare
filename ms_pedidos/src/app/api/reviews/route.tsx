@@ -3,21 +3,22 @@ import validate from "@/private/security";
 import { findAllOpinionFromClient, findAllOpinionFromProduct, findAllOpinionFromSeller, saveOpinion } from "@/private/services/OpinionService";
 
 
-
 //localhost/api/reviews
 export async function POST(request: Request) 
 {    
-    try{
-    let review = await request.json()
+    try
+    {
+        let review = await request.json()
 
-    return saveOpinion(review).then(
-        (response) => Response.json(response),
-        (error) => 
-        {
-            console.log(error);
-            return new Response('', {status: RequestStatus.INTERNAL})
-        }
-    )
+        return saveOpinion(review).then
+        (
+            (response) => Response.json(response),
+            (error) => 
+            {
+                console.log(error);
+                return new Response('', {status: RequestStatus.INTERNAL})
+            }
+        )
     } catch(e) {return new Response('', {status: RequestStatus.BAD_REQUEST})}
 }
 
@@ -60,5 +61,5 @@ export async function GET(request: Request)
 
     else return new Response('', {
         status: RequestStatus.BAD_REQUEST
-        })
+    })
 }

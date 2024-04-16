@@ -1,10 +1,13 @@
 'use client'
-import { GeneralButton } from "@/components/buttons";
-import { CheckIcon, HalfStar2Icon, HalfStarIcon, PendingIcon, StarIcon, UndoIcon } from "@/components/icons/miscellaneous";
+import { GeneralButton, SubmitButton, SubmitButtonWithState } from "@/components/buttons";
+import { CheckIcon,HalfStarIcon, PendingIcon, StarIcon, UndoIcon } from "@/components/icons/miscellaneous";
+import { SnackBar, SnackBarProps, SnackBarType } from "@/components/snackbar";
+import { sendReviewSSA } from "@/private/actions/order";
 import { getRatingStyle } from "@/private/utils/mappers";
-import { BackgroundColors, ContrastTextColors, FillColors } from "@/private/utils/properties";
+import { FillColors } from "@/private/utils/properties";
 import { Skeleton } from "@nextui-org/react";
-import { RefObject, SyntheticEvent, useEffect, useRef, useState } from "react";
+import { SyntheticEvent, useEffect, useRef, useState } from "react";
+import { useFormState } from "react-dom";
 
 export default function Review(props : {key : string, rating : number,
     date : string, title : string, body : string, authorPresent : boolean, 
@@ -43,7 +46,7 @@ export function RatingStars(props : {rating : number})
         stars = stars.concat(<StarIcon key={`rating_star_${i}`} size='w-8' fillColor={FillColors.YELLOW}/>);
 
     if(halfCount) stars = stars.concat(<HalfStarIcon key={`rating_halfstar`} size='w-8' fillColor={FillColors.YELLOW}/>);
-    if(!stars.length) stars = stars.concat(<StarIcon key={`rating_star`} size='w-8' fillColor={FillColors.GRAY}/>);
+    if(!stars.length) stars = stars.concat(<StarIcon key={`rating_star`} size='w-8' fillColor={FillColors.DARK_GRAY}/>);
 
     return (
         <div className="flex gap-x-2 justify-center">
@@ -52,19 +55,46 @@ export function RatingStars(props : {rating : number})
     )
 }
 
-export function CreateReview(props : {productName : string, image : string})
+export function CreateReview(props : {productName : string, image : string, orderId : number, setShowReview : any})
 {
     const [titleText, setTitleText] = useState('');
     const [bodyText, setBodyText] = useState('');
+    const [showSnack, setShowSnack] = useState(false);
+    const [pending,setPending] = useState(false);
+    const [ratingMissing, setRatingMissing] = useState(false);
+
+    const snackProps = useRef<SnackBarProps>();
     const inputTitleRef = useRef<HTMLInputElement>(null);
     const inputBodyRef = useRef<HTMLTextAreaElement>(null);
-
+    const formRef = useRef<HTMLFormElement>(null);
+    
     //Star states (0, 0.5, 1)
     const [states, setStates] = useState([0,0,0,0,0,0]);
-    const rating = useRef(0);
+    const rating = useRef(-1);
 
     const ratingStates = {CURRENT : 0, HOVER_CHANGE : 1, CHANGING : 2}
-    const [ratingView, setRatingView] = useState(ratingStates.CURRENT); 
+    const [ratingView, setRatingView] = useState(ratingStates.CURRENT);
+    
+    const initialState = {title : ''};
+    const [state, formAction] = useFormState(sendReviewSSA, initialState);
+
+    useEffect(() => 
+        {
+            setPending(false);
+            switch(state.title)
+            {
+                case 'SUCCESSFUL':
+                    showReviewCreated(setShowSnack,snackProps);
+                    props.setShowReview(false);
+                    break;
+                case 'SERVER_ERROR':
+                case 'REQUEST_ERROR':
+                    showReviewError(setShowSnack,snackProps);
+                    break;
+            }
+        },
+        [state]
+    )
 
     const changeRatingPreview = () =>
     (
@@ -81,11 +111,12 @@ export function CreateReview(props : {productName : string, image : string})
     {
         const ratingStyle = getRatingStyle(rating.current);
         return ( 
-        <div className={`py-1 px-2 min-w-[130px] max-w-[160px] h-8 rounded-xl text-sm
+        <div className={`py-1 px-2 min-w-[130px] max-w-[160px] h-8 rounded-xl text-sm 
+        ${ratingMissing ? 'border border-red-300' : ''}
         font-semibold ${ratingStyle.bgColor} ${ratingStyle.textColor} flex items-center gap-x-1 justify-content cursor-pointer`}
             onMouseEnter={() => setRatingView(ratingStates.HOVER_CHANGE)}>
             <StarIcon fillColor={ratingStyle.fillColor} size="w-6"/>
-            <p>{`${rating.current} | ${ratingStyle.title}`}</p>
+            <p>{`${rating.current >= 0 ? rating.current : '?'} | ${ratingStyle.title}`}</p>
         </div>
         )
     }
@@ -95,6 +126,7 @@ export function CreateReview(props : {productName : string, image : string})
         const onLeave = () => 
         {
             setRatingView(ratingStates.CURRENT);
+            if(rating.current >= 0) setRatingMissing(false);
         }
 
         const line = (position : number) => 
@@ -193,11 +225,26 @@ export function CreateReview(props : {productName : string, image : string})
         ref.focus();
     }
 
+    function onSubmit(event : any) //action se ejecuta luego
+    {
+        event.preventDefault();
+        const form = formRef.current;
+        setPending(true);
+        if(rating.current < 0 || !titleText || !bodyText )
+        {
+            showMissingData(setShowSnack,snackProps);
+            if(rating.current < 0) setRatingMissing(true);
+            setPending(false);
+        }
+        else form!.requestSubmit();
+        
+    }
+
     const view = 
     (
         <div className="fixed top-0 left-0 h-full w-full bg-slate-400 bg-opacity-60 flex items-center">
         <article className="text-slate-200 bg-gray-800 text-center border border-slate-200 w-[550px] h-fit mx-auto px-4 pb-4 rounded-lg">
-            <form>
+            <form action={formAction} ref={formRef}>
                 <h1 className={`text-center mx-auto w-fit p-2 bg-gray-600 font-semibold text-sm rounded-b-lg `}>Escribir nueva reseña</h1>
                 <div className="flex items-center gap-x-3 flex-nowrap my-2">
                 <img src={props.image} className="w-12 h-12 flex-shrink-0 rounded-full" />
@@ -206,7 +253,7 @@ export function CreateReview(props : {productName : string, image : string})
                 </div>
 
                 <div className="flex items-center static" onClick={() => onFocus(inputTitleRef.current!)}>
-                    <input type="text" id="title" ref={inputTitleRef} onChange={onChangeTitle}
+                    <input type="text" id="title" name='title' required ref={inputTitleRef} onChange={onChangeTitle}
                     className="py-2 w-full bg-slate-800 outline-none flex-1 overflow-hidden"/>
                     {
                         titleText ? <div className="mx-1"><CheckIcon size="w-6" fillColor={FillColors.YELLOW}/></div>
@@ -230,19 +277,57 @@ export function CreateReview(props : {productName : string, image : string})
                         </p>
                         </>
                     }
-                    <textarea id="description" rows={1} cols={1} ref={inputBodyRef} onChange={onChangeBody} 
-                    className="py-2 pe-2 bg-slate-800 border-t w-full border-slate-600 h-[125px] outline-none">
+                    <textarea id="description" name='summary' required rows={1} cols={1} ref={inputBodyRef} onChange={onChangeBody} 
+                    className="py-2 pe-3 bg-slate-800 border-t w-full border-slate-600 h-[125px] outline-none">
                     </textarea>
                 </div>
         
                 <section className="flex items-center border-t border-slate-600 pt-3">
                         {currentView()}
-                        <GeneralButton title="Confirmar" onClick={() => alert(`Puntaje: ${rating.current}`)} main={true}/>
+                        <GeneralButton title='Cancelar' main={false} onClick={() => props.setShowReview(false)}/>
+                        <SubmitButtonWithState title='Confirmar' pending={pending} onClick={onSubmit}/>
                 </section>
+
+                <input type='hidden' name='rating' id='rating' value={rating.current}/>
+                <input type='hidden' name='orderId' id='orderId' value={props.orderId}/>
             </form>
       </article>
+        { 
+            showSnack ? <SnackBar key="Review_Snack" title={snackProps.current!.title} 
+            body={snackProps.current!.body} type={snackProps.current!.type} options={snackProps.current!.options}/> : null
+        }
       </div>
+      
     )
 
     return view;
+}
+
+
+function showReviewCreated(setShowSnack : any, ref : any, time : number = SnackBarType.NORMAL_TIME )
+{
+    ref.current = new SnackBarProps(SnackBarType.SUCCESSFUL,"¡Reseña subida!",
+    "Tu reseña ha sido publicada",[]);
+
+    setShowSnack(true);
+    setTimeout(() => setShowSnack(false),time)
+
+}
+
+function showReviewError(setShowSnack : any, ref : any, time : number = SnackBarType.NORMAL_TIME )
+{
+    ref.current = new SnackBarProps(SnackBarType.ERROR,"Error al publicar reseña.",
+    "Ocurrió un error y no pudimos subir tu reseña. Inténtalo más tarde.",[]);
+
+    setShowSnack(true);
+    setTimeout(() => setShowSnack(false),time)
+}
+
+function showMissingData(setShowSnack : any, ref : any, time : number = SnackBarType.NORMAL_TIME )
+{
+    ref.current = new SnackBarProps(SnackBarType.INFORMATIVE,"Faltan datos",
+    "Te quedan datos por completar",[]);
+
+    setShowSnack(true);
+    setTimeout(() => setShowSnack(false),time)
 }

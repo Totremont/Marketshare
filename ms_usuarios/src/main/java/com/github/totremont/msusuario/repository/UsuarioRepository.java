@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +34,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long>  {
     public List<UsuarioComprador> findAllFromTypeComprador();
     
     @Transactional  //Al ser transactional se debería actualizar la entidad al finalizar el método automáticamente
-    default public Usuario update(Usuario user)
+    default public Usuario update(Usuario user, PasswordEncoder encoder)
     {
         Optional<Usuario> entity = findById(user.getId());
         if(entity.isPresent())
@@ -45,7 +46,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long>  {
                     UsuarioComprador aux = ((UsuarioComprador) entity.get()); 
                     UsuarioComprador newUser = ((UsuarioComprador) user); 
                     aux.setName(newUser.getName());
-                    aux.setPassword(newUser.getPassword());
+                    if(newUser.getPassword() != null && newUser.getPassword() != "")
+                        aux.setPassword(encoder.encode(newUser.getPassword()));
                     aux.setEmail(newUser.getEmail());
                     aux.setCountry(newUser.getCountry());
                     aux.setBank((newUser.getBank()));
@@ -57,7 +59,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long>  {
                     UsuarioVendedor aux = ((UsuarioVendedor) entity.get()); 
                     UsuarioVendedor newUser = ((UsuarioVendedor) user); 
                     aux.setName(newUser.getName());
-                    aux.setPassword(newUser.getPassword());
+                    if(newUser.getPassword() != null && newUser.getPassword() != "")
+                        aux.setPassword(encoder.encode(newUser.getPassword()));
                     aux.setEmail(newUser.getEmail());
                     aux.setCountry(newUser.getCountry());
                     return aux;

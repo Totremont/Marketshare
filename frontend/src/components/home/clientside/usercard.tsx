@@ -1,4 +1,3 @@
-
 import { ROLE_COMPRADOR } from "@/middleware";
 import { getCategoryIcon } from "@/private/utils/mappers";
 import { BackgroundColors, BorderColors } from "@/private/utils/properties";

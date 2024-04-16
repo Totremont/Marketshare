@@ -90,7 +90,7 @@ export async function createOrderSSA(data :
     )
 }
 
-export async function cancelOrder(orderId : number)
+export async function cancelOrderSSA(orderId : number)
 {
     const token = cookies().get(ACCESS_TOKEN)?.value;
     return fetch(`${process.env.NEXT_PUBLIC_ms_pedidos_host}/api/orders/update?id=${orderId}`,
@@ -109,5 +109,37 @@ export async function cancelOrder(orderId : number)
             if(res.ok) return res.json() 
             else throw new Error(`Request to cancel order resolved to ${res.status}`)  },
         err => {throw err}
+    )
+}
+
+export async function sendReviewSSA(initialState : {title : string}, formData : FormData)
+{
+    //review : {orderId : string, rating : number, title : string, summary : string}
+    const orderId = formData.get('orderId')?.toString();
+    const rating = formData.get('rating')?.toString();
+    const title = formData.get('title')?.toString();
+    const summary = formData.get('summary')?.toString();
+    
+    const token = cookies().get(ACCESS_TOKEN)?.value;
+
+    return fetch(`${process.env.NEXT_PUBLIC_ms_pedidos_host}/api/reviews`,
+        { 
+            method : 'POST',
+            mode : 'cors',
+            headers: 
+            {
+                "Authorization":    `Bearer ${token}`,
+            },
+            body: JSON.stringify({orderId,rating,title,summary})
+        }
+    )
+    .then
+    (
+        res => 
+        {
+            if(res.ok) return {title : 'SUCCESSFUL'};
+            else return {title : 'SERVER_ERROR'};
+        },
+        err => {return {title : 'REQUEST_ERROR'};}
     )
 }

@@ -37,8 +37,6 @@ public class CustomUserDetailsService implements UserDetailsService
         try
         {
             UsuarioDTO userDTO = requestUser(username).block();
-            System.out.println("Password: " + userDTO.getPassword());
-            System.out.println("Role: " + userDTO.getType().substring(5));
 
             UserDetails userDetails = User.builder()    //No codificamos la password porque ya está codificada en ms_usuarios
                     .username(username)

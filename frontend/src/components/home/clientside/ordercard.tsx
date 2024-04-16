@@ -2,7 +2,7 @@
 import { CreateReview } from "@/components/product/page/reviews";
 import { SnackBar, SnackBarProps, SnackBarType } from "@/components/snackbar";
 import { ROLE_COMPRADOR } from "@/middleware";
-import { cancelOrder } from "@/private/actions/order";
+import { cancelOrderSSA } from "@/private/actions/order";
 import { BackgroundColors, BorderColors, OrderStatus} from "@/private/utils/properties";
 import {Skeleton} from "@nextui-org/skeleton";
 import { useEffect, useRef, useState } from "react";
@@ -13,7 +13,7 @@ export default function OrderCard(props : {id : number, productName : string, im
     const statusProps = useRef({title : '', desc : '', bg : '', border : ''});
     const buttonProps = useRef({show : false, bg : '', text : '', action : () => {} });
     const [showSnack, setShowSnack] = useState(false);
-    const [showReview, setShowReview] = useState(true);
+    const [showReview, setShowReview] = useState(false);
     const snackProps = useRef<SnackBarProps>();
 
     //Gets trigger when this view or its parent's view needs to be re-render
@@ -26,7 +26,7 @@ export default function OrderCard(props : {id : number, productName : string, im
         buttonProps.current.text = 'Cancelar';
         buttonProps.current.action = () => 
         {
-            cancelOrder(props.id).then(
+            cancelOrderSSA(props.id).then(
                 res => res.ok ? showOrderCancelled(setShowSnack,snackProps) : showOrderActionAborted(setShowSnack,snackProps),
                 err => showOrderActionAborted(setShowSnack,snackProps)
             )
@@ -41,8 +41,6 @@ export default function OrderCard(props : {id : number, productName : string, im
         buttonProps.current.action = () => 
         {
             setShowReview(true);
-            //console.log("Hola");
-            //setlayoutChange(layoutChange + 1);
         }
     }
 
@@ -148,12 +146,12 @@ export default function OrderCard(props : {id : number, productName : string, im
             </div>
            {statusView}
         </section>
-        { showSnack ? 
-        <SnackBar key="SNACK" title={snackProps.current!.title} 
+        { 
+            showSnack ? <SnackBar key="Ordercard_snackbar" title={snackProps.current!.title} 
             body={snackProps.current!.body} type={snackProps.current!.type} options={snackProps.current!.options}/> : null
         }
         {
-            showReview ? <CreateReview productName={props.productName} image={props.image} /> : null
+            showReview ? <CreateReview productName={props.productName} image={props.image} orderId={props.id} setShowReview={setShowReview} /> : null
         }
     </article>
     )

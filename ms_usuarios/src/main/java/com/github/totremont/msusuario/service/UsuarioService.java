@@ -123,7 +123,7 @@ public class UsuarioService {
         empresa = empresaQuery.get();
         
         UsuarioVendedor user = new UsuarioVendedor(empresa,id,name.toLowerCase(),encoder.encode(password),email,pais); 
-        return repo.update(user);
+        return repo.update(user,encoder);
     }
     
     //Update para comprador
@@ -148,7 +148,7 @@ public class UsuarioService {
 
         user = new UsuarioComprador(empresa,banco, money, id, name.toLowerCase(), encoder.encode(password), email, pais);
         
-        return repo.update(user);
+        return repo.update(user,encoder);
     }
     
    

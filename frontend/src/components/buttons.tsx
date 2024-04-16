@@ -14,14 +14,14 @@ export function SubmitButton(props: {title : string})
     )
 }
 
-export function SubmitButtonWithState(props : {pending : boolean, onClick : any})
+export function SubmitButtonWithState(props : {pending : boolean, onClick : any, title : string})
 {
     return(
-        props.pending ? <input key="submit_button_disabled" className="mt-6 block rounded-xl bg-gray-800 px-6 
+        props.pending ? <input key="submit_button_disabled" className="block rounded-xl bg-gray-800 px-6 
         py-2 font-semibold" aria-disabled type="button" value="Enviando..." />
         
-        : <input key="submit_button" className="mt-6 block rounded-xl bg-blue-900 px-6 py-2 font-semibold 
-        hover:bg-blue-800 cursor-pointer" type="button" value={"Crear producto"} onClick={props.onClick}  />
+        : <input key="submit_button" className="block rounded-xl bg-blue-900 px-6 py-2 font-semibold 
+        hover:bg-blue-800 cursor-pointer" type="button" value={props.title} onClick={props.onClick}  />
 
     )
 }

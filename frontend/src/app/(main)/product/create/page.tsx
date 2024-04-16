@@ -139,7 +139,7 @@ export default function CreateProduct()
 
     useEffect(() => {if(rowLimitReached) showRowsLimit(setShowSnack,snackProps)},[rowLimitReached]);
 
-    function onSubmit(event : any) //action solo se ejecuta luego si submit devuelve true
+    function onSubmit(event : any) //action se ejecuta luego
     {
         event.preventDefault();
         const form = formRef.current;
@@ -219,8 +219,10 @@ export default function CreateProduct()
         <label htmlFor="special_features" className="mt-8 block font-semibold">Otras características</label>
         <ChipGroup initialState={specialFeatures} setChecked={setSpecialFeatures} 
         data={specialFeaturesValues} singleSelection={false} selectionRequired={false}/>
-
-        <SubmitButtonWithState pending={pending} onClick={onSubmit} />
+        
+        <div className="my-6">
+            <SubmitButtonWithState title='Crear producto' pending={pending} onClick={onSubmit} />
+        </div>
 
         <input type="hidden" name="colors" value={JSON.stringify(colors)} />
         <input type="hidden" name="state" value={stateProduct} />

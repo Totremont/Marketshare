@@ -4,7 +4,7 @@ import { rejectedStatus, toStatus } from "../mappers/StatusMapper";
 
 const repo = new PrismaClient()
 
-const MAX_TIME_TO_PROGRESS = (600*1000)  //600 Seg | 10 min
+const MAX_TIME_TO_PROGRESS = (60*1000)  //60 Seg | 10 min
 
 const randomTime = () => Math.random() * MAX_TIME_TO_PROGRESS;
 

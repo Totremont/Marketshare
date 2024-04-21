@@ -10,6 +10,7 @@ import { ROLE_VENDEDOR, ROLE_VISITANTE } from "@/middleware";
 import { createOrderSSA, findReviewsFromClientSSA } from "@/private/actions/order";
 import { findUserByIdSSA } from "@/private/actions/user";
 import { formatPrice, getAverageRating, getCategoryIcon, getOrderStatus, toBackgroundColor, toSpecialFeature } from "@/private/utils/mappers";
+import { OrderStatus } from "@/private/utils/properties";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -101,19 +102,19 @@ export default function ProductInfo(props : {
                 const status : {status : string, date : Date} = getOrderStatus(res);
                 switch(status.status)
                 {
-                    case 'RECIBIDO':
+                    case OrderStatus.RECIBIDO:
                     {
                         showSuccessful(setShowSnack,snackProps);
                         setIsBuying(false);
                         break;
                     }
-                    case 'SIN_STOCK':
+                    case OrderStatus.SIN_STOCK:
                     {
                         showNotEnoughStock(setShowSnack,snackProps);
                         setIsBuying(false);
                         break;
                     }
-                    case 'RECHAZADO':
+                    case OrderStatus.RECHAZADO:
                     {
                         showNotEnoughMoney(setShowSnack,snackProps);
                         setIsBuying(false);
@@ -187,7 +188,7 @@ export default function ProductInfo(props : {
             <article className="sm:grid sm:grid-cols-[1fr_1fr] sm:gap-x-3">
 
                 <div className="shrink-0">
-                    <img src={mainImage.url}/>
+                    <img src={mainImage.url} className="h-[500px]"/>
                     <p className="font-semibold my-2">Más imágenes</p>
 
                     {props.images.map((it,index) =>  

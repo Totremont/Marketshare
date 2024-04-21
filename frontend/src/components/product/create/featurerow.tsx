@@ -2,9 +2,10 @@
 import {useRef, useState} from "react"
 
 export default function FeatureRow(
-    props: {setAdded : any, setLimitReached : any})  //State externo
+    props: {
+    added : {feature : string, value : string}[],  setAdded : any, setLimitReached : any})  //State externo
 {
-    const added = useRef<{feature : string, value : string}[]>([])
+    //const added = useRef<{feature : string, value : string}[]>(props.initialState);
     const setPrevious = useRef(false);    //Si al estar agregando un elemento lo canceló, para recuperar lo escrito
     const [missingFeature, setMissingFeature] = useState(false); //Si trata de guardar pero le falta algún valor
     const [missingValue, setMissingValue] = useState(false);
@@ -51,15 +52,17 @@ export default function FeatureRow(
     function removeRow(event : React.MouseEvent<HTMLElement>, removeIndex : number)
     {
         event.preventDefault();
-        added.current = added.current.filter((_,index) => index != removeIndex);
-        props.setAdded(added.current);
+        //added.current = added.current.filter((_,index) => index != removeIndex);
+        props.setAdded(props.added.filter((_,index) => index != removeIndex))
+        //props.setAdded(added.current);
         
     }
 
     function onStartCreating(event : React.MouseEvent<HTMLElement>)
     {
         event.preventDefault();
-        if(added.current.length > 14)
+        //if(added.current.length > 14)
+        if(props.added.length > 14)
         {
             props.setLimitReached(true);
             return;
@@ -79,8 +82,9 @@ export default function FeatureRow(
         if(newValue && newFeature)
         {
             let obj = {feature : newFeature, value : newValue}
-            added.current = added.current.concat(obj);
-            props.setAdded(added.current);
+            //added.current = added.current.concat(obj);
+            props.setAdded(props.added.concat(obj));
+            //props.setAdded(added.current);
             setPrevious.current = false;
             setNewFeature('');
             setNewValue('');
@@ -95,7 +99,8 @@ export default function FeatureRow(
         setCreatingState(false);
     }
 
-    let amountAdded = added.current.length + (added.current.length != 1 ? " cargadas" : " cargada");
+    //let amountAdded = added.current.length + (added.current.length != 1 ? " cargadas" : " cargada");
+    const amountAdded = `${props.added.length} ${props.added.length != 1 ? 'cargadas' : 'cargada'}`
 
     const view = (
         <>
@@ -111,11 +116,11 @@ export default function FeatureRow(
                     <th className="w-[40%] font-semibold">Valor o dato</th>
                     <th className="w-[20%] font-semibold">Descartar</th>
                 </tr>
-                {added.current.map((it, index) => addedView(it.feature,it.value, index))}
+                {props.added.map((it, index) => addedView(it.feature,it.value, index))}
                 {creatingState ? addingView : null}
             </tbody>
             </table>
-            {added.current.length == 0 && !creatingState ? 
+            {props.added.length == 0 && !creatingState ? 
                 <p className="text-sm font-normal text-slate-400 mt-4">Ninguna agregada</p> : null }
         </>
     )

@@ -46,8 +46,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long>  {
                     UsuarioComprador aux = ((UsuarioComprador) entity.get()); 
                     UsuarioComprador newUser = ((UsuarioComprador) user); 
                     aux.setName(newUser.getName());
-                    if(newUser.getPassword() != null && newUser.getPassword() != "")
-                        aux.setPassword(encoder.encode(newUser.getPassword()));
+                    //if(newUser.getPassword() != null && newUser.getPassword() != "")
+                    //    aux.setPassword(encoder.encode(newUser.getPassword()));
                     aux.setEmail(newUser.getEmail());
                     aux.setCountry(newUser.getCountry());
                     aux.setBank((newUser.getBank()));
@@ -59,8 +59,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long>  {
                     UsuarioVendedor aux = ((UsuarioVendedor) entity.get()); 
                     UsuarioVendedor newUser = ((UsuarioVendedor) user); 
                     aux.setName(newUser.getName());
-                    if(newUser.getPassword() != null && newUser.getPassword() != "")
-                        aux.setPassword(encoder.encode(newUser.getPassword()));
+                    //if(newUser.getPassword() != null && newUser.getPassword() != "")
+                    //    aux.setPassword(encoder.encode(newUser.getPassword()));
                     aux.setEmail(newUser.getEmail());
                     aux.setCountry(newUser.getCountry());
                     return aux;

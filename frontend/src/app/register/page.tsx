@@ -161,11 +161,15 @@ export default function SignIn()
             <label className="mt-4 block font-semibold">Rol</label>
             <p className="text-sm text-slate-400">¿Qué deseas hacer en Marketshare?</p>
 
-            <SingleChip id="ROLE_VENDEDOR" key="ROLE_VENDEDOR" title="Soy vendedor" 
-            checked={rolSelected === "ROLE_VENDEDOR" ? true : false} callback={(e) => setRolSelected(e.currentTarget.id)}/>
+            <div className="flex items-center gap-x-4">
+                <SingleChip id="ROLE_VENDEDOR" key="ROLE_VENDEDOR" title="Soy vendedor" 
+                checked={rolSelected === "ROLE_VENDEDOR" ? true : false} 
+                callback={(e) => setRolSelected(e.currentTarget.id)}/>
 
-            <SingleChip id="ROLE_COMPRADOR" key="ROLE_COMPRADOR" title="Soy comprador" 
-            checked={rolSelected === "ROLE_COMPRADOR" ? true : false} callback={(e) => setRolSelected(e.currentTarget.id)}/>
+                <SingleChip id="ROLE_COMPRADOR" key="ROLE_COMPRADOR" title="Soy comprador" 
+                checked={rolSelected === "ROLE_COMPRADOR" ? true : false} 
+                callback={(e) => setRolSelected(e.currentTarget.id)}/>
+            </div>
 
             <input type="hidden" name="role" value={rolSelected} />
             

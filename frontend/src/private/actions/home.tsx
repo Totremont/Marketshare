@@ -1,6 +1,7 @@
 'use server'
 import { ACCESS_TOKEN } from "@/middleware";
 import { cookies } from "next/headers";
+import { RequestStatus } from "../utils/requests";
 
 export async function findUserByUsernameSSA(username : string)
 {
@@ -43,7 +44,8 @@ export async function findAllUsersByRoleSSA(role : string)
     }
     ).then
     (
-        res => {if(res.ok) return res.json(); else throw new Error(`Request for users by role resolved to ${res.status}`)  },
+        res => {if(res.ok) return res.json(); else if(res.status === RequestStatus.NOT_FOUND) return [];
+            else throw new Error(`Request for users by role resolved to ${res.status}`)  },
         err => {throw err}
     )
 

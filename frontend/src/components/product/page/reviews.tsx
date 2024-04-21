@@ -55,7 +55,7 @@ export function RatingStars(props : {rating : number})
     )
 }
 
-export function CreateReview(props : {productName : string, image : string, orderId : number, setShowReview : any})
+export function CreateReview(props : {productName : string, image : string, orderId : number, setShowReview : any, createdCallback : any})
 {
     const [titleText, setTitleText] = useState('');
     const [bodyText, setBodyText] = useState('');
@@ -84,7 +84,7 @@ export function CreateReview(props : {productName : string, image : string, orde
             switch(state.title)
             {
                 case 'SUCCESSFUL':
-                    showReviewCreated(setShowSnack,snackProps);
+                    props.createdCallback();
                     props.setShowReview(false);
                     break;
                 case 'SERVER_ERROR':
@@ -301,17 +301,6 @@ export function CreateReview(props : {productName : string, image : string, orde
     )
 
     return view;
-}
-
-
-function showReviewCreated(setShowSnack : any, ref : any, time : number = SnackBarType.NORMAL_TIME )
-{
-    ref.current = new SnackBarProps(SnackBarType.SUCCESSFUL,"¡Reseña subida!",
-    "Tu reseña ha sido publicada",[]);
-
-    setShowSnack(true);
-    setTimeout(() => setShowSnack(false),time)
-
 }
 
 function showReviewError(setShowSnack : any, ref : any, time : number = SnackBarType.NORMAL_TIME )

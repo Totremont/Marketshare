@@ -1,6 +1,7 @@
+import { FillColors } from "@/private/utils/properties";
 import { iconStyle } from "./miscellaneous";
 
-const ownStyle = iconStyle + ' border p-1 rounded-full border-slate-400 w-9 h-9'
+const ownStyle = `${FillColors.YELLOW} border p-1 rounded-full border-slate-400 w-9 h-9`
 
 export function ElectronicsIcon()
 {

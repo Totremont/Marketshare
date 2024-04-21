@@ -15,7 +15,8 @@ export default function CircleColors(props : {data : CircleColorData[], setSelec
 
     const color = (id : string, color : string) => (
         <div key={id} id={id} onClick={onClick}
-        className={`inline-block p-1 mx-1 ${selected.current === id ? 'border rounded-md border-orange-400' : ''} `}>
+        className={`inline-block p-1 mx-1 cursor-pointer
+        ${selected.current === id ? 'border rounded-md border-orange-400' : ''} `}>
             <div className={`border rounded-full inline-block w-6 h-6 ${color}`}></div>
         </div>
     )

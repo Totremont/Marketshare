@@ -1,5 +1,6 @@
 import { findMainCategories } from "@/components/home/userlist";
 import { LockIcon } from "@/components/icons/miscellaneous";
+import { PrivatePage } from "@/components/private";
 import ProductInfo from "@/components/product/page/info";
 import ProfileInfo from "@/components/profile/info";
 import { ROLE_COMPRADOR, ROLE_VENDEDOR, USERNAME_HEADER, USER_ROLE_HEADER } from "@/middleware";
@@ -13,7 +14,7 @@ export default async function ProfilePage({ params }: { params: { id: string } }
     const userRole = headers().get(USER_ROLE_HEADER)!;
     const ownUser = await findUserByUsernameSSA(username);
 
-    if(ownUser.id != params.id) return <PrivatePage/>
+    if(ownUser.id != params.id) return <PrivatePage title="No puedes ver el perfil de otro usuario"/>
 
     let users = [];
 
@@ -89,18 +90,4 @@ export default async function ProfilePage({ params }: { params: { id: string } }
     return <ProfileInfo role={ownUser.type} orders={orders} user={ownUser} categories={mainCategories} 
     products={userRole === ROLE_COMPRADOR ? suggestDTO : ownDTO}   />
 
-}
-
-function PrivatePage()
-{
-    const view = 
-    (
-        <div className="h-screen w-screen bg-gray-900 text-slate-200 p-3 flex flex-col items-center justify-center">
-                <LockIcon size="w-16 h-16"/>
-                <h1 className="text-5xl font-semibold my-5">Esa información es privada</h1>
-                <h2 className="text-slate-300 mb-8">No puedes ver el perfil de otro usuario</h2>
-                <button className="font-semibold text-orange-300 text-sm">Volver</button>
-        </div>
-    )
-    return view;
 }

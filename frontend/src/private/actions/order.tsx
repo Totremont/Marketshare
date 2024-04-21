@@ -84,7 +84,7 @@ export async function createOrderSSA(data :
     .then
     (
         res => {
-            if(res.ok) return res.json() 
+            if(res.ok) return res.json(); 
             else throw new Error(`Request to create order resolved to ${res.status}`)  },
         err => {throw err}
     )

@@ -81,7 +81,7 @@ async function handleSession(currentUrl : NextURL, tokens : {access : string, re
     console.log("Sección access-token");
     const endpoint = currentUrl.pathname;
     let {username, role} = await validateToken(tokens.access);
-    currentUrl.searchParams.forEach(value => currentUrl.searchParams.delete(value));
+    //currentUrl.searchParams.forEach(value => currentUrl.searchParams.delete(value));
     //Los valores van en headers -- para ocultar los path queries
     let res : NextResponse;
 

@@ -8,13 +8,14 @@ import {Skeleton} from "@nextui-org/skeleton";
 import { useEffect, useRef, useState } from "react";
 
 export default function OrderCard(props : {id : number, productName : string, image : string, 
-    ownRole : string, orgName : string, price : string, units : number, status : string, date : string})
+    ownRole : string, orgName : string, price : string, units : number, status : string, date : string, hasReview : boolean})
 {
     const statusProps = useRef({title : '', desc : '', bg : '', border : ''});
     const buttonProps = useRef({show : false, bg : '', text : '', action : () => {} });
     const [showSnack, setShowSnack] = useState(false);
     const [showReview, setShowReview] = useState(false);
     const snackProps = useRef<SnackBarProps>();
+    const hasReview = useRef(props.hasReview);
 
     //Gets trigger when this view or its parent's view needs to be re-render
     const [layoutChange, setlayoutChange] = useState(0);
@@ -26,8 +27,17 @@ export default function OrderCard(props : {id : number, productName : string, im
         buttonProps.current.text = 'Cancelar';
         buttonProps.current.action = () => 
         {
-            cancelOrderSSA(props.id).then(
-                res => res.ok ? showOrderCancelled(setShowSnack,snackProps) : showOrderActionAborted(setShowSnack,snackProps),
+            cancelOrderSSA(props.id).then
+            (
+                res =>
+                {
+                    if(res.ok)
+                    {
+                        showOrderCancelled(setShowSnack,snackProps)
+                        setlayoutChange(layoutChange + 1);
+                    } 
+                    else showOrderActionAborted(setShowSnack,snackProps)
+                },
                 err => showOrderActionAborted(setShowSnack,snackProps)
             )
         }
@@ -37,10 +47,11 @@ export default function OrderCard(props : {id : number, productName : string, im
     {
         buttonProps.current.show = true;
         buttonProps.current.bg = BackgroundColors.OLIVE;
-        buttonProps.current.text = 'Reseñar';
+        buttonProps.current.text = hasReview.current ? 'Reseñado' : 'Reseñar';
         buttonProps.current.action = () => 
         {
-            setShowReview(true);
+            if(!hasReview.current) setShowReview(true);
+            //setlayoutChange(layoutChange + 1);
         }
     }
 
@@ -119,14 +130,15 @@ export default function OrderCard(props : {id : number, productName : string, im
         { 
             buttonProps.current.show ?
                 <button onClick={buttonProps.current.action} 
-                    className={`${buttonProps.current.bg} px-2 py-1 my-3 rounded-lg font-semibold w-full `}>
-                    {buttonProps.current.text}</button>
-                : null
+                    className={`${buttonProps.current.bg} ${hasReview.current ? 'aria-disabled' : ''} 
+                    px-2 py-1 my-3 rounded-lg font-semibold w-full `}>
+                    {buttonProps.current.text}
+                </button> : null
         }
     </div>
     )
 
-    useEffect(setViewData, []);
+    useEffect(setViewData, [layoutChange,hasReview]);
 
     const view = 
     (
@@ -151,7 +163,9 @@ export default function OrderCard(props : {id : number, productName : string, im
             body={snackProps.current!.body} type={snackProps.current!.type} options={snackProps.current!.options}/> : null
         }
         {
-            showReview ? <CreateReview productName={props.productName} image={props.image} orderId={props.id} setShowReview={setShowReview} /> : null
+            showReview ? <CreateReview productName={props.productName} 
+            image={props.image} orderId={props.id} setShowReview={setShowReview} 
+            createdCallback={() => showReviewCreated(hasReview,setShowSnack,snackProps)} /> : null
         }
     </article>
     )
@@ -193,4 +207,15 @@ function showOrderActionAborted(setShowSnack : any, ref : any, time : number = S
 
     setShowSnack(true);
     setTimeout(() => setShowSnack(false),time)
+}
+
+function showReviewCreated(hasReview : any, setShowSnack : any, ref : any, time : number = SnackBarType.NORMAL_TIME )
+{
+    hasReview.current = true;
+    ref.current = new SnackBarProps(SnackBarType.SUCCESSFUL,"¡Reseña subida!",
+    "Tu reseña ha sido publicada",[]);
+
+    setShowSnack(true);
+    setTimeout(() => setShowSnack(false),time)
+
 }

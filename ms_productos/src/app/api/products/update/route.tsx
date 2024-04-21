@@ -32,7 +32,9 @@ export async function PUT(request: Request)
     let form = await request.formData();
     let product = mapper.formToJSON(form);
     
-    return service.update(product,sendImages === 'true').then(
+    return service.update(product,sendImages === 'true')
+    .then
+    (
         (response) => new Response(mapper.jsonToForm([response])),
         (err) => {
             if(err instanceof NotFoundError) return new Response('',{status : RequestStatus.NOT_FOUND});

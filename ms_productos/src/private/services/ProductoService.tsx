@@ -72,7 +72,6 @@ export default class ProductoService
             }
             );
             //Añadir imagenes | Paths de su ubicación en el filesystem
-            console.log("Añadiendo imágenes");
             const paths = await saveImages(newProduct.id,product.images);
 
             if(paths.length > 0) newProduct = this.repo.producto.update(
@@ -326,16 +325,15 @@ async function saveImages(productId : number, images : File[])
             {
                 const path = filenames(i, images[i]);
                 const img = await bufferArrays[i];
-                await writeFile(path, Buffer.from(img)); 
-                resolve(path);
+                await writeFile(path, Buffer.from(img));
+                storePaths = storePaths.concat(path) 
+                resolve('');
             } catch(e){console.log(e); resolve('');}
         })
         promises = promises.concat(promise);
     }
 
-    await Promise.all(promises).then(
-        values => values.forEach(it => {if(it) storePaths = storePaths.concat(it)})
-    )
+    await Promise.all(promises);
 
     return storePaths;
 
@@ -372,10 +370,11 @@ async function updateImages(currentPaths : string[], newImages : File[], product
 {   
     //Rewritting old files
     let storedPaths = await saveImages(productId,newImages);
+    //console.log("Stored paths: " + JSON.stringify(storedPaths));
     const diff = currentPaths.length - storedPaths.length;
     if(diff > 0)    //Delete remaining files
     {
-        const start = currentPaths.length;
+        const start = storedPaths.length;
         let promises : Promise<null>[] = [];
 
         for(let i = 0; i < diff; i++)
@@ -384,9 +383,9 @@ async function updateImages(currentPaths : string[], newImages : File[], product
             {
                 try
                 {
-                    await unlink(currentPaths[start + i]);
+                    await unlink(currentPaths[start]);
                     res(null);
-                } catch(e){storedPaths = storedPaths.concat(currentPaths[start + i]); res(null);}    
+                } catch(e){storedPaths = storedPaths.concat(currentPaths[start]); res(null);}    
                 //If could not be deleted, add to current path
             })
             promises = promises.concat(promise);

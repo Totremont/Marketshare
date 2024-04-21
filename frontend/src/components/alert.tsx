@@ -1,7 +1,7 @@
 import { GeneralButton } from "./buttons";
 
 export default function Alert(props : 
-    {title : string, body : {main : string, secondary : string}, callbacks : {onConfirm : any, onCancel : any}})
+    {title : string, body : {main : string | JSX.Element, secondary : string | JSX.Element}, callbacks : {onConfirm : any, onCancel : any}})
 {
     const view = 
     (

@@ -244,7 +244,7 @@ export function getAverageRating(ratings : number[])
     return sum / (ratings.length ? ratings.length : 1) ;
 }
 
-export function getOrderStatus(order : any) : {status : string, date : string}
+export function getOrderStatus(order : any) : {status : string, date : Date}
 {
     const data = order.status_history[order.status_history.length - 1];
     return {status : toOrderStatus(data.status), date : data.date};

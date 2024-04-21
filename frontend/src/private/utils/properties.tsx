@@ -53,11 +53,14 @@ export class BorderColors
 export class FillColors
 {
     static YELLOW = 'fill-[#DAA520]';
+    static GRAY = 'fill-[#778899]'
     static DARK_YELLOW = 'fill-yellow-950';
     static DARK_GREEN = 'fill-slate-900'
-    static DARK_GRAY = 'fill-slate-900'
+    static DARK_GRAY = 'fill-slate-800'
     static DARK_BEIGE = 'fill-slate-800'
     static DARK_RED = 'fill-red-950'
+    static WHITE = 'fill-[#F0F8FF]'
+    static DARK_PURPLE = 'fill-[#2d284b]'
 }
 
 export class ContrastTextColors 
@@ -67,6 +70,7 @@ export class ContrastTextColors
     static GRAY = 'text-gray-900'
     static RED = 'text-red-950'
     static BEIGE = 'text-slate-800'
+    static DARK_PURPLE = 'text-[#2d284b]'
 }
 
 export class UserTypes

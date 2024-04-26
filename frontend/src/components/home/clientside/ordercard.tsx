@@ -18,28 +18,27 @@ export default function OrderCard(props : {id : number, productName : string, im
     const hasReview = useRef(props.hasReview);
 
     //Gets trigger when this view or its parent's view needs to be re-render
-    const [layoutChange, setlayoutChange] = useState(0);
+    const [render, setRender] = useState(false);
+    const [isCancel, setIsCancel] = useState(false);
 
     const setCancelProps = () =>
     {
         buttonProps.current.show = true;
         buttonProps.current.bg = BackgroundColors.SIENNA_BROWN;
-        buttonProps.current.text = 'Cancelar';
+        buttonProps.current.text = isCancel ? 'Cancelado' : 'Cancelar';
         buttonProps.current.action = () => 
         {
+            if(!isCancel) //Si no fue cancelado todavía.
             cancelOrderSSA(props.id).then
             (
                 res =>
                 {
-                    if(res.ok)
-                    {
-                        showOrderCancelled(setShowSnack,snackProps)
-                        setlayoutChange(layoutChange + 1);
-                    } 
-                    else showOrderActionAborted(setShowSnack,snackProps)
+                    showOrderCancelled(setShowSnack,snackProps);
+                    setIsCancel(true);  
                 },
                 err => showOrderActionAborted(setShowSnack,snackProps)
             )
+            else showOrderAlreadyCancelled(setShowSnack,snackProps);
         }
     }
 
@@ -51,7 +50,6 @@ export default function OrderCard(props : {id : number, productName : string, im
         buttonProps.current.action = () => 
         {
             if(!hasReview.current) setShowReview(true);
-            //setlayoutChange(layoutChange + 1);
         }
     }
 
@@ -65,7 +63,7 @@ export default function OrderCard(props : {id : number, productName : string, im
                 statusProps.current.border = BorderColors.YELLOW;
                 if(props.ownRole === ROLE_COMPRADOR) setCancelProps();
                 else buttonProps.current.show = false;
-                setlayoutChange(layoutChange + 1);
+                setRender(true);
                 break;
 
             case OrderStatus.EN_DISTRIBUCION:
@@ -75,7 +73,7 @@ export default function OrderCard(props : {id : number, productName : string, im
                 statusProps.current.border = BorderColors.BLUE;
                 if(props.ownRole === ROLE_COMPRADOR) setCancelProps();
                 else buttonProps.current.show = false;
-                setlayoutChange(layoutChange + 1);
+                setRender(true);
                 break;
 
             case OrderStatus.ENTREGADO:
@@ -85,7 +83,7 @@ export default function OrderCard(props : {id : number, productName : string, im
                 statusProps.current.border = BorderColors.GREEN;
                 if(props.ownRole === ROLE_COMPRADOR) setReviewProps();
                 else buttonProps.current.show = false;
-                setlayoutChange(layoutChange + 1);
+                setRender(true);
                 break;
             case OrderStatus.CANCELADO:
                 statusProps.current.title = 'Cancelado';
@@ -93,7 +91,8 @@ export default function OrderCard(props : {id : number, productName : string, im
                 statusProps.current.bg = BackgroundColors.RED;
                 statusProps.current.border = BorderColors.RED;
                 buttonProps.current.show = false;
-                setlayoutChange(layoutChange + 1);
+                if(props.ownRole === ROLE_COMPRADOR) setCancelProps();
+                setIsCancel(true);
                 break;
 
             case OrderStatus.SIN_STOCK:
@@ -102,7 +101,7 @@ export default function OrderCard(props : {id : number, productName : string, im
                 statusProps.current.bg = BackgroundColors.GRAY;
                 statusProps.current.border = BorderColors.GRAY;
                 buttonProps.current.show = false;
-                setlayoutChange(layoutChange + 1);
+                setRender(true);
                 break;
 
             case OrderStatus.RECHAZADO:
@@ -111,7 +110,7 @@ export default function OrderCard(props : {id : number, productName : string, im
                 statusProps.current.bg = BackgroundColors.GRAY;
                 statusProps.current.border = BorderColors.GRAY;
                 buttonProps.current.show = false;
-                setlayoutChange(layoutChange + 1);
+                setRender(true);
                 break;
         }
     }
@@ -138,7 +137,7 @@ export default function OrderCard(props : {id : number, productName : string, im
     </div>
     )
 
-    useEffect(setViewData, [layoutChange,hasReview]);
+    useEffect(setViewData);
 
     const view = 
     (
@@ -204,6 +203,15 @@ function showOrderActionAborted(setShowSnack : any, ref : any, time : number = S
 {
     ref.current = new SnackBarProps(SnackBarType.ERROR,"Acción abortada",
     "Ocurrió un error al tratar de procesar esa acción",[]);
+
+    setShowSnack(true);
+    setTimeout(() => setShowSnack(false),time)
+}
+
+function showOrderAlreadyCancelled(setShowSnack : any, ref : any, time : number = SnackBarType.NORMAL_TIME )
+{
+    ref.current = new SnackBarProps(SnackBarType.INFORMATIVE,"Orden ya cancelada",
+    "Esta orden ya ha sido cancelada",[]);
 
     setShowSnack(true);
     setTimeout(() => setShowSnack(false),time)

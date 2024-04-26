@@ -6,9 +6,14 @@ import { findProductByIdSSA } from "@/private/actions/product";
 import { findUserByIdSSA } from "@/private/actions/user";
 import { saveFiles } from "@/private/utils/files";
 import { formToProduct, formatDate, formatPrice, getOrderStatus, toCategory } from "@/private/utils/mappers";
+import { OrderStatus } from "@/private/utils/properties";
+import { Metadata } from "next";
 import { headers } from "next/headers";
 
-
+export const metadata: Metadata = {
+    title: 'Información de producto',
+  };
+  
 export default async function ProductPage({ params }: { params: { id: string } })
 {
     let product : any;
@@ -28,11 +33,12 @@ export default async function ProductPage({ params }: { params: { id: string } }
 
     const category = toCategory(product.category.name);
     const sellerRegisterDate = formatDate(seller.registerDate);
+    const isMyProduct = Number(product.owner_id) === user.id
 
     //Ordenes completadas
-    const completedOrders = orders.filter(it => getOrderStatus(it).status === 'ENTREGADO');
+    const completedOrders = orders.filter(it => getOrderStatus(it).status === OrderStatus.ENTREGADO);
     const reviews = completedOrders.filter(it => it.review).map(it => it.review);
-    const productOrders = completedOrders.filter(it => it.product_id === product.id);
+    const productOrders = completedOrders.filter(it => Number(it.product_id) === Number(product.id));
     const productReviews = productOrders.filter(it => it.review).map(it => 
     {
         const review = it.review;
@@ -59,7 +65,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
         full : {text: productPrice, value: product.price }, 
     discount : {text : discountPrice, value: discountValue }}
 
-    return <ProductInfo role={user.type} id={product.id} name={product.name} sellerRegisterDate={sellerRegisterDate} category={category!} images={images}
+    return <ProductInfo isMyProduct={isMyProduct} role={user.type} id={product.id} name={product.name} sellerRegisterDate={sellerRegisterDate} category={category!} images={images}
     brief={product.description} colors={product.colors} productState={product.state}
     published={published} description={product.featuresText} features={product.featuresRows} 
     specialFeatures={product.specialFeatures} stock={product.stock} 

@@ -1,6 +1,5 @@
 'use client'
 import { BackgroundColors, ContrastTextColors, FillColors, SpecialFeature } from "@/private/utils/properties"
-import { useRef } from "react"
 import { CardIcon, CheckIcon, LeafIcon, ShieldIcon, ShippingIcon } from "./icons/miscellaneous"
 
 export default function SingleChip(props : {id : string, title : string, checked : boolean, 
@@ -8,14 +7,14 @@ export default function SingleChip(props : {id : string, title : string, checked
 {
     const unChecked = (<button type="button" 
     className={`my-4 rounded-2xl flex items-center gap-x-2 
-    border border-slate-600 py-1 px-3 text-sm font-semibold hover:bg-slate-600`} 
+    border border-slate-600 py-1 px-3 text-sm font-semibold hover:bg-gray-800`} 
     id={props.id} key={props.id} onClick={props.callback}>{props.title}</button>)
 
     const checked = (<button type="button" 
     className={`my-4 rounded-2xl flex items-center gap-x-2
-    border border-slate-600 py-1 px-3 text-sm font-semibold hover:bg-slate-600`}  
+    border border-slate-600 py-1 px-3 text-sm font-semibold bg-gray-800`}  
     id={props.id} key={props.id} onClick={props.callback}>
-        <CheckIcon size="w-6 h-6" fillColor={FillColors.WHITE} />
+        <CheckIcon size="w-5 h-5" fillColor={FillColors.WHITE} />
         <p>{props.title}</p>
     </button>)
 
@@ -32,14 +31,14 @@ export function ChipGroup(props :
     {
         return(<button type="button" 
         className={`my-4 rounded-2xl flex items-center gap-x-2 
-        border border-slate-600 py-1 px-3 text-sm font-semibold hover:bg-slate-600`}
+        border border-slate-600 py-1 px-3 text-sm font-semibold hover:bg-gray-800`}
         id={id} key={id} onClick={onClick}>{title}</button>)
     } 
 
     const checkedState = function(id : string, title : string)
     {
         return(<button type="button" className={`my-4 rounded-2xl flex items-center gap-x-2 
-        border border-slate-600 py-1 px-3 text-sm font-semibold bg-slate-600`} 
+        border border-slate-600 py-1 px-3 text-sm font-semibold bg-gray-800`} 
         id={id} key={id} onClick={onClick}>
             <CheckIcon size="w-5 h-5" fillColor={FillColors.WHITE} />
             <p>{title}</p>

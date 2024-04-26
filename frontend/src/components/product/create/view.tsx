@@ -35,7 +35,6 @@ export default function CreateProduct(props : {isUpdating : boolean, productId :
 
     const [state, formAction] = useFormState(createProductSSA, initialState);
 
-    const onProductPage = () => {};    //To do
     let onBackHome = () => 
     {
         router.replace('/home');
@@ -357,12 +356,11 @@ function showMissingData(setShowSnack : any, ref : any, time : number = SnackBar
 function showProductAdded(setShowSnack : any, ref : any, wasUpdate : boolean, 
     onProductPage : any, onBackHome : any, time : number = SnackBarType.LONG_TIME )
 {
-    const productPage = new SnackBarOption("Ir a publicación",onProductPage);
     const backHome = new SnackBarOption("Volver a inicio", onBackHome);
 
     ref.current = new SnackBarProps(SnackBarType.SUCCESSFUL,
         wasUpdate ? 'Producto modificado' : 'Producto agregado',
-    'El producto ha sido añadido correctamente!',[productPage,backHome]);
+    'El producto ha sido añadido correctamente!',[backHome]);
 
     setShowSnack(true);
     setTimeout(() => setShowSnack(false),time)

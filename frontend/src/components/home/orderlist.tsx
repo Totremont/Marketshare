@@ -11,19 +11,23 @@ export default async function OrderList()
     const ownRole = headers().get(USER_ROLE_HEADER)!;
     const ownUser : any = await findUserByUsernameSSA(username);
     const promise = ownRole === ROLE_COMPRADOR ? findAllUsersByRoleSSA(ROLE_VENDEDOR) : findAllUsersByRoleSSA(ROLE_COMPRADOR);
+
     const [orders, formProducts, users] : [any[],FormData, any[]] = await Promise.all(
         [findAllOrdersByRoleSSA(ownUser.type, ownUser.id), findAllProductsSSA(),promise]
     );
+
     const products = formToProduct(formProducts);
+
     const promises = orders.map(async it => 
         {
             const product = products.find(product => Number(product.id) === it.product_id);
             const user = users.find(user => ownRole == ROLE_COMPRADOR ? user.id === it.seller_id : user.id === it.client_id)
             const status = getOrderStatus(it);
             const images = await saveFiles(product.images);
-            return <OrderCard id={it.id} productName={product.name} 
+            return <OrderCard hasReview={!!it.review} id={it.id} productName={product.name} 
             image={images[0]} ownRole={ownRole} orgName={user.organization.name} 
-            price={formatPrice(Number(it.price))} units={it.amount} status={status.status} date={formatDate(status.date,true)} />
+            price={formatPrice(Number(it.price))} units={it.amount} status={status.status} 
+            date={formatDate(status.date,true)} />
         })
     return Promise.all(promises);
 }

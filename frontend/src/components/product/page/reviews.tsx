@@ -3,31 +3,51 @@ import { GeneralButton, SubmitButton, SubmitButtonWithState } from "@/components
 import { CheckIcon,HalfStarIcon, PendingIcon, StarIcon, UndoIcon } from "@/components/icons/miscellaneous";
 import { SnackBar, SnackBarProps, SnackBarType } from "@/components/snackbar";
 import { sendReviewSSA } from "@/private/actions/order";
-import { getRatingStyle } from "@/private/utils/mappers";
-import { FillColors } from "@/private/utils/properties";
+import { formatDate, getRatingStyle } from "@/private/utils/mappers";
+import { BackgroundColors, ContrastTextColors, FillColors } from "@/private/utils/properties";
 import { Skeleton } from "@nextui-org/react";
 import { SyntheticEvent, useEffect, useRef, useState } from "react";
 import { useFormState } from "react-dom";
 
-export default function Review(props : {key : string, rating : number,
-    date : string, title : string, body : string, authorPresent : boolean, 
-    orgName : string, totalReviews : number, mostRecent : boolean})
+export default function Review(props : 
+    {
+        rating : number,
+        date : string, title : string, body : string, authorPresent : boolean, 
+        orgName : string, totalReviews : number, mostRecent : boolean
+    })
 {
-    const reviewsNoun = (amount : number) => amount != 1 ? 'valoraciones' : 'valoración' 
+    const reviewsNoun = (amount : number) => amount != 1 ? 'valoraciones' : 'valoración'
+    const date = useRef(formatDate(props.date)); 
+
     const review = (
-        <section key={props.key} className="p-2 border rounded-lg my-2 border-slate-600 me-2 flex-1">
-        <p className="text-sm ">{props.date}
-        { props.mostRecent ? <span className="ms-2 text-sm text-purple-400 font-semibold">Más reciente</span> : null}</p>
-        <div className="flex gap-x-2 items-center">
-            <RatingStars rating={props.rating}/>
-            <p className="font-semibold my-1">{props.title}</p>
-        </div>
-        <p className="my-3 min-w-[300px]">{props.body}</p>
-        {
-            props.authorPresent ? <>
-            <p className="font-semibold">{props.orgName}<span className="font-normal text-sm"> | {props.totalReviews} {reviewsNoun(props.totalReviews)}</span></p></> 
-            : <Skeleton disableAnimation={true} className="px-2 h-6 rounded-lg w-2/3 bg-gray-700"></Skeleton>
-        }
+        <section className="border rounded-lg border-slate-600 min-w-[400px] max-w-[600px]">
+            <div className="py-4 px-6">
+                <p className="text-sm">{date.current}
+                { 
+                    props.mostRecent ? 
+                    <span 
+                    className={`mx-2 ${ContrastTextColors.PURPLE} font-semibold ${BackgroundColors.PURPLE} rounded-lg py-1 px-2`}>
+                    Más reciente
+                    </span> 
+                    : 
+                    null
+                }
+                </p>
+                <div className="my-4">
+                    <RatingStars rating={props.rating} starSize='w-4 h-4'/>
+                    <p className="font-semibold text-lg my-2">{props.title}</p>
+                </div>
+                <p className="my-4 min-w-[300px]">{props.body}</p>
+            </div>
+            {
+                props.authorPresent ? 
+                <div className="border-t border-slate-600 py-4 px-6 bg-gray-800 rounded-lg">
+                    <p className="font-semibold">{props.orgName}
+                        <span className="font-normal text-sm"> | {props.totalReviews} {reviewsNoun(props.totalReviews)}</span>
+                    </p>
+                </div> 
+                : <Skeleton disableAnimation={true} className="px-2 h-6 rounded-lg w-2/3 bg-gray-700"></Skeleton>
+            }
         
         </section>
     )
@@ -35,7 +55,7 @@ export default function Review(props : {key : string, rating : number,
     return review;
 }
 
-export function RatingStars(props : {rating : number})
+export function RatingStars(props : {rating : number, starSize : string})
 {
     const fullCount = Math.floor(props.rating); //5.4 -> 5
     const halfCount = Math.round(props.rating) - fullCount;  //5.4 -> 5 | 5.6 -> 6
@@ -43,13 +63,14 @@ export function RatingStars(props : {rating : number})
     let stars : any[] = [];
 
     for(let i = 0; i < fullCount; i++) //Populate with stars
-        stars = stars.concat(<StarIcon key={`rating_star_${i}`} size='w-8' fillColor={FillColors.YELLOW}/>);
+        stars = stars.concat(<StarIcon key={`rating_star_${i}`} size={props.starSize} fillColor={FillColors.YELLOW}/>);
 
-    if(halfCount) stars = stars.concat(<HalfStarIcon key={`rating_halfstar`} size='w-8' fillColor={FillColors.YELLOW}/>);
-    if(!stars.length) stars = stars.concat(<StarIcon key={`rating_star`} size='w-8' fillColor={FillColors.DARK_GRAY}/>);
+    if(halfCount) stars = stars.concat(<HalfStarIcon key={`rating_halfstar`} size={props.starSize} fillColor={FillColors.YELLOW}/>);
+    if(!stars.length) stars = stars.concat(<StarIcon key={`rating_star`} size={props.starSize} fillColor={FillColors.DARK_GRAY}/>);
 
     return (
-        <div className="flex gap-x-2 justify-center">
+        <div className="flex gap-x-1 rounded-lg bg-gray-800 p-1 w-fit items-center">
+            <p className="text-sm mx-1">{props.rating}</p>
             {stars}
         </div>
     )
@@ -193,7 +214,7 @@ export function CreateReview(props : {productName : string, image : string, orde
         }
 
         return (
-        <div className={`px-2 rounded-xl w-fit bg-gray-600 flex items-center`}>
+        <div className={`px-2 rounded-xl w-fit flex items-center`}>
             {[line(0),line(1),line(2),line(3),line(4)]}
         </div>
         )

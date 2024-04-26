@@ -1,6 +1,6 @@
 import { cookies, headers } from "next/headers";
-import Headline, { HeadlineSkeleton, HeadlineType } from "../../../components/home/headline";
-import { ACCESS_TOKEN, ROLE_COMPRADOR, USERNAME_HEADER, USER_ROLE_HEADER } from "@/middleware";
+import { Headline, HeadlineSkeleton, HeadlineType,} from "../../../components/home/headline";
+import { ROLE_COMPRADOR, USER_ROLE_HEADER } from "@/middleware";
 import { redirect } from "next/navigation";
 import SearchBar from "@/components/home/searchbar";
 import { Suspense, useRef, useState } from "react";
@@ -9,16 +9,21 @@ import ProductList from "@/components/home/productlist";
 import { UserCardSkeleton } from "@/components/home/clientside/usercard";
 import { OrderCardSkeleton } from "@/components/home/clientside/ordercard";
 import UserList from "@/components/home/userlist";
-import OrderList from "@/components/home/orderlist";
-import { CreateReview } from "@/components/product/page/reviews";
+import OrderList from "@/components/home/orderlist";;
+import { Metadata } from "next";
+import { GeneralButton } from "@/components/buttons";
+import Link from "next/link";
+import { BackgroundColors } from "@/private/utils/properties";
+
+export const metadata: Metadata = {
+  title: 'Principal',
+};
 
 export default async function Home()
 { 
   
   //Home es un server component. Los componentes son clients (y en ellos se encuentra la interactividad)
-  //let username = headers().get(USERNAME_HEADER)!;
   let userRole = headers().get(USER_ROLE_HEADER);
-  //let token = cookies().get(ACCESS_TOKEN)?.value;
 
   //Eliminar cookies y otros datos
   const onRefresh = () => 
@@ -31,7 +36,7 @@ export default async function Home()
   (       
   <div className=" h-fit max-w-[1600px] mx-auto md:flex px-6">
 
-    <aside className="md:max-w-[250px] mb-3 md:mb-0 bg-gray-800 p-3 rounded-lg">
+    <aside className="w-[400px] mb-3 md:mb-0 bg-gray-800 p-3 rounded-lg">
 
       <section>
         <header className="pb-3 border-b border-slate-600">
@@ -39,19 +44,32 @@ export default async function Home()
         </header>
 
         <div className="flex md:block">
-          <HeadlineSkeleton/>
+          <Headline date='05 de mayo 2024' title='Nuevo vendedor' 
+          type={HeadlineType.NEW_USER} options={{orgName: 'IBM', userName: 'IBM_OK', price : '', message: '' }}/>
+
+          <Headline date='02 de mayo 2024' title='Nuevo vendedor' 
+          type={HeadlineType.NEW_USER} options={{orgName: 'General Motors', userName: 'GMotors', price : '', message: '' }}/>
+
+          <Headline date='27 de abril 2024' title='Aceite para motor semi-sintético' 
+          type={HeadlineType.NEW_PRODUCT} options={{orgName: 'General Motors', userName: 'GMotors', price : '38.000', 
+          message: '' }}/>
         </div>
       </section>
         
       <section>
         <header className="mt-4 md:mt-10 pb-3 border-b flex border-slate-600 items-center">
           <h1 className="text-lg font-semibold">Últimos avisos</h1>
-          <button className="mx-4 bg-[#A0522D] rounded-lg px-2 py-1 
-            text-sm font-semibold hover:bg-[#b55d33]">+ Aviso</button>
+          <button className={`mx-2 py-1 px-2 ${BackgroundColors.SIENNA_BROWN} rounded-lg text-sm font-semibold`}>Nuevo aviso</button>
         </header>
 
         <div className="flex md:block">
-          <HeadlineSkeleton/>
+          <Headline date='09 de mayo 2024' title='Aumento de precios' 
+          type={HeadlineType.NEW_MESSAGE} options={{orgName: 'X Planes', userName: 'X_Planes', price : '', 
+          message: 'Vamos a aumentar los precios un 500% porque podemos. Gracias por comprender ' }}/>
+
+          <Headline date='09 de mayo 2024' title='Sobre los reembolsos' 
+          type={HeadlineType.NEW_MESSAGE} options={{orgName: 'Colossal Order', userName: 'OrderParadox', price : '', 
+          message: 'Vamos a regalar un DLC y pedirle disculpas para que se olviden del estado desastroso de CS2. Umm no debería decir eso.' }}/>
         </div>
       </section>
 
@@ -62,14 +80,16 @@ export default async function Home()
       <header className="border-slate-600">
         <section className="flex">
           <h1 className="text-lg font-semibold">Productos</h1>
-          <button className="mx-4 bg-[#A0522D] rounded-xl px-2 py-1 
-          text-sm font-semibold hover:bg-[#b55d33]">+ Nuevo</button>
+          <Link href='/products/create'>
+            <button className={`mx-2 py-1 px-2 ${BackgroundColors.SIENNA_BROWN} rounded-lg text-sm font-semibold`}>Nuevo producto</button>
+          </Link>
         </section>
         <section>
           
           <SearchBar setTextWritten={null}/>
-          <button className="rounded-2xl border border-slate-600 p-1 px-3 text-sm font-semibold">Mis productos</button>
-          <button className="ms-2 rounded-2xl border border-slate-600 bg-slate-600 p-1 px-3 text-sm font-semibold">✓ | Todos</button>
+          <button type="button" 
+          className={`my-4 rounded-2xl flex items-center gap-x-2 
+          border border-slate-600 py-1 px-3 text-sm font-semibold hover:bg-gray-800`}>Mis productos</button>
         </section>
       </header>
 

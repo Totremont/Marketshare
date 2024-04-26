@@ -4,75 +4,93 @@ import { formatPrice, getCategoryIcon, getOrderStatus, isOrderTerminated} from "
 import { useEffect, useRef, useState } from "react";
 import { RatingStars } from "../product/page/reviews";
 import SellerReputation from "../product/page/reputation";
-import { BackgroundColors, OrderStatus } from "@/private/utils/properties";
+import { BackgroundColors, ContrastTextColors, OrderStatus } from "@/private/utils/properties";
+import { useRouter } from "next/navigation";
 
-//order.product debe ser un atributo
-export default function ProfileInfo(props : {role : string, orders : any[], 
-    user : any, categories : {category : string, ocurrency : number}[], 
-    products : {name : string, stock : string, price : string, published : string, seller : any, orders : any[], category : string}[]}) 
+//roleProducts -> Mis productos si soy vendedor, productos sugeridos si soy comprador
+export default function ProfileInfo(props : 
+    {
+        role : string, 
+        ordersWithData : {order : any, product : {id : string, name : string}, seller : any | null, client : any | null}[], 
+        user : any, 
+        categories : {category : string, ocurrency : number}[], 
+        roleProducts : {id : string, name : string, stock : string, price : string, published : string, seller : any, orders : any[], 
+        category : string}[]
+    }
+) 
 {
-    const ordersCompleted = useRef<any[]>([]);
-    const moneySpent = useRef<string>('0');
+    const ordersCompleted = useRef<any[]>(props.ordersWithData.filter(it => getOrderStatus(it.order).status === OrderStatus.ENTREGADO));
+    const moneySpent = useRef<string>(setMoneySpent());
     const userOrderSpecial = useRef<any>();
-    const reviews = useRef<any[]>([]);
-    const userValoration = useRef(0);
+
+    const ordersWithReview = useRef<any[]>(ordersCompleted.current.filter(it => it.order.review));
+    const sellerValoration = useRef(0);
     const statusProps = useRef<{background : string, text : string}>();
+
+    const router = useRouter();
+
     const [render, setRender] = useState(false);
 
     useEffect(() => 
     {
-        ordersCompleted.current = props.orders.filter(it => getOrderStatus(it).status === OrderStatus.ENTREGADO);
-        reviews.current = ordersCompleted.current.filter(it => it.review).map(it => it.review);
-
-        setMoneySpent();
-        if(props.role == ROLE_COMPRADOR) setMostExpensiveOrder();
-        else setBestSellingProduct();
-        setValoration();
+        //reviews.current = ordersCompleted.current.filter(it => it.review).map(it => it.review);
+        userOrderSpecial.current = props.role === ROLE_COMPRADOR ? setMostExpensiveOrder() : setBestSellingProduct();
+        sellerValoration.current = setValoration();
         setRender(true);
     },[])
 
-    const setMoneySpent = () => 
+    function setMoneySpent() 
     {
         let sum = 0;
-        ordersCompleted.current.forEach(it => sum += it.price);
-        moneySpent.current = formatPrice(sum);
+        ordersCompleted.current.forEach(it => sum += it.order.price);
+        return formatPrice(sum);
     }
 
-    const setMostExpensiveOrder = () => 
+    function setMostExpensiveOrder()
     {
-        ordersCompleted.current.sort((a,b) => b.price - a.price)    //Si a es más caro, va primero
-        userOrderSpecial.current = ordersCompleted.current[0];
+        ordersCompleted.current.sort((a,b) => b.order.price - a.order.price)    //Si a es más caro, va primero
+        const mostExpensive = ordersCompleted.current[0];
+
+        return {
+            product : mostExpensive.product,
+            order : mostExpensive.order,
+            price : formatPrice(mostExpensive.order.price)
+        }
     }
 
-    const setBestSellingProduct = () => 
+    function setBestSellingProduct()
     {
         //Al ordenar estamos poniendo los elementos repetidos uno al lado del otro
-        ordersCompleted.current.sort((a,b) => a.product.name < b.product.name ? -1 : a.product.name > b.product.name ? 1 : 0 );
-        let lastProduct = '';
+        ordersCompleted.current.sort((a,b) => a.order.product_id - b.order.product_id);
+        let lastId = -1;
         let data : {product : any, units : number}[] = [];
+
         ordersCompleted.current.forEach(it => 
-        {
-            if(it.product.name === lastProduct) data[data.length - 1].units += it.amount;
-            else
             {
-                data = data.concat({product : it.product, units : it.amount});
-                lastProduct = it.product.name;
+                if(it.order.product_id === lastId) data[data.length - 1].units += it.order.amount;
+                else
+                {
+                    //const product = props.roleProducts.find(pr => Number(pr.id) === it.order.product_id);
+                    data = data.concat({product : it.product, units : it.order.amount});
+                    lastId = it.order.product_id;
+                }
             }
-        }
         );
         data.sort((a,b) => b.units - a.units);
-        userOrderSpecial.current = data[0];
+
+        return data[0]; //{product, units}
     }
 
-    const setValoration = () => 
+    function setValoration()
     {
         let sum = 0;
-        let div = reviews.current.length;
-        reviews.current.forEach(it => {sum += it.rating});
-        userValoration.current = sum/(div > 0 ? div : 1);
+        let div = ordersWithReview.current.length;
+        ordersWithReview.current.forEach(it => {sum += it.order.review.rating});
+        const value = sum/(div > 0 ? div : 1);
+        return Math.round(value*100)/100;
     }
 
-    const setStatusProps = (status : string) => 
+    function setOrderInfoProps(status : string)
     {
         switch(status)
         {
@@ -97,6 +115,41 @@ export default function ProfileInfo(props : {role : string, orders : any[],
         }
     }
 
+    function reviewsView()
+    {
+        if(props.role === ROLE_VENDEDOR)
+        {
+            return (
+                <div>
+                    <p className="my-2 text-sm">Tu valoración</p>
+                    <RatingStars rating={sellerValoration.current} starSize='w-5 h-5'/>
+                        <p className="text-sm my-1">{ordersWithReview.current.length} reseñas</p>
+                    {
+                        <SellerReputation rating={sellerValoration.current} 
+                        totalReviews={ordersWithReview.current.length} totalSells={ordersCompleted.current.length} />
+                    }
+                </div>
+            )
+        } 
+        else 
+        {
+            //De menor rating a mayor
+            const reviews = ordersWithReview.current.map(it => it.order.review);
+            reviews.sort((a,b) => a.rating - b.rating)
+            const worst = reviews[0];
+            const best = reviews.length > 0 ? reviews[reviews.length - 1] : null;
+
+            return (
+                <div>
+                    <p className="mb-1 text-sm">Tus reseñas</p>
+                    <h3 className="my-1 text-2xl overflow-hidden font-semibold">{reviews.length}</h3>
+                    <p className="my-2">Peor reseña: <span className="font-semibold">{worst?.rating ?? 'ninguna'}</span></p>
+                    <p className="my-2">Mejor reseña: <span className="font-semibold">{best?.rating ?? 'ninguna'}</span></p>
+                </div>
+            )
+        }
+    }
+
     const view = 
     (
     <div className="h-fit max-w-[1500px] mx-auto">
@@ -104,8 +157,12 @@ export default function ProfileInfo(props : {role : string, orders : any[],
         sm:grid sm:grid-cols-2 md:grid-cols-4 w-fit sm:mx-auto md:text-center">
             <section className="border-b border-slate-600 p-4 sm:col-span-2 md:col-span-4">
                 <h1>Tu vista como {props.role === ROLE_COMPRADOR ? 'comprador' : 'vendedor'}</h1>
-                <h2 className="my-2 text-xl font-semibold my-1">{props.user.organization.name}</h2>
-                <div className="flex gap-x-2 justify-center items-center">
+                <h2 className="my-2 text-xl font-semibold my-1">{props.user.name}</h2>
+                
+                <h3 className='text-lg'>{props.user.country.name} • {props.user.organization.name} 
+                {props.user.bank ? ` • ${props.user.bank.name}` : ''}</h3>
+                
+                <div className="flex gap-x-2 justify-center items-center my-4">
                 {
                     props.categories.length > 0 ? 
                     props.categories.map((it,index) =>
@@ -122,38 +179,37 @@ export default function ProfileInfo(props : {role : string, orders : any[],
 
             <section className="border-e border-slate-600 p-4">
                 <p>{`${props.role === ROLE_COMPRADOR ? 'Dinero gastado' : 'Ingresos brutos'}`}</p>
-                <p className="mt-1 text-2xl font-semibold">{moneySpent.current}$</p>
+                <p className="mt-1 text-2xl font-semibold">${moneySpent.current}</p>
             </section>
 
             <section className="border-e border-slate-600 p-4">
-                <p>{`Producto ${props.role === ROLE_COMPRADOR ? 'más caro' : 'más vendido'}`}</p>
+                <p>{props.role === ROLE_COMPRADOR ? 'Tu pedido más caro es' : 'Tu producto más vendido es'}</p>
                 <p className="mt-1 text-2xl h-16 overflow-hidden font-semibold">
                     {
-                        userOrderSpecial.current ? userOrderSpecial.current.product.name  : '?'
+                        userOrderSpecial.current ? userOrderSpecial.current.product.name  : 'Ninguno'
                     }
                 </p>
-                <p className="mt-1">
+                <div className="my-1">
                     {
-                        userOrderSpecial.current ?
-                        props.role === ROLE_COMPRADOR ? `$${formatPrice(userOrderSpecial.current.product.price)}` 
-                        : `${userOrderSpecial.current.units} unidades vendidas` 
-                        : '?'
+                        userOrderSpecial.current ? 
+                            (props.role === ROLE_COMPRADOR) ? 
+                            <div>
+                                    <p>Unidades compradas: 
+                                        <span className="font-semibold mx-2">{userOrderSpecial.current.order.amount}</span></p>
+                                    <h3 className="my-2 font-semibold">${userOrderSpecial.current.price}</h3>
+                            </div>
+                            : 
+                            <div>
+                                <p>Unidades vendidas: <span className="font-semibold">{userOrderSpecial.current.units}</span> </p>
+                            </div>
+                        : <p>¡Es tu momento de empezar!</p>
                     }
-                </p>
+                </div>
             </section>
 
             <section className="p-4">
                 <div className="rounded-xl bg-slate-700  px-3 py-1 md:text-center w-fit md:mx-auto">
-                    <p className="mb-1 text-sm">
-                        {`${props.role === ROLE_COMPRADOR ? 'Reseñas promedio' : 'Valoración'}`}</p>
-                        <RatingStars rating={userValoration.current}/>
-                        <p className="text-sm">{reviews.current.length} reseñas</p>
-                    {
-                        props.role === ROLE_VENDEDOR ? 
-                        <SellerReputation rating={userValoration.current} 
-                        totalReviews={reviews.current.length} totalSells={ordersCompleted.current.length} />
-                        : null
-                    }
+                    {reviewsView()}
                 </div>
             </section>
         </article>
@@ -166,7 +222,7 @@ export default function ProfileInfo(props : {role : string, orders : any[],
             <table className="w-full text-sm md:text-base">
                 <tbody>
                     <tr className="border-b border-slate-600 text-base">
-                        <th className="w-[25%] text-left py-4 px-2">Producto</th>
+                        <th className="w-[25%] text-left py-4 px-2 overflow-hidden">Producto</th>
                         <th className="w-[20%] text-left py-4 px-2">{props.role === ROLE_COMPRADOR ? 'Vendedor' : 'Comprador'}</th>
                         <th className="w-[20%] text-left py-4 px-2">Estado</th>
                         <th className="w-[15%] text-left py-4 px-2">Precio</th>
@@ -174,29 +230,35 @@ export default function ProfileInfo(props : {role : string, orders : any[],
                         <th className="w-[10%] text-left py-4 px-2">Acciones</th>
                     </tr>
                     {
-                        props.orders.map((order,index) => 
+                        props.ordersWithData.map(({order, product, client, seller},index) => 
                         {
                             const status = getOrderStatus(order).status;
-                            setStatusProps(status);
-                            let actionText = '';
-                            let actionColor = '';
-                            if(status === OrderStatus.ENTREGADO)
+                            setOrderInfoProps(status);
+                            let actionText = 'No disponible';
+                            let actionColor = BackgroundColors.GRAY;
+                            let reviewed = false;
+                            if(status === OrderStatus.ENTREGADO && props.role === ROLE_COMPRADOR)
                             {
-                                actionText = 'Reseñar'
-                                actionColor = BackgroundColors.GREEN;
+                                if(!order.review)
+                                {
+                                    actionText = 'Reseñar'
+                                    actionColor = BackgroundColors.GREEN;
+                                } else reviewed = true;
                             } 
-                            else if(!isOrderTerminated(status))
+                            else if(!isOrderTerminated(status) && props.role === ROLE_COMPRADOR)
                             {
                                 actionText = 'Cancelar';
                                 actionColor = BackgroundColors.SIENNA_BROWN;
                             }
+
                             return (
                             <tr key={`order_row_${index}`} className="border-b border-slate-600">
                                 <td className="py-4 px-2">
-                                    <button className="rounded-lg border border-slate-600 
-                                    bg-gray-800 p-1 px-3 text-sm text-nowrap overflow-hidden">{order.product.name}</button>
+                                    <button onClick={() => router.push(`/product/${product.id}`)}
+                                    className="rounded-lg border border-slate-600 
+                                    bg-gray-800 p-1 px-3 text-sm text-nowrap overflow-hidden">{product.name}</button>
                                 </td>
-                                <td className="py-4 px-2">{props.role === ROLE_COMPRADOR ? order.seller.name : order.client.name}</td>
+                                <td className="py-4 px-2">{props.role === ROLE_COMPRADOR ? seller.name : client.name}</td>
                                 <td className="py-4 px-2">
                                     <div className="flex items-center gap-x-2 ">
                                         <div className={`${statusProps.current?.background} w-4 h-4 rounded-full`}></div>
@@ -205,12 +267,15 @@ export default function ProfileInfo(props : {role : string, orders : any[],
                                 </td>
                                 <td className="py-4 px-2">{formatPrice(order.price)}$</td>
                                 <td className="py-4 px-2">{order.amount}</td>
-                                <td className="py-4 px-2">{
-                                    actionText && actionColor ? 
-                                    <button className={`rounded-lg w-full text-center 
-                                    ${actionColor} p-1 px-3 text-sm overflow-hidden`}>
-                                        {actionText}
-                                    </button> : 'No disponible'
+                                <td className="py-4 px-2">
+                                    {
+                                        reviewed ? <RatingStars rating={order.review.rating} starSize="w-5"/>
+                                        :
+                                            <button className={`rounded-lg w-full text-center 
+                                            ${actionColor} p-1 px-3 text-sm overflow-hidden`}>
+                                                {actionText}
+                                            </button>
+                                        
                                     }
                                 </td>
                             </tr>
@@ -230,38 +295,39 @@ export default function ProfileInfo(props : {role : string, orders : any[],
             <table className="mx-1 w-full text-sm md:text-base">
                 <tbody>
                     <tr className="border-b border-slate-600 text-base">
-                        <th className="w-[25%] py-4 px-2 text-left">Producto</th>
-                        <th className="w-[20%] py-4 px-2 text-left">Publicado</th>
+                        <th className="w-[25%] py-4 px-2 text-left overflow-hidden">Producto</th>
+                        <th className="w-[20%] py-4 px-2 text-left">{props.role === ROLE_COMPRADOR ? 'Vendedor' : 'Publicado'}</th>
                         <th className="w-[20%] py-4 px-2 text-left">Categoria</th>
                         <th className="w-[15%] py-4 px-2 text-left">Precio</th>
                         <th className="w-[10%] py-4 px-2 text-left">Stock</th>
-                        <th className="w-[10%] py-4 px-2 text-left">{props.role === ROLE_COMPRADOR ? '' : 'Eliminar'}</th>
+                        <th className="w-[10%] py-4 px-2 text-left">{props.role === ROLE_COMPRADOR ? 'Publicado' : 'Reseñas'}</th>
                     </tr>
                 {
-                    props.products.map((product,index) => 
+                    props.roleProducts.map((it,index) => 
                         {
+                            const reviews = it.orders.filter(it => it.review);
                             return (
                             <tr key={`product_row_${index}`} className="border-b border-slate-600">
                                 <td className="py-4 px-2">
-                                    <button className="rounded-lg border border-slate-600 
-                                    bg-gray-800 p-1 px-3 text-sm text-nowrap overflow-hidden">{product.name}</button>
+                                    <button onClick={() => router.push(`/product/${it.id}`)} 
+                                    className="rounded-lg border border-slate-600 
+                                    bg-gray-800 p-1 px-3 text-sm text-nowrap overflow-hidden">{it.name}</button>
                                 </td>
-                                <td className="py-4 px-2">{product.published}</td>
-                                <td className="py-4 px-2">{product.category}</td>
-                                <td className="py-4 px-2">${product.price}</td>
-                                <td className="py-4 px-2">{product.stock}</td>
-                                <td className="py-4 px-2">{
-                                    props.role === ROLE_VENDEDOR ?
-                                    <button className="bg-red-600 py-1 
-                                    px-2 rounded-xl text-sm font-semibold hover:bg-red-500 inline">X</button>
-                                    : null
-                                    }
+                                <td className="py-4 px-2">{props.role === ROLE_COMPRADOR ? it.seller.name : it.published}</td>
+                                <td className="py-4 px-2">{it.category}</td>
+                                <td className="py-4 px-2">${it.price}</td>
+                                <td className="py-4 px-2">{it.stock}</td>
+                                <td className="py-4 px-2">
+                                {
+                                    props.role === ROLE_VENDEDOR ? reviews.length
+                                    : it.published
+                                }
                                 </td>
                             </tr>
                             )
                         }
                     )
-                    }
+                }
                 </tbody>
             </table>
         </article>

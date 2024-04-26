@@ -62,6 +62,11 @@ const addCookie = (cookieStore : ReadonlyRequestCookies, cookieName: string, coo
     })
 };
 
+export async function logOutSSA()
+{
+    cookies().getAll().forEach(cookie => cookies().delete(cookie));
+}
+
 export async function createUserSSA(initialState : any, formData : FormData)
 {
     let requestToken = false;

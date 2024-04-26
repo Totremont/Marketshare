@@ -4,7 +4,12 @@ import { ACCESS_TOKEN, USERNAME_HEADER } from "@/middleware";
 import { findUserByUsernameSSA } from "@/private/actions/home";
 import { findProductByIdSSA } from "@/private/actions/product";
 import { formToProduct } from "@/private/utils/mappers";
+import { Metadata } from "next";
 import { cookies, headers } from "next/headers";
+
+export const metadata: Metadata = {
+    title: 'Creando producto',
+  };
 
 export default async function ProductPage({ searchParams }) 
 {   

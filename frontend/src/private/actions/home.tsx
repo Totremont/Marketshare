@@ -52,10 +52,10 @@ export async function findAllUsersByRoleSSA(role : string)
 }
 
 //Mis productos si soy vendedor | Todos si soy comprador || Primeros 6
-export async function findAllProductsSSA()
+export async function findAllProductsSSA(sendImages : boolean = true)
 {
     const token = cookies().get(ACCESS_TOKEN)?.value;
-    return fetch(`${process.env.NEXT_PUBLIC_ms_productos_host}/api/products/list?send_images=true`,
+    return fetch(`${process.env.NEXT_PUBLIC_ms_productos_host}/api/products/list?send_images=${sendImages}`,
         { 
             method : 'GET',
             mode : 'cors',

@@ -38,7 +38,7 @@ export class BackgroundColors
     static BLUE = "bg-[#6495ED]"
     static YELLOW = "bg-[#DAA520]"
     static WHITE = "bg-[#DCDCDC]"
-    static BLACK = "bg-[#000000]"
+    static BLACK = "bg-gray-950"
 }
 
 export class BorderColors
@@ -56,11 +56,11 @@ export class FillColors
     static GRAY = 'fill-[#778899]'
     static DARK_YELLOW = 'fill-yellow-950';
     static DARK_GREEN = 'fill-slate-900'
-    static DARK_GRAY = 'fill-slate-800'
+    static DARK_GRAY = 'fill-slate-600'
     static DARK_BEIGE = 'fill-slate-800'
     static DARK_RED = 'fill-red-950'
     static WHITE = 'fill-[#F0F8FF]'
-    static DARK_PURPLE = 'fill-[#2d284b]'
+    static DARK_PURPLE = 'fill-[#262240]'
 }
 
 export class ContrastTextColors 
@@ -70,7 +70,7 @@ export class ContrastTextColors
     static GRAY = 'text-gray-900'
     static RED = 'text-red-950'
     static BEIGE = 'text-slate-800'
-    static DARK_PURPLE = 'text-[#2d284b]'
+    static PURPLE = 'text-[#262240]'
 }
 
 export class UserTypes

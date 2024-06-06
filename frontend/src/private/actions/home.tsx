@@ -5,7 +5,7 @@ import { RequestStatus } from "../utils/requests";
 
 export async function findUserByUsernameSSA(username : string)
 {
-    const token = cookies().get(ACCESS_TOKEN)?.value;
+    //const token = cookies().get(ACCESS_TOKEN)?.value;
     return fetch(`${process.env.NEXT_PUBLIC_ms_usuarios_host}/api/users?username=${username}`,
         { 
             method : 'GET',
@@ -44,8 +44,11 @@ export async function findAllUsersByRoleSSA(role : string)
     }
     ).then
     (
-        res => {if(res.ok) return res.json(); else if(res.status === RequestStatus.NOT_FOUND) return [];
-            else throw new Error(`Request for users by role resolved to ${res.status}`)  },
+        res => 
+        { 
+            if(res.ok) return res.json(); else if(res.status === RequestStatus.NOT_FOUND) return [];
+            else throw new Error(`Request for users by role resolved to ${res.status}`)  
+        },
         err => {throw err}
     )
 

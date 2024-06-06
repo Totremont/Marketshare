@@ -19,7 +19,8 @@ export async function GET(request: Request)
     
     return service.findAll(sendImages === 'true').then(
         (response) => new Response(mapper.jsonToForm(response)),
-        (err) => {
+        (err) => 
+        {
             if(err instanceof NotFoundError) return new Response('',{status : RequestStatus.NOT_FOUND});
             else return new Response('',{status : RequestStatus.BAD_REQUEST});
         }

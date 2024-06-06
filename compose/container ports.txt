@@ -1,0 +1,14 @@
+--Frontend
+frontend: 443
+
+-Backend
+ms_usuarios: 8070
+ms_productos: 8060
+ms_pedidos : 8050
+ms_auth: 8040
+ms_mails = 8030
+
+-Databases
+postgres: 80
+mysql : 70
+ 

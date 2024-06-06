@@ -1,8 +1,10 @@
 import { AudioIcon, BeautyIcon, ClothesIcon, ComputingIcon, DevicesIcon, ElectronicsIcon, IndustryIcon, OfficesIcon, OtherIcon, SportsIcon, ToolsIcon } from "@/components/icons/categories";
 import { BackgroundColors, Categories, ContrastTextColors, FillColors, OrderStatus, RatingType, SpecialFeature } from "./properties";
 
-export function formToProduct(formData : FormData)
+export function formToProduct(formData : FormData | null)
 {
+    if(!formData) return [];
+
     let products: any[] = [];
 
     const elements = Number(formData.get('elements'));

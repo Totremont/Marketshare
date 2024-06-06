@@ -1,0 +1,30 @@
+services:
+  ms_users:
+    image: ms_users:1
+    expose:
+      - 8070
+    depends_on:
+      users_db:
+        condition: service_completed_successfully
+
+  users_db:
+    image: mysql
+    restart: always
+    secrets:
+      - db-password
+    ports:
+      - 8080:3306
+    volumes:
+      - users_db-data:/var/lib/mysql
+      - ../users_db-init.sql:/docker-entrypoint-initdb.d/db_script.sql
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db-password
+      MYSQL_DATABASE:  dan_users_db
+
+secrets:
+  db-password:
+    file: ../db-password.txt
+
+volumes:
+  users_db-data:
+

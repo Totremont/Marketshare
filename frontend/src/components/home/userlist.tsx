@@ -11,8 +11,9 @@ export default async function UserList()
     const userRole = headers().get(USER_ROLE_HEADER)!;
     const ownUser : any = await findUserByUsernameSSA(username); 
     const promise = userRole === ROLE_COMPRADOR ? findAllOrdersByRoleSSA(userRole,ownUser.id) : Promise.resolve([]);
-    const [ownOrders, formProducts] : [any[],FormData] = await Promise.all(
-        [promise,findAllProductsSSA()]  //Products are memoized
+    const productPromise = findAllProductsSSA().then(res => res, err => null);
+    const [ownOrders, formProducts] : [any[],FormData | null] = await Promise.all(
+        [promise,productPromise]  //Products are memoized
     );
 
     const products : any[] = formToProduct(formProducts);

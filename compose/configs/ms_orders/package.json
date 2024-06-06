@@ -1,16 +1,15 @@
 {
-  "name": "frontend",
+  "name": "ms_pedidos",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 443",
+    "dev": "next dev -p 8050",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
-    "@nextui-org/react": "^2.2.10",
-    "framer-motion": "^11.0.14",
+    "@prisma/client": "^5.8.1",
     "next": "14.1.0",
     "react": "^18",
     "react-dom": "^18"
@@ -23,6 +22,7 @@
     "eslint": "^8",
     "eslint-config-next": "14.1.0",
     "postcss": "^8",
+    "prisma": "^5.8.1",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"
   }

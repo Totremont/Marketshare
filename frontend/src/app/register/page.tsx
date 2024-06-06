@@ -8,6 +8,7 @@ import { useFormState, useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
 import {SubmitButton} from "@/components/buttons";
 import { ViewVisibility } from "@/private/utils/properties";
+import { getRegisterFieldsSSA } from "@/private/actions/register";
 
 //Pestaña para registrarse
 
@@ -189,75 +190,26 @@ export default function SignIn()
 }
 
 
-function getFromMsUsuarios(endpoint : string)
-{
-    return fetch(`${process.env.NEXT_PUBLIC_ms_usuarios_host}/${endpoint}`,
-      { method : 'GET',
-        mode : 'cors',
-        headers: 
-        {
-          "Authorization":    `Basic ${process.env.NEXT_PUBLIC_clients_key}`,
-          //"Content-Type":     "application/x-www-form-urlencoded",
-          "Accept":           "application/json",
-        },
-      }
-    );
-}
-
 //Datos de paises, organizaciones y bancos
-function requestFormData(orgCallback : any, bankCallback : any, countryCallback : any, setShowSnack : any, ref : any)
+async function requestFormData(orgCallback : any, bankCallback : any, countryCallback : any, setShowSnack : any, ref : any)
 {
-    let callback = () => {setShowSnack(false); requestFormData(orgCallback,bankCallback,countryCallback,setShowSnack,ref);}
+    let retry = () => {setShowSnack(false); requestFormData(orgCallback,bankCallback,countryCallback,setShowSnack,ref);}
 
-    Promise.all(
-    [
-        getFromMsUsuarios('api/countries'), 
-        getFromMsUsuarios('api/banks'),
-        getFromMsUsuarios('api/organizations')
-    ]).then(
-        (values : Response[]) => 
-        {
-            if(values.every(res => res.ok))
-            {
-                values.forEach(async (it,index) => 
-                {
-                    let body = await it.json();
-                    switch(index)
-                    {
-                        case 0:
-                            countryCallback
-                            (
-                                [{value:"unknown",text:"Seleccioná un país"}].concat
-                                (
-                                    body.map((obj : any) => {return {value : obj.name, text : obj.name}})
-                                )
-                            );
-                            break;
-                        case 1:
-                            bankCallback
-                            (
-                                [{value:"unknown",text:"Seleccioná un banco"}].concat
-                                (
-                                    body.map((obj : any) => {return {value : obj.name, text : obj.name}})
-                                )
-                            );
-                            break;
-                        case 2:
-                            orgCallback
-                            (
-                                [{value:"unknown",text:"Seleccioná una empresa"}].concat
-                                (
-                                    body.map((obj : any) => {return {value : obj.name, text : obj.name}})
-                                )
-                            );
-                            setShowSnack(false);
-                            break;
-                    }
-                })
-            } else showErrorGettingExternalData(setShowSnack,ref,callback);
-        },
-        (err) => showErrorGettingExternalData(setShowSnack,ref,callback))
-    .catch(err => showErrorGettingExternalData(setShowSnack,ref,callback))
+    const response = await getRegisterFieldsSSA();
+
+    if(response.ok)
+    {
+        const countries = [{value:"unknown",text:"Seleccioná un país"}]
+        .concat(response.countries.map((it : any)=> { return { value: it.name,text: it.name} } ));
+        const banks = [{value:"unknown",text:"Seleccioná un banco"}]
+        .concat(response.banks.map((it : any)=> { return { value: it.name,text: it.name} } ));
+        const orgs = [{value:"unknown",text:"Seleccioná una organización"}]
+        .concat(response.orgs.map((it : any)=> { return { value: it.name,text: it.name} } ));
+        countryCallback(countries);
+        bankCallback(banks);
+        orgCallback(orgs);
+    }
+    else showErrorGettingExternalData(setShowSnack,ref,retry);
 }
 
 function handleFormResult(router : any, state : {title : string} | undefined, setShowSnack : any, ref : any,setUserTaken : any)
@@ -274,6 +226,8 @@ function handleFormResult(router : any, state : {title : string} | undefined, se
         case 'USER_CREATION_ERROR':
             showUsercreatedNoToken(setShowSnack,ref);    //Se creó el user pero fallo en obtener el token 
             setTimeout(() => router.push('/'), SnackBarType.NORMAL_TIME);
+            break;
+        case '':
             break;
         default:
             showServerError(setShowSnack,ref);

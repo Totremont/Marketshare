@@ -1,0 +1,6 @@
+INSERT INTO empresa (name)
+VALUES ('Microsoft'),
+       ('IBM'),
+       ('Nvidia'),
+       ('Apple'),
+       ('Toyota')

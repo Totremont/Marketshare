@@ -51,6 +51,8 @@ export default function ProfileInfo(props :
         ordersCompleted.current.sort((a,b) => b.order.price - a.order.price)    //Si a es más caro, va primero
         const mostExpensive = ordersCompleted.current[0];
 
+        if(!mostExpensive) return null;
+
         return {
             product : mostExpensive.product,
             order : mostExpensive.order,
@@ -78,7 +80,9 @@ export default function ProfileInfo(props :
         );
         data.sort((a,b) => b.units - a.units);
 
-        return data[0]; //{product, units}
+        if(!data[0]) return null;
+
+        return data[0]; //{product, units} or null
     }
 
     function setValoration()
@@ -191,7 +195,7 @@ export default function ProfileInfo(props :
                 </p>
                 <div className="my-1">
                     {
-                        userOrderSpecial.current ? 
+                        userOrderSpecial?.current ? 
                             (props.role === ROLE_COMPRADOR) ? 
                             <div>
                                     <p>Unidades compradas: 

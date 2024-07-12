@@ -5,7 +5,6 @@
 package com.github.totremont.msusuario.controller;
 
 import com.github.totremont.msusuario.controller.dtos.EmpresaDTO;
-import com.github.totremont.msusuario.controller.dtos.UsuarioDTO;
 import com.github.totremont.msusuario.service.EmpresaService;
 import java.util.List;
 import org.springframework.http.HttpHeaders;

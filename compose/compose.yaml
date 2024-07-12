@@ -49,7 +49,7 @@ services:
             - node_modules/
 
   ms.users:
-    image: ms_users:v2
+    image: ms_users:v6
     build:
       context: ../ms_usuarios
     expose:
@@ -60,7 +60,7 @@ services:
   
   #Requires outside network to pull data from AtlasDB
   ms.orders:
-    image: ms_orders:v2
+    image: ms_orders:v7   # 19/06 updated
     build:
       context: ../ms_pedidos
     ports:
@@ -72,11 +72,42 @@ services:
           target: /usr/src/app
           ignore:
             - node_modules/
+  
+  #Message broker
+  rabbitmq:
+    image: rabbitmq:3
+    hostname: broker-dan
+    environment:
+      RABBITMQ_DEFAULT_USER: dan
+      RABBITMQ_DEFAULT_PASS: dan_compose
+    expose:
+      - 5672
+    healthcheck:
+      test: rabbitmqctl list_queues
+      interval: 5s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+  
+  ms.emails:
+    image: ms_emails:v5
+    build:
+      context: ../ms_emails
+    develop:
+      watch:
+        - action: sync
+          path: ../ms_emails
+          target: /usr/src/app
+          ignore:
+            - node_modules/
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
 
   ##### Databases
   db.products:
     image: postgres
-    restart: always
     user: postgres
     secrets:
       - db-password
@@ -97,7 +128,6 @@ services:
 
   db.users:
     image: mysql
-    restart: always
     secrets:
       - db-password
     expose:

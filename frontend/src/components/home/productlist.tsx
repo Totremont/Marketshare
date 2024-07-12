@@ -8,21 +8,18 @@ import { UserTypes } from "@/private/utils/properties";
 
 export default async function ProductList()
 {
-  let [users, formProducts] : [any[],FormData] = [[],new FormData()];
-  let error = false;
 
-  await Promise.all([findAllUsersByRoleSSA(UserTypes.VENDEDOR),findAllProductsSSA()])
-  .then(
-      res => [users, formProducts] = res,
-      err => error = true
-  )
-  if(error) return <EmptyComponent missingElement='productos'/>
+  //Promises
+  const productsFetch = findAllProductsSSA();
+  const usersFetch = findAllUsersByRoleSSA(UserTypes.VENDEDOR);
 
+  const [users, formProducts] = await Promise.all([usersFetch,productsFetch]);
+
+  if(!formProducts) return <EmptyComponent missingElement='productos'/>
 
   const products = formToProduct(formProducts);
   
-  if(products.length == 0) return <EmptyComponent missingElement={'productos'}/>
-
+  //if(products.length == 0) return <EmptyComponent missingElement={'productos'}/>
   const promises = products.map(async it => 
     {
       const images = await saveFiles(it.images);

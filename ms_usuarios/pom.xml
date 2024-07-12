@@ -19,6 +19,12 @@
 	</properties>
         
 	<dependencies>
+
+            <!--RabbitMQ-->
+            <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-amqp</artifactId>
+            </dependency>
             
             <!--Security para encodear passwords-->
             <dependency>
@@ -65,11 +71,13 @@
 		</dependency>
                 
                 <!-- JUnit y pruebas unitarias -->
+                <!--
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+                                -->
 	</dependencies>
 
 	<build>

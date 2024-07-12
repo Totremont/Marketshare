@@ -1,0 +1,6 @@
+INSERT INTO banco (name)
+VALUES ('Santander'),
+       ('BBVA'),
+       ('Nacion'),
+       ('Patagonia'),
+       ('Credicoop')

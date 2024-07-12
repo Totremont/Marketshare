@@ -23,6 +23,7 @@ export default class ProductoService
         return this.repo.$transaction(async () => 
         {
             let clientRequest = await requestUser(product.ownerId, authToken);
+            console.log("Owner id: " + product.ownerId);
             if(!clientRequest.ok) throw new Error('No user found with the provided id');
             //let client = clientRequest.status === RequestStatus.OK ? await clientRequest.json() : null;
             //if(client.hasOwnProperty("type") && client.type === "ROLE_VENDEDOR")

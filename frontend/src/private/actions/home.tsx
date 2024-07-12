@@ -20,11 +20,9 @@ export async function findUserByUsernameSSA(username : string)
     )
     .then
     (
-    res => {if(res.ok) return res.json(); else throw new Error(`Request for user by username resolved to ${res.status}`)  },
-    err => {throw err}
-    )
-
-    
+        res => {if(res.ok) return res.json(); else throw new Error(`Request for user by username resolved to ${res.status}`)  },
+        err => {throw err}
+    ) 
 }
 
 //Si soy un vendedor, me interesa obtener los compradores y viceversa
@@ -72,7 +70,12 @@ export async function findAllProductsSSA(sendImages : boolean = true)
     )
     .then
     (
-        res => {if(res.ok) return res.formData(); else throw new Error(`Request for products resolved to ${res.status}`)  },
+        res => 
+        {
+            if(res.ok) return res.formData(); 
+            else if(res.status === RequestStatus.NOT_FOUND) return null;
+            else throw new Error(`Request for products resolved to ${res.status}`)  
+        },
         err => {throw err}
     )
 

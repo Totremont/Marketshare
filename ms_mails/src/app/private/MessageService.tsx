@@ -16,7 +16,7 @@ const transporter = nodemailer.createTransport(
         from: `marketshare <${process.env.NODEMAILER_AC}>`
     });
 
-export async function sendGreetings(args : {receiver : string, userName : string, userType : string})
+export async function sendGreetings(args : {receiver : string, name : string, accountType : string})
 {
   let message = 
   {
@@ -25,8 +25,8 @@ export async function sendGreetings(args : {receiver : string, userName : string
     text : `
     Eres un nuevo miembro de nuestra comunidad ❤️
 
-    Bienvenido ${args.userName},
-    ¡Gracias por crear tu cuenta de ${args.userType.toLowerCase()}!
+    Bienvenido ${args.name},
+    ¡Gracias por crear tu cuenta de ${args.accountType.toLowerCase()}!
     Ahora formás parte de la red de ventas B2B más grande del mundo.
     Da el siguiente paso y empezá a descubrir la lista de productos y empresas que te están esperando.
     
@@ -37,7 +37,7 @@ export async function sendGreetings(args : {receiver : string, userName : string
     <div style="background: #111827; color: #F0FFFF; padding: 1.5rem; width: fit-content; height: fit-content;">
       <h1 style="">Eres un nuevo miembro de nuestra comunidad ❤️</h1>
       <p style="line-height: 1.5rem">
-        Bienvenido <span style="font-weight: 600">${args.userName}</span>,<br />¡Gracias por crear tu cuenta de ${args.userType}!<br />
+        Bienvenido <span style="font-weight: 600">${args.name}</span>,<br />¡Gracias por crear tu cuenta de ${args.accountType}!<br />
         Ahora formás parte de la red de ventas B2B más grande del mundo.<br />
         Da el siguiente paso y empezá a descubrir la lista de productos y empresas que te están esperando.
       </p>
@@ -51,8 +51,12 @@ export async function sendGreetings(args : {receiver : string, userName : string
 }
 
 export async function sendOrderCreated(
-  args : {receiver : string, userName : string
-    details : {data : string, value : string}[], linkCancel : string})
+  args : 
+  {
+    receiver : string, name : string
+    details : {data : string, value : string}[], 
+    cancelLink : string
+  })
 {
   let rawDetails : string = ""
   let styleDetails : string = ""
@@ -69,13 +73,13 @@ export async function sendOrderCreated(
     to : args.receiver,
     subject : "Tu pedido está en camino 🚚",
     text : `
-    Hola ${args.userName},
+    Hola ${args.name},
     Hemos confirmado tu última compra con los siguientes detalles:
     
     ${rawDetails}
     Te volveremos a informar de este pedido cuando se encuentre listo para llegar a tu organización.
 
-    Para cancelar la transacción debes ir al siguiente vínculo: ${args.linkCancel}.
+    Para cancelar la transacción debes ir al siguiente vínculo: ${args.cancelLink}.
 
     Sinceramente, el equipo de marketshare
 
@@ -84,12 +88,12 @@ export async function sendOrderCreated(
     <div style="background: #111827; color: #F0FFFF; padding: 1.5rem; width: fit-content; height: fit-content;">
       <h1 style="">Tu pedido está en camino 🚚</h1>
       <p style="line-height: 1.5rem">
-        Hola <span style="font-weight: 600">${args.userName}</span>,<br />Hemos confirmado tu última compra con los siguientes detalles:<br /><br />
+        Hola <span style="font-weight: 600">${args.name}</span>,<br />Hemos confirmado tu última compra con los siguientes detalles:<br /><br />
         ${styleDetails}<br />
         Te volveremos a informar de este pedido cuando se encuentre listo para llegar a tu organización.
       </p>
       <p style="font-size: 0.75rem;  border-top: solid; padding-top: 1rem; border-color:#696969">Para cancelar la transacción hacé clic en el siguiente botón.</p>
-      <form action="${args.linkCancel}">
+      <form action="${args.cancelLink}">
         <input type="submit" value="Cancelar pedido" style="padding : 1rem; background: #2F4F4F; color: #DCDCDC; display:block;  margin-top: 2rem; margin-bottom: 2rem;" />
       </form>
       <span style="color: #FF8C00; font-weight: 600; background: #111827;">Sinceramente, el equipo de <span>marketshare</span></span>
@@ -103,8 +107,8 @@ export async function sendOrderCreated(
 }
 
 export async function sendOrderDelivered(
-  args : {receiver : string, userName : string
-    details : {data : string, value : string}[], linkReview : string})
+  args : {receiver : string, name : string
+    details : {data : string, value : string}[], reviewLink : string})
 {
   let rawDetails : string = ""
   let styleDetails : string = ""
@@ -121,14 +125,14 @@ export async function sendOrderDelivered(
     to : args.receiver,
     subject : "¡Tu pedido ya llegó a su destino! 💫",
     text : `
-    Hola ${args.userName},
+    Hola ${args.name},
     Nos satisface anunciarte que tu pedido ha arribado a su destino.
     Te recordamos los detalles:
     
     ${rawDetails}
     ¡Gracias por confiar en marketshare!
 
-    Si querés ayudar a otras personas a decidirse, podés dar tu opinión yendo al siguiente vínculo: ${args.linkReview}
+    Si querés ayudar a otras personas a decidirse, podés dar tu opinión yendo al siguiente vínculo: ${args.reviewLink}
 
     Sinceramente, el equipo de marketshare
 
@@ -137,12 +141,12 @@ export async function sendOrderDelivered(
     <div style="background: #111827; color: #F0FFFF; padding: 1.5rem; width: fit-content; height: fit-content;">
     <h1 style="">¡Tu pedido ya llegó a su destino! 💫</h1>
     <p style="line-height: 1.5rem">
-      Hola <span style="font-weight: 600">${args.userName}</span>,<br />Nos satisface anunciarte que tu pedido ha arribado a su destino.<br />Te recordamos los detalles:<br /><br />
+      Hola <span style="font-weight: 600">${args.name}</span>,<br />Nos satisface anunciarte que tu pedido ha arribado a su destino.<br />Te recordamos los detalles:<br /><br />
       ${styleDetails}<br />
       ¡Gracias por confiar en marketshare!
     </p>
     <p style="font-size: 0.75rem;  border-top: solid; padding-top: 1rem; border-color:#696969">Si querés ayudar a otras personas a decidirse, podés dar tu opinión haciendo clic en el siguiente botón.</p>
-    <form action="${args.linkReview}">
+    <form action="${args.reviewLink}">
       <input type="submit" value="Reseñar producto" style="padding : 1rem; background: #2F4F4F; color: #DCDCDC; display:block;  margin-top: 2rem; margin-bottom: 2rem;" />
     </form> 
     <span style="color: #FF8C00; font-weight: 600; background: #111827;">Sinceramente, el equipo de <span>marketshare</span></span>
@@ -155,8 +159,8 @@ export async function sendOrderDelivered(
   return transporter.sendMail(message);
 }
 
-export async function sendOrderCanceled(
-  args : {receiver : string, userName : string
+export async function sendOrderCancelled(
+  args : {receiver : string, name : string
     details : {data : string, value : string}[]})
 {
   let rawDetails : string = ""
@@ -174,7 +178,7 @@ export async function sendOrderCanceled(
     to : args.receiver,
     subject : "Tu pedido ha sido cancelado ⚠️",
     text : `
-    Hola ${args.userName},
+    Hola ${args.name},
     Hemos recibido una alerta desde tu cuenta para anular el pedido con los siguientes detalles:
 
     ${rawDetails}
@@ -188,7 +192,7 @@ export async function sendOrderCanceled(
     <div style="background: #111827; color: #F0FFFF; padding: 1.5rem; width: fit-content; height: fit-content;">
       <h1 style="">Tu pedido ha sido cancelado ⚠️</h1>
       <p style="line-height: 1.5rem">
-        Hola <span style="font-weight: 600">${args.userName}</span>,<br />Hemos recibido una alerta desde tu cuenta para anular el pedido con los siguientes detalles:<br /><br />
+        Hola <span style="font-weight: 600">${args.name}</span>,<br />Hemos recibido una alerta desde tu cuenta para anular el pedido con los siguientes detalles:<br /><br />
         ${styleDetails}<br />
         Queremos informarte de que tu dinero ha sido restituído y el producto devuelto a su origen.<br /> Lamentamos los inconvenientes causados.
       </p>

@@ -80,7 +80,7 @@ export default async function Home()
       <header className="border-slate-600">
         <section className="flex">
           <h1 className="text-lg font-semibold">Productos</h1>
-          <Link href='/products/create'>
+          <Link href='/product/create'>
             <button className={`mx-2 py-1 px-2 ${BackgroundColors.SIENNA_BROWN} rounded-lg text-sm font-semibold`}>Nuevo producto</button>
           </Link>
         </section>

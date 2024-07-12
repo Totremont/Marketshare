@@ -37,7 +37,7 @@ export default class ProductoMapper
             const product =  
             {
                 id : formData.get('id') ? Number(formData.get('id')) : -1,
-                ownerId : 13,//Number(formData.get('owner_id')),
+                ownerId : Number(formData.get('owner_id')),
                 name : formData.get('name'),
                 description : formData.get('description'),
                 category : {name : formData.get('category') },

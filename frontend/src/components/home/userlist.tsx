@@ -3,24 +3,22 @@ import { findAllOrdersByRoleSSA, findAllOrdersSSA, findAllProductsSSA, findAllUs
 import { formToProduct, getOrderStatus, toCategory } from "@/private/utils/mappers";
 import { headers } from "next/headers";
 import UserCard from "./clientside/usercard";
-import { M_PLUS_1 } from "next/font/google";
+import EmptyComponent from "./empty";
 
 export default async function UserList()
 {
     const username = headers().get(USERNAME_HEADER)!;
     const userRole = headers().get(USER_ROLE_HEADER)!;
     const ownUser : any = await findUserByUsernameSSA(username); 
-    const promise = userRole === ROLE_COMPRADOR ? findAllOrdersByRoleSSA(userRole,ownUser.id) : Promise.resolve([]);
-    const productPromise = findAllProductsSSA().then(res => res, err => null);
-    const [ownOrders, formProducts] : [any[],FormData | null] = await Promise.all(
-        [promise,productPromise]  //Products are memoized
-    );
-
-    const products : any[] = formToProduct(formProducts);
 
     if(userRole === ROLE_COMPRADOR)  //Obtener sobre vendedores y sus productos
     {
         const [users, orders] : any[][] = await Promise.all([findAllUsersByRoleSSA(ROLE_VENDEDOR), findAllOrdersSSA()]);
+        if(!users) return <EmptyComponent missingElement='vendedores'/>
+
+        const formProducts = await findAllProductsSSA();
+        const products = formToProduct(formProducts);
+
         const views = users.map(user => 
             {
                 const completedOrders = orders.filter(it => it.seller_id === user.id && getOrderStatus(it).status === 'ENTREGADO');
@@ -28,7 +26,8 @@ export default async function UserList()
                 //Encontrar categorias más frecuentes --
                 const categories = findMainCategories(userProducts);
                 //He comprado sus productos?
-                const amIClient = ownOrders.findIndex(it => it.seller_id === user.id) > -1;
+                const amIClient = orders.findIndex(it => it.seller_id == user.id && it.client_id == ownUser.id) > -1;
+                //const amIClient = ownOrders.findIndex(it => it.seller_id === user.id) > -1;
                 return <UserCard ordersCompleted={completedOrders.length} categories={categories} user={user} role={user.type} amIClient={amIClient} isClient={false}/>
             }
         )
@@ -38,6 +37,11 @@ export default async function UserList()
     else //Obtener sobre compradores y ordenes
     {
         const [users, orders] : any[][] = await Promise.all([findAllUsersByRoleSSA(ROLE_COMPRADOR), findAllOrdersSSA()]);
+        if(users.length == 0) return <EmptyComponent missingElement='compradores'/>
+
+        const formProducts = await findAllProductsSSA();
+        const products = formToProduct(formProducts);
+
         const views = users.map(user => 
             {   
                 const userOrders = orders.filter(it => it.client_id === user.id );

@@ -5,7 +5,7 @@ import ImagePreview from "@/components/product/create/imagepreview"
 import { SnackBarType,SnackBar, SnackBarProps, SnackBarOption } from "@/components/snackbar";
 import CheckBoxes, { CheckBoxData } from "@/components/checkboxes";
 import FeatureRow from "@/components/product/create/featurerow";
-import { createProductSSA } from "@/private/actions/product";
+import { createProductSSA, findProductByIdSSA } from "@/private/actions/product";
 import { useFormState } from "react-dom";
 import { SubmitButtonWithState } from "@/components/buttons";
 import { useRouter} from "next/navigation";
@@ -13,9 +13,14 @@ import { formToProduct } from "@/private/utils/mappers";
 
 //Pestaña principal
 
-export default function CreateProduct(props : {isUpdating : boolean, productId : string | undefined, token : string}) 
+export default function CreateProduct(props : 
 {
-
+    isUpdating : boolean, 
+    modifyProduct?: any,    //Product that will be modified, passed by server component
+    userId : number,
+    token : string
+}) 
+{
     const [stateProduct,setStateProduct] = useState(["nuevo"]);                         
     const [images,setImages] = useState<{file : File, url : string}[]>([]);
     const [colors,setColors] = useState(["rojo"]); 
@@ -31,17 +36,12 @@ export default function CreateProduct(props : {isUpdating : boolean, productId :
     const [pending, setPending] = useState(false);
     const router = useRouter();
 
-    const initialState = {title : props.isUpdating ? 'UPDATING' : ''};
+    const initialState = {title : props.isUpdating ? 'UPDATING' : '', id : -1};
 
     const [state, formAction] = useFormState(createProductSSA, initialState);
 
-    let onBackHome = () => 
-    {
-        router.replace('/home');
-    };
-
-    //Load product to be updated if any
-    const uProduct = useRef<any[]>([]);
+    //Load product to be updated, if any
+    //const props.modifyProduct = useRef<any[]>([]);
     const id = useRef(-1);
     const [name,setName] = useState('');
     const [desc,setDesc] = useState('');
@@ -54,29 +54,70 @@ export default function CreateProduct(props : {isUpdating : boolean, productId :
     {
         if(props.isUpdating)
         {
-            findProductByIdClient(props.productId!,props.token).then
+            if(!props.modifyProduct) showFetchToUpdateFailed(setShowSnack,snackProps);
+            else fillInputs();
+            /*
+            findProductByIdSSA(props.productId!).then
             (
                 res => 
                 {
-                    uProduct.current = formToProduct(res);
-                    fillInputs();
-                    showFetchToUpdateSuccess(setShowSnack,snackProps);
-                },
-                err => showFetchToUpdateFailed(setShowSnack,snackProps)
+                    if(res.success)
+                    {
+                        props.modifyProduct.current = formToProduct(res.form!);
+                        fillInputs();
+                        showFetchToUpdateSuccess(setShowSnack,snackProps);
+                    }
+                    else showFetchToUpdateFailed(setShowSnack,snackProps)
+                }
             )
+            */
         }
     }
     
     function fillInputs()
     {
-        if(!uProduct.current[0]) return;
-        id.current = uProduct.current[0].id;
-        setName(uProduct.current[0].name);
-        setDesc(uProduct.current[0].description);
-        setCategory(uProduct.current[0].category.name);
-        setStateProduct([uProduct.current[0].state.toLowerCase()]);
+        id.current = props.modifyProduct.id;
+        setName(props.modifyProduct.name);
+        setDesc(props.modifyProduct.description);
+        setCategory(props.modifyProduct.category.name);
+        setStateProduct([props.modifyProduct.state.toLowerCase()]);
 
-        previousImages.current = uProduct.current[0].images;
+        //previousImages.current = props.modifyProduct.images;
+        //Fetch images from server
+        fetch(`${process.env.NEXT_PUBLIC_ms_frontend_host}/api/images`,
+            { 
+                method : 'POST',
+                mode : 'cors',
+                headers: 
+                {
+                    "Authorization":    `Bearer ${props.token}`,
+                    //"Content-Type":     "application/x-www-form-urlencoded",
+                    "Accept":           "multipart/form-data",
+                },
+                body : JSON.stringify({paths : props.modifyProduct.images})
+            }
+        ).then(async res => 
+        {
+            if(res.ok)
+            {
+                const form = await res.formData();
+                previousImages.current = form.getAll('files') as File[];
+                const dataTransfer = new DataTransfer();
+                let imagesData : {file : File, url: string}[] = [];
+                previousImages.current.map
+                (
+                    (it : File) => 
+                    { 
+                        dataTransfer.items.add(it); 
+                        imagesData = imagesData.concat({file : it, url: URL.createObjectURL(it)});
+                    }
+                )
+                fileInput.current!.files = dataTransfer.files;
+                setImages(imagesData);
+
+            }
+        })
+        /*
         const dataTransfer = new DataTransfer();
         let imagesData : {file : File, url: string}[] = [];
         previousImages.current.map
@@ -89,12 +130,13 @@ export default function CreateProduct(props : {isUpdating : boolean, productId :
         )
         fileInput.current!.files = dataTransfer.files;
         setImages(imagesData);
-        setColors(uProduct.current[0].colors);
-        setPrice(uProduct.current[0].price);
-        setStock(uProduct.current[0].stock);
-        setFeaturesText(uProduct.current[0].featuresText);
-        setAddedRows(uProduct.current[0].featuresRows);
-        setSpecialFeatures(uProduct.current[0].specialFeatures);
+        */
+        setColors(props.modifyProduct.colors);
+        setPrice(props.modifyProduct.price);
+        setStock(props.modifyProduct.stock);
+        setFeaturesText(props.modifyProduct.featuresText);
+        setAddedRows(props.modifyProduct.featuresRows);
+        setSpecialFeatures(props.modifyProduct.specialFeatures);
     }
     useEffect(handleUpdate,[]);
     
@@ -229,13 +271,12 @@ export default function CreateProduct(props : {isUpdating : boolean, productId :
         else form!.requestSubmit();
         
     }
-
     useEffect(() => 
     {
         if(state.title)
         {
             setPending(false);
-            if(state.title === 'SUCCESS') showProductAdded(setShowSnack,snackProps,props.isUpdating,onProductPage,onBackHome)
+            if(state.title === 'SUCCESS') showProductAdded(setShowSnack,snackProps,props.isUpdating,state.id, router)
             else if(state.title != 'UPDATING') showServerError(setShowSnack,snackProps);
             state.title = props.isUpdating ? 'UPDATING' : '';
         } 
@@ -329,6 +370,7 @@ export default function CreateProduct(props : {isUpdating : boolean, productId :
         <input type="hidden" name="features_rows" value={JSON.stringify(addedRows)} />
         <input type="hidden" name="special_features" value={JSON.stringify(specialFeatures)} />
         <input type="hidden" name="id" value={id.current} />
+        <input type="hidden" name="owner_id" value={props.userId} />
     </form>
     {showSnack ? <SnackBar title={snackProps.current!.title} key={"notification"}
     body={snackProps.current!.body} type={snackProps.current!.type} options={snackProps.current!.options}/> : null}
@@ -353,14 +395,20 @@ function showMissingData(setShowSnack : any, ref : any, time : number = SnackBar
 }
 
 
-function showProductAdded(setShowSnack : any, ref : any, wasUpdate : boolean, 
-    onProductPage : any, onBackHome : any, time : number = SnackBarType.LONG_TIME )
+function showProductAdded(setShowSnack : any, ref : any, wasUpdate : boolean, productId : number, 
+    router : any, time : number = SnackBarType.LONG_TIME )
 {
-    const backHome = new SnackBarOption("Volver a inicio", onBackHome);
+    
+    const onProductPage = () => {router.push(`/product/${productId}`)};
+    const onBackHome = () => {router.replace(`/home`)};
+
+    const backOption = new SnackBarOption("Volver a inicio", onBackHome);
+    const pageOption = new SnackBarOption("Ver producto", onProductPage);
+
 
     ref.current = new SnackBarProps(SnackBarType.SUCCESSFUL,
         wasUpdate ? 'Producto modificado' : 'Producto agregado',
-    'El producto ha sido añadido correctamente!',[backHome]);
+    'El producto ha sido añadido correctamente!',[pageOption, backOption]);
 
     setShowSnack(true);
     setTimeout(() => setShowSnack(false),time)
@@ -411,6 +459,7 @@ function showFetchToUpdateSuccess(setShowSnack : any, ref : any, time : number =
     setTimeout(() => setShowSnack(false),time)
 }
 
+/*
 async function findProductByIdClient(id : string, token : string, sendImages = true)
 {
     return fetch(`${process.env.NEXT_PUBLIC_ms_productos_host}/api/products/${id}?send_images=${sendImages}`,
@@ -432,4 +481,5 @@ async function findProductByIdClient(id : string, token : string, sendImages = t
     )
 
 }
+    */
 

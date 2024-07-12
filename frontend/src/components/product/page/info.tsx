@@ -107,7 +107,7 @@ export default function ProductInfo(props : {
                 {
                     case OrderStatus.RECIBIDO:
                     {
-                        showSuccessful(setShowSnack,snackProps);
+                        showSuccessful(setShowSnack,snackProps,router);
                         setIsBuying(false);
                         break;
                     }

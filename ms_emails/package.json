@@ -1,0 +1,22 @@
+{
+  "type": "module",
+  "name": "ms_emails",
+  "version": "1.0.0",
+  "description": "microservice that sends emails to marketshare users",
+  "main": "index.tsx",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ezequiel M Izaguirre",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^20.14.5",
+    "amqplib": "^0.10.4",
+    "dotenv": "^16.4.5",
+    "nodemailer": "^6.9.13",
+    "typescript": "^5.4.5"
+  },
+  "devDependencies": {
+    "tsx": "^4.15.6"
+  }
+}

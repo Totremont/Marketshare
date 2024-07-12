@@ -105,9 +105,11 @@ export async function cancelOrderSSA(orderId : number)
     )
     .then
     (
-        res => {
+        res => 
+        {
             if(res.ok) return res.json() 
-            else throw new Error(`Request to cancel order resolved to ${res.status}`)  },
+            else throw new Error(`Request to cancel order resolved to ${res.status}`)  
+        },
         err => {throw err}
     )
 }

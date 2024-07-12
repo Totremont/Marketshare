@@ -19,16 +19,14 @@ export default async function ProductPage({ params }: { params: { id: string } }
     let product : any;
     let username = headers().get(USERNAME_HEADER);
     const user = await findUserByUsernameSSA(username!);
-    const externalData = findProductByIdSSA(params.id)
-    .then((res) => 
+    const productResponse = await findProductByIdSSA(params.id);
+    let [orders, seller] : any[][] = [[],[]];
+    if(productResponse.success)
     {
-        product = formToProduct(res)[0];    //Should be one or cancel the promise if empty
+        product = formToProduct(productResponse.form!)[0];    //Should be one or cancel the promise if empty
         const sellerId = product.owner_id;
-        return Promise.all([findOrdersFromSellerSSA(sellerId),findUserByIdSSA(sellerId)]);
-    },
-    (err) => {throw err});
-
-    const [orders,seller] : any[][] = await externalData;
+        [orders,seller] = await Promise.all([findOrdersFromSellerSSA(sellerId),findUserByIdSSA(sellerId)]);
+    }
     const images = await saveFiles(product.images);
 
     const category = toCategory(product.category.name);

@@ -4,7 +4,7 @@ import { BackgroundColors, Categories, ContrastTextColors, FillColors, OrderStat
 export function formToProduct(formData : FormData | null)
 {
     if(!formData) return [];
-
+    
     let products: any[] = [];
 
     const elements = Number(formData.get('elements'));

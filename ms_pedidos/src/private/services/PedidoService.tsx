@@ -1,6 +1,8 @@
 import {PrismaClient, PedidoStatusHistory, Pedido } from "@prisma/client";
 import PedidoStatus from "../PedidoStatus";
 import { rejectedStatus, toStatus } from "../mappers/StatusMapper";
+import { sendOrderCancelled, sendOrderCreated, sendOrderDelivered } from "./EmailService";
+import { getNamedRole } from "../mappers/utils";
 
 const repo = new PrismaClient()
 
@@ -16,6 +18,7 @@ export async function savePedido(authToken : string, order : {clientId : number,
         requestProduct(order.productId,authToken).then(res => res.formData()),
         requestUser(order.clientId,authToken).then(res => res.json())
     ]);
+
     //La operacion debe ser transacional para garantizar que todo se haga atómicamente (o no se haga nada)
     const operation = repo.$transaction(async (prisma) => 
     {
@@ -72,11 +75,17 @@ export async function savePedido(authToken : string, order : {clientId : number,
     (      //If order could be created, artificially progress the order
         res => 
         {
+            const bundle = {user : {email : client.email, name : client.name}, productName : productForm.get('name')!.toString()};
+
+            sendOrderCreated(bundle.user,res,bundle.productName);
+
             setTimeout(() => 
             {
-                progressPedido(res.id,PedidoStatus.EN_DISTRIBUCION);
-                setTimeout(() => progressPedido(res.id,PedidoStatus.ENTREGADO),randomTime())
-            },randomTime()); 
+                //const emailArgs = {clientEmail : client.email, clientName : client.name, productName : productForm.get('name')};
+                progressPedido(res.id,PedidoStatus.EN_DISTRIBUCION, bundle);
+                setTimeout(() => progressPedido(res.id,PedidoStatus.ENTREGADO, bundle),randomTime())
+            },
+            randomTime()); 
 
             return res;
         }
@@ -92,7 +101,8 @@ export async function cancelPedido(authToken : string, orderId : string)
 {
     let order : Pedido;
     const [productForm, client] = await repo.pedido.findUniqueOrThrow({where:{id : orderId}})
-    .then(
+    .then
+    (
         res =>  
         {
             order = res;
@@ -101,17 +111,20 @@ export async function cancelPedido(authToken : string, orderId : string)
                 requestProduct(res.product_id,authToken).then(res => res.formData()),
                 requestUser(res.client_id,authToken).then(res => res.json())
             ]);
-        }
+        },
+        err => {throw new Error(`Order with id ${orderId} not found`);}
     );
-    return repo.$transaction(async (prisma) => 
+
+    await repo.$transaction(async (prisma) => 
     {
         let statusHistory = order.status_history;
         let currentStatus = toStatus(statusHistory[statusHistory.length - 1].status);
 
-        if(rejectedStatus.includes(currentStatus)) throw new Error("The order was already cancel");
+        if(rejectedStatus.includes(currentStatus)) throw new Error(`Order ${orderId} was already cancelled`);
         
         statusHistory = statusHistory.concat({status : PedidoStatus.CANCELADO, date : new Date()});
-        const updated = await prisma.pedido.update(
+
+        order = await prisma.pedido.update(
             {
                 where:{ id : orderId},
                 data:
@@ -140,13 +153,23 @@ export async function cancelPedido(authToken : string, orderId : string)
                 )
             ]
         )
-        return updated;
+        //return updated;
     });
+
+    const bundle = {user : {email : client.email, name : client.name}, productName : productForm.get('name')!.toString()};
+
+    sendOrderCancelled(bundle.user, order!, bundle.productName);
+
+    return order!;
+
 }
+
 //Avanzar el pedido de RECIBIDO a EN DISTRIBUCION y ENTREGADO
-async function progressPedido(orderId : string, newStatus : string)
+async function progressPedido(orderId : string, newStatus : string, 
+    bundle : {user : {email : string, name : string}, productName : string}
+)
 {
-    const order = await repo.pedido.findUniqueOrThrow({where:{id : orderId}});
+    let order = await repo.pedido.findUniqueOrThrow({where:{id : orderId}});
 
     let statusHistory = order.status_history;
     let currentStatus = toStatus(statusHistory[statusHistory.length - 1].status);
@@ -154,14 +177,19 @@ async function progressPedido(orderId : string, newStatus : string)
     if(currentStatus != PedidoStatus.CANCELADO)
     {
         statusHistory = statusHistory.concat({status : newStatus, date : new Date()});
-        await repo.pedido.update(
+        order = await repo.pedido.update(
         {
             where:{ id : orderId},
             data:
             {
                 status_history : statusHistory
             }
-        })
+        });
+
+        if(newStatus === PedidoStatus.ENTREGADO)
+        {    
+            sendOrderDelivered(bundle.user, order, bundle.productName);
+        }
         
     } else console.log("Tried to progress a cancel order");
 }

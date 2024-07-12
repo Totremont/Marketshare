@@ -1,4 +1,4 @@
-import { sendGreetings, sendOrderDelivered, sendOrderCanceled, sendOrderCreated, sendAccountChanged } from "@/app/private/MessageService";
+import { sendGreetings, sendOrderDelivered, sendOrderCancelled, sendOrderCreated, sendAccountChanged } from "@/app/private/MessageService";
 import MessageType, { toMessageType } from "@/app/private/MessageType"
 import RequestStatus from "@/app/private/RequestStatus";
 import validate from "@/app/private/securityaspect";
@@ -34,7 +34,7 @@ export async function PUT(request: Request)
             case MessageType.ORDER_DELIVERED:
                 return sendOrderDelivered(args).then(onResponse,onError);
             case MessageType.ORDER_CANCELLED:
-                return sendOrderCanceled(args).then(onResponse,onError);
+                return sendOrderCancelled(args).then(onResponse,onError);
             case MessageType.ACCOUNT_CHANGED:
                 return sendAccountChanged(args).then(onResponse,onError);
             default: return new Response('', 

@@ -27,3 +27,12 @@ export function toMessageType(type : string) : number
             return -1;
     }
 }
+
+export class Queues
+{
+    static ACCOUNT_NEW = process.env.QUEUE_ACCOUNT_NEW;
+    static ORDER_CREATED = process.env.QUEUE_ORDER_CREATED;
+    static ORDER_CANCELLED = process.env.QUEUE_ORDER_CANCELLED;
+    static ORDER_DELIVERED = process.env.QUEUE_ORDER_DELIVERED;
+    static ACCOUNT_CHANGED = process.env.QUEUE_ACCOUNT_CHANGED;;
+}

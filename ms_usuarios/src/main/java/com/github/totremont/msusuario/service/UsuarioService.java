@@ -29,14 +29,16 @@ public class UsuarioService {
     private final EmpresaService empresaService;
     private final BancoService bancoService;
     private final PaisService paisService;
+    private final EmailService emailService;
     
     private final PasswordEncoder encoder = new BCryptPasswordEncoder();
 
-    public UsuarioService(UsuarioRepository repo, EmpresaService empresaService, BancoService bancoService, PaisService paisService) {
+    public UsuarioService(UsuarioRepository repo, EmpresaService empresaService, BancoService bancoService, PaisService paisService, EmailService emailService) {
         this.repo = repo;
         this.empresaService = empresaService;
         this.bancoService = bancoService;
         this.paisService = paisService;
+        this.emailService = emailService;
     }
 
     public Optional<Usuario> findByUsername(String name)
@@ -86,6 +88,8 @@ public class UsuarioService {
         
         user = repo.save(user);
         
+        emailService.sendAccountCreated(email, name, UsuarioType.COMPRADOR);
+        
         return Optional.ofNullable(user);
         
         
@@ -106,6 +110,8 @@ public class UsuarioService {
         
         UsuarioVendedor user = new UsuarioVendedor(name.toLowerCase(),encoder.encode(password),email,pais,empresa);      
         user = repo.save(user);
+        
+        emailService.sendAccountCreated(email, name, UsuarioType.VENDEDOR);
         
         return Optional.ofNullable(user);
         

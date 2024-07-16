@@ -19,8 +19,7 @@ COPY package-lock.json .
 
 RUN npm ci
 
-# Run the application as a non-root user. NextJS requires superuse to execute
-#USER node
+USER node
 
 # Copy the rest of the source files into the image.
 COPY . .

@@ -12,7 +12,22 @@ RUN mvn dependency:go-offline
 
 COPY ./src ./src
 
+#Creates the JAR 
+RUN mvn clean install
+
+################
+
+FROM eclipse-temurin:17-jre-ubi9-minimal AS runner
+
+WORKDIR /usr/src/ms_users
+
 EXPOSE 8070
 
 #Must be executed after building because it requires a database (depends_on can't be used when building)
-ENTRYPOINT mvn clean install && java -jar /usr/src/ms_users/target/*.jar
+#UPDATE: Deleted test that required database when building
+
+#Copy jar from builder
+
+COPY --from=builder /usr/src/ms_users/target/*.jar /usr/src/ms_users/*.jar
+
+ENTRYPOINT ["java", "-jar", "/usr/src/ms_users/*.jar"]

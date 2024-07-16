@@ -30,5 +30,7 @@ RUN npx prisma generate
 # Expose the port that the application listens on.
 EXPOSE 8060
 
+VOLUME /usr/src/app
+
 # Run the application.
 CMD npm run dev

@@ -9,7 +9,7 @@ services:
 
   ##### Microservices
   ms.frontend:
-    image: ms_frontend:v2
+    image: ms_frontend:latest
     build:
       context: ../frontend
     ports:
@@ -30,7 +30,7 @@ services:
       - 8040
 
   ms.products:
-    image: ms_products:v2
+    image: ms_products:latest
     build:
       context: ../ms_productos
     expose:
@@ -49,7 +49,7 @@ services:
             - node_modules/
 
   ms.users:
-    image: ms_users:v6
+    image: ms_users:latest
     build:
       context: ../ms_usuarios
     expose:
@@ -60,7 +60,7 @@ services:
   
   #Requires outside network to pull data from AtlasDB
   ms.orders:
-    image: ms_orders:v7   # 19/06 updated
+    image: ms_orders:latest   
     build:
       context: ../ms_pedidos
     ports:
@@ -90,7 +90,7 @@ services:
       start_period: 10s
   
   ms.emails:
-    image: ms_emails:v5
+    image: ms_emails:latest
     build:
       context: ../ms_emails
     develop:

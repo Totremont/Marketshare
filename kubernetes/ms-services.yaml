@@ -1,0 +1,64 @@
+# 1 - Frontend 
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: frontend
+  ports:
+    - port: 443
+      # By default and for convenience, the `targetPort` is set to the same value as port
+---
+# 2 - Auth
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-auth
+spec:
+  type: ClusterIP
+  selector:
+    app: backend-auth
+  ports:
+    - port: 8040
+      # By default and for convenience, the `targetPort` is set to the same value as port
+---
+# 3 - Products
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-products
+spec:
+  type: ClusterIP
+  selector:
+    app: backend-products
+  ports:
+    - port: 8060
+      # By default and for convenience, the `targetPort` is set to the same value as port
+---
+# 4 - users
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-users
+spec:
+  type: ClusterIP
+  selector:
+    app: backend-users
+  ports:
+    - port: 8070
+      # By default and for convenience, the `targetPort` is set to the same value as port
+---
+# 5 - orders
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-orders
+spec:
+  type: ClusterIP
+  selector:
+    app: backend-orders
+  ports:
+    - port: 8050
+      # By default and for convenience, the `targetPort` is set to the same value as port

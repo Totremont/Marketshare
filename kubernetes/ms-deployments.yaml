@@ -4,7 +4,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ms.frontend
+  name: ms-frontend
   labels:
     #app: frontend
 spec:
@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: ms_frontend:latest
+        image: harzen/ms_frontend:v1
         ports:
         - containerPort: 443
 ---
@@ -28,22 +28,22 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ms.auth
+  name: ms-auth
   labels:
     #app: frontend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: backend.auth
+      app: backend-auth
   template:
     metadata:
       labels:
-        app: backend.auth
+        app: backend-auth
     spec:
       containers:
       - name: auth
-        image: ms_auth:latest
+        image: harzen/ms_auth:v1
         ports:
         - containerPort: 8040
 ---
@@ -52,22 +52,22 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ms.products
+  name: ms-products
   labels:
     #app: frontend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: backend.products
+      app: backend-products
   template:
     metadata:
       labels:
-        app: backend.products
+        app: backend-products
     spec:
       containers:
       - name:  products
-        image: ms_products:latest
+        image: harzen/ms_products:v1
         ports:
         - containerPort: 8060
 ---
@@ -76,22 +76,50 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ms.users
+  name: ms-users
   labels:
     #app: frontend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: backend.users
+      app: backend-users
   template:
     metadata:
       labels:
-        app: backend.users
+        app: backend-users
     spec:
       containers:
       - name:  users
-        image: ms_products:latest
+        image: harzen/ms_users:v1
+        ports:
+        - containerPort: 8070
+---
+# 5 - Fake user
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-users-bad
+  labels:
+    #app: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend-users
+  template:
+    metadata:
+      labels:
+        app: backend-users
+    spec:  
+      containers:
+      - name:  users-bad
+        image: buoyantio/bb:v0.0.7
+        args:
+        - terminus
+        - "--h1-server-port=8070"
+        - "--percent-failure=100"
         ports:
         - containerPort: 8070
 ---
@@ -100,22 +128,22 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ms.orders
+  name: ms-orders
   labels:
     #app: frontend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: backend.orders
+      app: backend-orders
   template:
     metadata:
       labels:
-        app: backend.orders
+        app: backend-orders
     spec:
       containers:
       - name:  orders
-        image: ms_orders:latest
+        image: harzen/ms_orders:v1
         ports:
         - containerPort: 8050
 ---
@@ -124,19 +152,19 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ms.emails
+  name: ms-emails
   labels:
     #app: frontend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: backend.emails
+      app: backend-emails
   template:
     metadata:
       labels:
-        app: backend.emails
+        app: backend-emails
     spec:
       containers:
       - name:  emails
-        image: ms_emails:latest
+        image: harzen/ms_emails:v1

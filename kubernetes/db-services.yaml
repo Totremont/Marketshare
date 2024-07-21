@@ -1,0 +1,39 @@
+
+# 1 - Rabbitmq Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-rabbitmq
+spec:
+  type: ClusterIP
+  selector:
+    app: db-rabbitmq
+  ports:
+    - port: 5672
+      # By default and for convenience, the `targetPort` is set to the same value as port
+---
+# 2 - postgres Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-products
+spec:
+  type: ClusterIP
+  selector:
+    app: db-products
+  ports:
+    - port: 5432
+      # By default and for convenience, the `targetPort` is set to the same value as port
+---
+# 3 - mySQL Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-users
+spec:
+  type: ClusterIP
+  selector:
+    app: db-users
+  ports:
+    - port: 3306
+      # By default and for convenience, the `targetPort` is set to the same value as port

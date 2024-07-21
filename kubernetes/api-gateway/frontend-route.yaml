@@ -1,0 +1,17 @@
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: TCPRoute
+metadata:
+  name: marketshare-route
+  namespace: default
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: marketshare-gateway
+      namespace: default
+  rules:
+    - backendRefs:
+        - group: ''
+          kind: Service
+          name: ms-frontend
+          port: 443

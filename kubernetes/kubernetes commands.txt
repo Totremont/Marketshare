@@ -1,0 +1,71 @@
+==Instalar Linkerd en cluster==
+
+*Resource definitions*
+
+1) linkerd install --crds | kubectl apply -f -
+2) linkerd install | kubectl apply -f -
+
+*Checkear estado*
+
+3) linkerd check
+
+*Injectar proxies en pods*
+
+4) kubectl get -n default deploy -o yaml | linkerd inject - | kubectl apply -f -
+
+
+==Instalar Gateway API HAProxy==
+
+*Resource definitions*
+
+1) kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v0.5.1/experimental-install.yaml
+
+*Instalar controller*
+
+2) kubectl apply -f ./haproxy-ingress.yaml
+3) kubectl apply -f https://raw.githubusercontent.com/haproxytech/kubernetes-ingress/master/deploy/tests/config/experimental/gwapi-rbac.yaml
+
+*Instalar gatewayclass*
+
+4) kubectl apply -f ./haproxy-gatewayclass.yaml
+
+*Instalar gateway*
+
+5) kubectl apply -f ./gateway.yaml
+
+*Instalar route*
+
+6) kubectl apply -f ./frontend-route.yaml
+
+==Instalando Viz== 
+
+7) linkerd viz install | kubectl apply -f -
+
+==Instalando Circuit Breaker==
+
+*Anotar los servicios que se desean controlar*
+
+1) kubectl annotate -n default svc/ms-users balancer.linkerd.io/failure-accrual=consecutive
+
+-Usar otras anotaciones para controlar los valores por defecto-
+2) kubectl annotate -n default svc/ms-users balancer.linkerd.io/failure-accrual-consecutive-max-failures=3
+
+*Controlar política*
+
+2) linkerd diagnostics policy -n default svc/ms-users 8070 -o json
+
+*Observar el tráfico por pod*
+
+3) linkerd viz -n circuit-breaking-demo stat deploy
+
+*Observar trafico de ms a ms*
+
+4) linkerd viz -n default stat deploy/frontend --to svc/ms-users
+
+==Escalar deployment==
+
+1) kubectl scale deployments/deployment_name --replicas=4
+
+*Ver replicasets
+
+2) kubectl get rs

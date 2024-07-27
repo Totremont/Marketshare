@@ -18,13 +18,7 @@ export default function RootLayout({children,}: Readonly<{children: React.ReactN
 {
   return (
     
-      <html lang="en">
-        <head>
-          <link
-            rel="icon"
-            href="/favicon_white.svg"/>
-        </head>
-        
+      <html lang="en">       
         <body className={inter.className + "touch-pan-x touch-pan-y h-dvh w-dvh"}>{children}</body>
       </html>
   );

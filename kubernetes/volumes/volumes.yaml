@@ -1,0 +1,130 @@
+#Create the volumes
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-storage
+  labels:
+    db: mysql
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 3Gi
+  hostPath:
+    path: /data/mysql/  #Path from minikube
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-storage
+  labels:
+    db: postgres
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 3Gi
+  hostPath:
+    path: /data/postgres/
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: rabbitmq-storage
+  labels:
+    db: rabbitmq
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 3Gi
+  hostPath:
+    path: /data/rabbitmq/
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pr-images-storage
+  labels:
+    db: pr-images
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 3Gi
+  hostPath:
+    path: /data/pr-images/
+---
+
+#Create the 'volume claims' that will attach to the volumes
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-storage-claim
+spec:
+  storageClassName: manual
+  selector:
+    matchLabels:
+      db: mysql
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-storage-claim
+spec:
+  storageClassName: manual
+  selector:
+    matchLabels:
+      db: postgres
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rabbitmq-storage-claim
+spec:
+  storageClassName: manual
+  selector:
+    matchLabels:
+      db: rabbitmq
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: images-storage-claim
+spec:
+  storageClassName: manual
+  selector:
+    matchLabels:
+      db: pr-images
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi

@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: harzen/ms_frontend:v1
+        image: harzen/ms_frontend:v1.0.1
         ports:
         - containerPort: 443
 ---
@@ -68,8 +68,15 @@ spec:
       containers:
       - name:  products
         image: harzen/ms_products:v1
+        volumeMounts:
+        - mountPath: /usr/src/app/public/images
+          name: ms-products-storage
         ports:
         - containerPort: 8060
+      volumes:
+      - name: ms-products-storage
+        persistentVolumeClaim:
+          claimName: images-storage-claim
 ---
 # 4 - users
 

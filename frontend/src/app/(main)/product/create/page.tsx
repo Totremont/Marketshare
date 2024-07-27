@@ -9,8 +9,8 @@ import { Metadata } from "next";
 import { cookies, headers } from "next/headers";
 
 export const metadata: Metadata = {
-    title: 'Creando producto',
-  };
+    title: 'Crear producto',
+};
 
 export default async function ProductPage({ searchParams }) 
 {   

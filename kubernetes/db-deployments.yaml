@@ -21,8 +21,15 @@ spec:
       - name:  db-rabbitmq
         image: harzen/db_rabbitmq:v1
         imagePullPolicy: Never
+        volumeMounts:
+        - mountPath: /var/lib/rabbitmq
+          name: db-rabbitmq-storage
         ports:
         - containerPort: 5672
+      volumes:
+      - name: db-rabbitmq-storage
+        persistentVolumeClaim:
+          claimName: rabbitmq-storage-claim
 ---
 # Products (PostgreSQL)
 
@@ -45,9 +52,21 @@ spec:
       containers:
       - name:  db-products
         image: harzen/db_postgres:v1
+        securityContext:
+          runAsUser: 0
+        env:
+        - name: PGDATA
+          value: /home/postgres/db-data
         imagePullPolicy: Never
+        volumeMounts:
+        - mountPath: /home/postgres/db-data
+          name: db-postgres-storage
         ports:
         - containerPort: 5432
+      volumes:
+      - name: db-postgres-storage
+        persistentVolumeClaim:
+          claimName: postgres-storage-claim
 ---
 
 # Users (mySQL)
@@ -72,5 +91,12 @@ spec:
       - name:  db-users
         image: harzen/db_mysql:v1
         imagePullPolicy: Never
+        volumeMounts:
+        - mountPath: /var/lib/mysql
+          name: db-mysql-storage
         ports:
         - containerPort: 3306
+      volumes:
+      - name: db-mysql-storage
+        persistentVolumeClaim:
+          claimName: mysql-storage-claim

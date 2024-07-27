@@ -6,9 +6,15 @@ import { findUserByUsernameSSA } from "@/private/actions/home";
 import { formatPrice } from "@/private/utils/mappers";
 import { Metadata } from "next";
 
-export const metadata: Metadata = {
-    title: 'Principal',
-  };
+export const metadata: Metadata = 
+{
+    title: 
+    {
+      template: 'Marketshare | %s',
+      default: 'Marketshare',
+    },
+    description: 'Marketshare is a fictional B2B eCommerce website made as a personal programming project to learn web development and cloud deployment',
+};
   
 export default async function MainLayout({children,}: {children: React.ReactNode}) 
 {

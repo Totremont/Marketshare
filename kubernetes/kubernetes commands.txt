@@ -69,3 +69,13 @@
 *Ver replicasets
 
 2) kubectl get rs
+
+==INSTALAR GRAFANA CON HELM==
+
+1) helm install grafana -n grafana --create-namespace grafana/grafana -f https://raw.githubusercontent.com/linkerd/linkerd2/main/grafana/values.yaml
+
+2) linkerd viz install --set grafana.url=grafana.grafana:3000 | kubectl apply -f -
+
+==Actualizar un deployment==
+
+1) kubectl set image deployments/ms-frontend frontend=harzen/ms_frontend:v1.0.1

@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-users-bad
+  labels:
+    #app: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend-users
+  template:
+    metadata:
+      labels:
+        app: backend-users
+    spec:  
+      containers:
+      - name:  users-bad
+        image: buoyantio/bb:v0.0.7
+        args:
+        - terminus
+        - "--h1-server-port=8070"
+        - "--percent-failure=100"
+        ports:
+        - containerPort: 8070
+---

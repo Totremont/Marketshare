@@ -60,12 +60,18 @@ CREATE TABLE `empresa` (
 --
 
 INSERT INTO `empresa` (`id`, `name`) VALUES
-(1, 'Microsoft'),
-(2, 'IBM'),
-(3, 'Nvidia'),
-(4, 'Apple'),
-(5, 'Toyota'),
-(6, 'McDonald\'s');
+(1, 'Apple'),
+(2, 'Microsoft'),
+(3, 'Saudi Aramco'),
+(4, 'Alphabet'),
+(5, 'Amazon'),
+(6, 'Meta Platforms'),
+(7, 'Berkshire Hathaway'),
+(8, 'Tesla'),
+(9, 'General Motors'),
+(10, 'Starware'),
+(11, 'Omaha Construcciones'),
+(12, 'L-Oreal Paris');
 
 -- --------------------------------------------------------
 

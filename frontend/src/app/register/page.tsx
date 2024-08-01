@@ -59,8 +59,8 @@ export default function SignIn()
     let customOrganizationView = (
         <><input type="text" name="organization" id="organization" required 
         className="mt-3 w-[60%] rounded-md border border-slate-600 bg-gray-800 px-1 py-1 md:w-[300px]" />
-        <button className="text-orange-100 text-sm mt-3
-         block font-semibold" onClick={(ev) => {ev.preventDefault(); setCustomOrganization(false)}}>Elegir de lista</button></>
+        <div className="text-orange-100 text-sm mt-3 cursor-pointer
+         block font-semibold" onClick={(ev) => {ev.preventDefault(); setCustomOrganization(false)}}>Elegir de lista</div></>
     );
 
     let selectOrganizationView = (
@@ -70,8 +70,8 @@ export default function SignIn()
             {orgList.map((it,index) =>
             <option disabled={index==0} key={`org_${index}`} value={it.value}>{it.text}</option> )}
         </select>
-        <button className="text-orange-100 text-sm mt-3
-         block font-semibold" onClick={(ev) => {ev.preventDefault(); setCustomOrganization(true)}}>No encuentro mi empresa</button>
+        <div className="text-orange-100 text-sm mt-3 cursor-pointer
+         block font-semibold" onClick={(ev) => {ev.preventDefault(); setCustomOrganization(true)}}>No encuentro mi empresa</div>
     </>
         
     );

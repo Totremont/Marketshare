@@ -89,7 +89,7 @@ spec:
     spec:
       containers:
       - name:  db-users
-        image: harzen/db_mysql:v1
+        image: harzen/db_mysql:v1.0.1
         imagePullPolicy: Never
         volumeMounts:
         - mountPath: /var/lib/mysql

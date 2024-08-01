@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: harzen/ms_frontend:v1.0.1
+        image: harzen/ms_frontend:v1.0.3
         ports:
         - containerPort: 443
 ---
@@ -104,32 +104,6 @@ spec:
 ---
 # 5 - Fake user
 
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: ms-users-bad
-  labels:
-    #app: frontend
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: backend-users
-  template:
-    metadata:
-      labels:
-        app: backend-users
-    spec:  
-      containers:
-      - name:  users-bad
-        image: buoyantio/bb:v0.0.7
-        args:
-        - terminus
-        - "--h1-server-port=8070"
-        - "--percent-failure=100"
-        ports:
-        - containerPort: 8070
----
 # 5 - orders
 
 apiVersion: apps/v1

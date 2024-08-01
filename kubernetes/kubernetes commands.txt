@@ -79,3 +79,7 @@
 ==Actualizar un deployment==
 
 1) kubectl set image deployments/ms-frontend frontend=harzen/ms_frontend:v1.0.1
+
+==Entrar a bash==
+
+kubectl exec -it -n default db-rabbitmq-676bc5d5fd-txr9p -- /bin/bash

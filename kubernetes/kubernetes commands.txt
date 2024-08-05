@@ -82,4 +82,4 @@
 
 ==Entrar a bash==
 
-kubectl exec -it -n default db-rabbitmq-676bc5d5fd-txr9p -- /bin/bash
+kubectl exec db-rabbitmq-676bc5d5fd-txr9p -- rabbitmqctl list_queues

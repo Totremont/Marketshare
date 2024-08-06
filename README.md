@@ -10,11 +10,11 @@
   <img src="https://img.shields.io/badge/ts%20node-grey?style=for-the-badge&logo=tsnode"/>
   <img src="https://img.shields.io/badge/Spring%20boot-grey?style=for-the-badge&logo=springboot"/>
   <img src="https://img.shields.io/badge/RABBITMQ-grey?style=for-the-badge&logo=rabbitmq"/>
-  <img src="https://img.shields.io/badge/postgresql-grey?style=for-the-badge&logo=postgresql"/>
-  <img src="https://img.shields.io/badge/mysql-grey?style=for-the-badge&logo=mysql"/>
+  <img src="https://img.shields.io/badge/mysql-darkslategrey?style=for-the-badge&logo=postgresql"/>
+  <img src="https://img.shields.io/badge/mysql-saddlebrown?style=for-the-badge&logo=mysql"/>
   <img src="https://img.shields.io/badge/mongodb-grey?style=for-the-badge&logo=mongodb"/>
   <img src="https://img.shields.io/badge/docker-grey?style=for-the-badge&logo=docker"/>
-  <img src="https://img.shields.io/badge/kubernetes-grey?style=for-the-badge&logo=kubernetes"/>
+  <img src="https://img.shields.io/badge/kubernetes-rebeccapurple?style=for-the-badge&logo=kubernetes"/>
   <img src="https://img.shields.io/badge/linkerd-grey?style=for-the-badge&logo=linkerd"/>
   <img src="https://img.shields.io/badge/grafana-grey?style=for-the-badge&logo=grafana"/>
   <img src="https://img.shields.io/badge/helm-grey?style=for-the-badge&logo=helm"/>
@@ -90,7 +90,7 @@ The following table lists the exposed endpoints and their correspondence accordi
 
 <div style="display: flex;">
   <img src="https://img.shields.io/badge/Spring%20boot-grey?style=for-the-badge&logo=springboot"/>
-  <img src="https://img.shields.io/badge/mysql-grey?style=for-the-badge&logo=mysql"/>
+  <img src="https://img.shields.io/badge/mysql-saddlebrown?style=for-the-badge&logo=mysql"/>
 </div>
 
 Stores users' data in a `mySQL` database and exposes CRUD operations. The hash function [BCrypt](https://docs.spring.io/spring-security/reference/features/authentication/password-storage.html) is used to encrypt the passwords.
@@ -106,7 +106,7 @@ After a new account is created, a message carrying the account's email and usern
 <div style="display: flex;">
   <img src="https://img.shields.io/badge/nextJS-grey?style=for-the-badge&logo=nextdotjs"/>
   <img src="https://img.shields.io/badge/prisma-grey?style=for-the-badge&logo=prisma"/>
-  <img src="https://img.shields.io/badge/postgresql-grey?style=for-the-badge&logo=postgresql"/>
+  <img src="https://img.shields.io/badge/mysql-darkslategrey?style=for-the-badge&logo=postgresql"/>
 </div>
 
 This service connects to a `postgreSQL` database through a `Prisma` client exposing corresponding CRUDs operations.
